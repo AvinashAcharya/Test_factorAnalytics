@@ -15,5 +15,6 @@
 
 hello <- function(x=2) {
   print("Hello, world!")
-  print(x*x)
+  y = x*x
+  print(y)
 }
