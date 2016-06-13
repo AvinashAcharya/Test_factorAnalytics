@@ -1,2 +1,3 @@
 # Test_factorAnalytics 
-Test Package for R package- factorAnalytics
+
+Test Package for factorAnalytics package
