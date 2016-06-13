@@ -13,8 +13,7 @@
 #   Check Package:             'Ctrl + Shift + E'
 #   Test Package:              'Ctrl + Shift + T'
 
-hello <- function(x=2) {
+hello <- function() {
   print("Hello, world!")
-  y = x*x
-  print(y)
 }
+
