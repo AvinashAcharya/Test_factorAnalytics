@@ -13,6 +13,7 @@
 #   Check Package:             'Ctrl + Shift + E'
 #   Test Package:              'Ctrl + Shift + T'
 
-hello <- function() {
+hello <- function(x=2) {
   print("Hello, world!")
+  print(x*x)
 }
