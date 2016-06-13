@@ -1,3 +1,3 @@
 # Test_factorAnalytics 
 
-Test Package for factorAnalytics package
+Test Package for factorAnalytics package.
