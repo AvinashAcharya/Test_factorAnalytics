@@ -4,6 +4,7 @@
 #' 
 #' 
 #'Not the final version 
+#'
 
 
 repReturn <- function(object, weights = NULL, ...){
@@ -14,13 +15,23 @@ repReturn <- function(object, weights = NULL, ...){
   UseMethod("repReturn")
 }
 
+
 repReturn.ffm <- function(object, weights = NULL, ...) {
+  
+  which.numeric <- sapply(object$data[,object$exposure.vars,drop=FALSE], is.numeric)
+  exposures.num <- object$exposure.vars[which.numeric]
+  exposures.char <- object$exposure.vars[!which.numeric]
   
   # get factor model returns from 
   facRet = object$factor.returns
-  alpha = facRet[,1]
-  colnames(alpha) = 'Alpha'
-  facRet = facRet[,-1]
+  
+  if(!length(exposures.char)){
+    alpha = facRet[,1]
+    colnames(alpha) = 'Alpha'
+    facRet = facRet[,-1]
+  }else{
+    alpha = c()
+  }
   sig = object$residuals
   
   # get parameters from the factor model fit  
@@ -43,9 +54,6 @@ repReturn.ffm <- function(object, weights = NULL, ...) {
   sig.p <- as.xts(rowSums(coredata(sig.p)), order.by = index(sig.p))
   colnames(sig.p) = 'Residuals'
   
-  which.numeric <- sapply(object$data[,object$exposure.vars,drop=FALSE], is.numeric)
-  exposures.num <- object$exposure.vars[which.numeric]
-  exposures.char <- object$exposure.vars[!which.numeric]
   
   if(length(exposures.char)){
     dat <- object$data[object$data$DATE==object$time.periods[TP], ]
@@ -74,26 +82,31 @@ repReturn.ffm <- function(object, weights = NULL, ...) {
   facRet.p = as.xts(rowSums(coredata(rk)), order.by = index(sig.p))
   colnames(facRet.p) = 'facRet'
   
-  ret.p = alpha + facRet.p + sig.p
+  if(!length(exposures.char)){
+    ret.p = alpha + facRet.p + sig.p
+  }else{
+    ret.p =facRet.p + sig.p
+  }  
+  
   colnames(ret.p) = 'Return'
   
   #######check the validility of return##########
   #  d = object$data
-  #  c = tapply(d$RETURN, index = list(d$DATE), fun = sum)
+  #  c = tapply(d$RETURN, INDEX = list(d$DATE), FUN = sum)
   #  c = as.xts(c/n.assets,order.by=index(sig.p))
   #  same with ret.p
   ###############################################
-
+  
   dat = merge(ret.p, alpha, facRet.p, rk, sig.p)
-    
+  
   tsPlotMP(dat, yname = "Portfolio Return Report", scaleType = "free")
   
-  for(i in 1:ncol(dat)){
-     name = colnames(dat)[i]
-     boxplot(coredata(dat[,i]), col=5,
-            cex.names=0.5,
-            main=paste("Distribution for",name))
-  }  
+  #for(i in 1:ncol(dat)){
+  #  name = colnames(dat)[i]
+  #  boxplot(coredata(dat[,i]), col=5,
+  #          cex.names=0.5,
+  #          main=paste("Distribution for",name))
+  #}  
   
   boxplot(coredata(dat),col=5,
           cex.names=0.5,
