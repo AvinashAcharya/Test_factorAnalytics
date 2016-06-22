@@ -1,27 +1,29 @@
-#' @title Portfolio tabular reports for risk decomposition and performance analysis
+#' @title Portfolio return reports for risk decomposition and performance analysis
 #' 
 #' @description 
 #' 
 #' 
-#' 
-# Not the final version 
+#'Not the final version 
 
-repExposures <- function(object, weights = NULL, ...){
+
+repReturn <- function(object, weights = NULL, ...){
   # check input object validity
   if (!inherits(object, c("tsfm", "sfm", "ffm"))) {
     stop("Invalid argument: Object should be of class 'tsfm', 'sfm' or 'ffm'.")
   }
-  UseMethod("repExposures")
+  UseMethod("repReturn")
 }
 
-
-repExposures.ffm <- function(object, weights = NULL, ...) {
+repReturn.ffm <- function(object, weights = NULL, ...) {
   
-  which.numeric <- sapply(object$data[,object$exposure.vars,drop=FALSE], is.numeric)
-  exposures.num <- object$exposure.vars[which.numeric]
-  exposures.char <- object$exposure.vars[!which.numeric]
+  # get factor model returns from 
+  facRet = object$factor.returns
+  alpha = facRet[,1]
+  colnames(alpha) = 'Alpha'
+  facRet = facRet[,-1]
+  sig = object$residuals
   
-  # get parameter from the factor model fit
+  # get parameters from the factor model fit  
   beta = object$beta
   n.assets = nrow(beta)
   asset.names <- unique(object$data[[object$asset.var]])
@@ -35,6 +37,15 @@ repExposures.ffm <- function(object, weights = NULL, ...) {
   if(n.assets != length(weights)){
     stop("Invalid argument: incorrect number of weights")
   }
+  
+  #portfolio residuals
+  sig.p <- sig * weights
+  sig.p <- as.xts(rowSums(coredata(sig.p)), order.by = index(sig.p))
+  colnames(sig.p) = 'Residuals'
+  
+  which.numeric <- sapply(object$data[,object$exposure.vars,drop=FALSE], is.numeric)
+  exposures.num <- object$exposure.vars[which.numeric]
+  exposures.char <- object$exposure.vars[!which.numeric]
   
   if(length(exposures.char)){
     dat <- object$data[object$data$DATE==object$time.periods[TP], ]
@@ -59,33 +70,42 @@ repExposures.ffm <- function(object, weights = NULL, ...) {
   }
   X = as.xts(X[,-1],order.by = X[,1])
   
-  ###generate plots
-  ##print(tsPlotMP(X[,exposures.num]/100, yname = "Portfolio Exposures", scaleType = "same"))
+  rk = as.xts(coredata(X) * coredata(facRet), order.by = index(sig.p)) 
+  facRet.p = as.xts(rowSums(coredata(rk)), order.by = index(sig.p))
+  colnames(facRet.p) = 'facRet'
   
-  #for(i in 1:ncol(X[,exposures.num])){
-  #  name = colnames(X[,exposures.num])[i]
-  #  barplot(X[,exposures.num][,i],las=2,col=5,
-  #          names.arg= as.yearmon(index(X)),
-  #          cex.names=0.5,
-  #          main=paste("Time Series for",name))
-  #}
+  ret.p = alpha + facRet.p + sig.p
+  colnames(ret.p) = 'Return'
   
-  tsPlotMP(X[,exposures.num], yname = "Portfolio Exposures", scaleType = "free")
+  #######check the validility of return##########
+  #  d = object$data
+  #  c = tapply(d$RETURN, index = list(d$DATE), fun = sum)
+  #  c = as.xts(c/n.assets,order.by=index(sig.p))
+  #  same with ret.p
+  ###############################################
+
+  dat = merge(ret.p, alpha, facRet.p, rk, sig.p)
+    
+  tsPlotMP(dat, yname = "Portfolio Return Report", scaleType = "free")
   
-  for(i in 1:ncol(X[,exposures.num])){
-    name = colnames(X[,exposures.num])[i]
-    boxplot(coredata(X[,exposures.num][,i]), col=5,
+  for(i in 1:ncol(dat)){
+     name = colnames(dat)[i]
+     boxplot(coredata(dat[,i]), col=5,
             cex.names=0.5,
             main=paste("Distribution for",name))
   }  
   
-  boxplot(coredata(X[,exposures.num]), col=5,
+  boxplot(coredata(dat),col=5,
           cex.names=0.5,
           main=paste("Distribution for All Components"))
   
+  
+  
   # tabular report 
-  #sum = summary(coredata(X))
+  sum = summary(coredata(dat))
+  print(sum)
 }
+
 
 # plotting
 library(lattice)
