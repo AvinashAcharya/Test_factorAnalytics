@@ -6,6 +6,7 @@
 #' 
 # Not the final version 
 
+
 repExposures <- function(object, weights = NULL, ...){
   # check input object validity
   if (!inherits(object, c("tsfm", "sfm", "ffm"))) {
@@ -72,19 +73,20 @@ repExposures.ffm <- function(object, weights = NULL, ...) {
   
   tsPlotMP(X[,exposures.num], yname = "Portfolio Exposures", scaleType = "free")
   
-  for(i in 1:ncol(X[,exposures.num])){
-    name = colnames(X[,exposures.num])[i]
-    boxplot(coredata(X[,exposures.num][,i]), col=5,
-            cex.names=0.5,
-            main=paste("Distribution for",name))
-  }  
+  #for(i in 1:ncol(X[,exposures.num])){
+  #  name = colnames(X[,exposures.num])[i]
+  #  boxplot(coredata(X[,exposures.num][,i]), col=5,
+  #          cex.names=0.5,
+  #          main=paste("Distribution for",name))
+  #}  
   
   boxplot(coredata(X[,exposures.num]), col=5,
           cex.names=0.5,
           main=paste("Distribution for All Components"))
   
   # tabular report 
-  #sum = summary(coredata(X))
+  sum = summary(coredata(X))
+  print(sum)
 }
 
 # plotting
