@@ -31,10 +31,12 @@ repExposures.ffm <- function(object, weights = NULL, ...) {
   # check if there is weight input
   if(is.null(weights)){
     weights = rep(1/n.assets, n.assets)
-  }
-  # check if number of weight parameter matches 
-  if(n.assets != length(weights)){
-    stop("Invalid argument: incorrect number of weights")
+  }else{
+    # check if number of weight parameter matches 
+    if(n.assets != length(weights)){
+      stop("Invalid argument: incorrect number of weights")
+    }
+    weights = weights[asset.names]
   }
   
   if(length(exposures.char)){

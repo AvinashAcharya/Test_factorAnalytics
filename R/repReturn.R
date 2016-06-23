@@ -44,11 +44,14 @@ repReturn.ffm <- function(object, weights = NULL, ...) {
   # check if there is weight input
   if(is.null(weights)){
     weights = rep(1/n.assets, n.assets)
+  }else{
+    # check if number of weight parameter matches 
+    if(n.assets != length(weights)){
+      stop("Invalid argument: incorrect number of weights")
+    }
+    weights = weights[asset.names]
   }
-  # check if number of weight parameter matches 
-  if(n.assets != length(weights)){
-    stop("Invalid argument: incorrect number of weights")
-  }
+
   
   #portfolio residuals
   sig.p <- sig * weights
