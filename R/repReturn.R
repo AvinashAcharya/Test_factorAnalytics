@@ -21,6 +21,7 @@ repReturn.ffm <- function(object, weights = NULL, ...) {
   which.numeric <- sapply(object$data[,object$exposure.vars,drop=FALSE], is.numeric)
   exposures.num <- object$exposure.vars[which.numeric]
   exposures.char <- object$exposure.vars[!which.numeric]
+  exposures.char.name <- as.vector(unique(object$data[,exposures.char]))
   
   # get factor model returns from 
   facRet = object$factor.returns
@@ -90,29 +91,15 @@ repReturn.ffm <- function(object, weights = NULL, ...) {
   
   colnames(ret.p) = 'Return'
   
-  #######check the validility of return##########
-  #  d = object$data
-  #  c = tapply(d$RETURN, INDEX = list(d$DATE), FUN = sum)
-  #  c = as.xts(c/n.assets,order.by=index(sig.p))
-  #  same with ret.p
-  ###############################################
-  
   dat = merge(ret.p, alpha, facRet.p, rk, sig.p)
-  
-  tsPlotMP(dat, yname = "Portfolio Return Report", scaleType = "free")
-  
-  #for(i in 1:ncol(dat)){
-  #  name = colnames(dat)[i]
-  #  boxplot(coredata(dat[,i]), col=5,
-  #          cex.names=0.5,
-  #          main=paste("Distribution for",name))
-  #}  
   
   boxplot(coredata(dat),col=5,
           cex.names=0.5,
-          main=paste("Distribution for All Components"))
+          main=paste("Distribution of Factors"))
   
-  
+  tsPlotMP(dat[,c('Return','Alpha','facRet','Residuals')], main = "Time Series of Factors", scaleType = "free", layout = c(3,3))
+  tsPlotMP(dat[,c('facRet',exposures.num,'Residuals')], main = "Time Series of Risk Indices", scaleType = "free", layout = c(3,3))
+  tsPlotMP(dat[,c(exposures.char.name)], main = "Time Series of Sectors", scaleType = "free", layout = c(3,4))
   
   # tabular report 
   sum = summary(coredata(dat))
@@ -125,13 +112,14 @@ library(lattice)
 
 tsPlotMP = function(ret,add.grid = F,cex = 1.0, layout = NULL,type = "l",
                     pct = 100, yname = "RETURNS (%)",scaleType = "free",
-                    lwd = 1, color = "black")
+                    lwd = 1, color = "black", main)
 {
   if(add.grid) {type = c("l","g")} else
   {type = type}
-  print( xyplot(pct*ret,par.strip.text = list(cex = cex),type = type,
+  pl = xyplot(pct*ret,par.strip.text = list(cex = cex),type = type,
                 xlab="", ylab = list(label = yname,cex = cex), lwd = lwd,
                 scales = list(y = list(cex = cex,relation=scaleType),
                               x = list(cex = cex)),layout = layout,
-                col = color, strip = F, strip.left = T) )
+                col = color, strip = F, strip.left = T, main=main)
+  print(pl)
 }
