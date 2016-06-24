@@ -63,16 +63,25 @@ repExposures.ffm <- function(object, weights = NULL, ...) {
   X = as.xts(X[,-1],order.by = X[,1])
   
   ###generate plots
+  for(i in 1:ncol(X[,exposures.num])){
+    name = colnames(X[,exposures.num])[i]
+    barplot(X[,exposures.num][,i],las=2,col=5,
+            names.arg= as.yearmon(index(X)),
+            cex.names=0.5,
+            main=paste("Factor Exposure for",name))
+  } 
   
-  boxplot(coredata(X[,exposures.num]), col=5,
-          cex.names=0.5,
+  boxplot(100*coredata(X[,exposures.num]), col=5,
+          cex.names=0.5, notch = T,
           main=paste("Distributions of Exposures"))
   
-  tsPlotMP(X[,exposures.num], main = "Time Series of Exposures", scaleType = "free", layout = c(3,3))
+  tsPlotMP(X[,exposures.num], main = "Factor Exposures", scaleType = "free", layout = c(3,3))
   
   # tabular report 
-  sum = summary(coredata(X))
-  print(sum)
+  mean = apply(X[,exposures.num], 2, mean)
+  vol = apply(X[,exposures.num], 2, sd)
+  sum = rbind(mean, vol)
+  rownames(sum) = c('mean','volatility')
 }
 
 # plotting
@@ -80,14 +89,18 @@ library(lattice)
 
 tsPlotMP = function(ret,add.grid = F,cex = 1.0, layout = NULL,type = "l",
                     pct = 100, yname = "RETURNS (%)",scaleType = "free",
-                    lwd = 1, color = "black", main)
+                    stripLeft = T,main = NULL,
+                    lwd = 1, color = "black")
 {
+  strip.left = stripLeft
+  strip = !strip.left
   if(add.grid) {type = c("l","g")} else
   {type = type}
+  
   pl = xyplot(pct*ret,par.strip.text = list(cex = cex),type = type,
-                xlab="", ylab = list(label = yname,cex = cex), lwd = lwd,
-                scales = list(y = list(cex = cex,relation=scaleType),
-                              x = list(cex = cex)),layout = layout,
-                col = color, strip = F, strip.left = T, main = main)
+              xlab="", ylab = list(label = yname,cex = cex), lwd = lwd,
+              scales = list(y = list(cex = cex,relation=scaleType),
+                            x = list(cex = cex)),layout = layout,main = main,
+              col = color, strip = strip, strip.left = strip.left)
   print(pl)
 }

@@ -95,18 +95,15 @@ repReturn.ffm <- function(object, weights = NULL, ...) {
   colnames(ret.p) = 'Return'
   
   dat = merge(ret.p, alpha, facRet.p, rk, sig.p)
-  
+
   boxplot(coredata(dat),col=5,
           cex.names=0.5,
-          main=paste("Distribution of Factors"))
+          main=paste("Portfolio Detailed Returns Decomposition"))
   
-  tsPlotMP(dat[,c('Return','Alpha','facRet','Residuals')], main = "Time Series of Factors", scaleType = "free", layout = c(3,3))
-  tsPlotMP(dat[,c('facRet',exposures.num,'Residuals')], main = "Time Series of Risk Indices", scaleType = "free", layout = c(3,3))
-  tsPlotMP(dat[,c(exposures.char.name)], main = "Time Series of Sectors", scaleType = "free", layout = c(3,4))
+  tsPlotMP(dat[,c('Return','Alpha','facRet','Residuals')], main = "Portfolio Returns Decomposition", scaleType = "free", layout = c(3,3))
+  tsPlotMP(dat[,c('facRet',exposures.num,'Residuals')], main = "Portfolio Individual Style Factor Returns", scaleType = "free", layout = c(3,3))
+  tsPlotMP(dat[,c(exposures.char.name)], main = "Portfolio Sector Returns", scaleType = "free", layout = c(3,4))
   
-  # tabular report 
-  sum = summary(coredata(dat))
-  print(sum)
 }
 
 
@@ -115,14 +112,18 @@ library(lattice)
 
 tsPlotMP = function(ret,add.grid = F,cex = 1.0, layout = NULL,type = "l",
                     pct = 100, yname = "RETURNS (%)",scaleType = "free",
-                    lwd = 1, color = "black", main)
+                    stripLeft = T,main = NULL,
+                    lwd = 1, color = "black")
 {
+  strip.left = stripLeft
+  strip = !strip.left
   if(add.grid) {type = c("l","g")} else
   {type = type}
+  
   pl = xyplot(pct*ret,par.strip.text = list(cex = cex),type = type,
-                xlab="", ylab = list(label = yname,cex = cex), lwd = lwd,
-                scales = list(y = list(cex = cex,relation=scaleType),
-                              x = list(cex = cex)),layout = layout,
-                col = color, strip = F, strip.left = T, main=main)
+              xlab="", ylab = list(label = yname,cex = cex), lwd = lwd,
+              scales = list(y = list(cex = cex,relation=scaleType),
+                            x = list(cex = cex)),layout = layout,main = main,
+              col = color, strip = strip, strip.left = strip.left)
   print(pl)
 }
