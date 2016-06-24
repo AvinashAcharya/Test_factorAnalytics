@@ -26,13 +26,3 @@ tsPlotMP = function(ret,add.grid = F,cex = 1.0, layout = NULL,type = "l",
 }
 
 
-library(lattice)
-library(PerformanceAnalytics)
-data(edhec)
-ret6 = edhec[,1:6]
-tsPlotMP(ret6)
-tsPlotMP(ret6,scaleType = "same")
-tsPlotMP(ret6,stripLeft=F)
-ret = edhec
-tsPlotMP(ret, layout = c(2,4,2))
-
