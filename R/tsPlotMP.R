@@ -7,7 +7,6 @@
 #'
 
 # Lattice type time series plotting function
-library(lattice)
 tsPlotMP = function(ret,add.grid = F,cex = 1.0, layout = NULL,type = "l",
                     pct = 100, yname = "RETURNS (%)",scaleType = "free",
                     stripLeft = T,main = NULL,
