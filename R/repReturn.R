@@ -4,7 +4,7 @@
 #' 
 #' 
 #'Not the final version 
-#'
+
 
 
 repReturn <- function(object, weights = NULL, ...){
