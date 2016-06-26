@@ -60,7 +60,6 @@ portRsqr <- function(ffmObj, weight=NULL, ...)
   returns = matrix(data = ffmObj$data[[ffmObj$ret.var]] , nrow = n.assets) #NxT Matrix of Returns
   residuals = t(ffmObj$residuals) #NxT Matrix of residual returns
   time.periods = length(ffmObj$time.periods)
-  r2<-0
   r2 = 1 - ((t(residuals[,1:time.periods]) %*% W %*% residuals[,1:time.periods]) / (t(returns[,1:time.periods]) %*% W %*% returns[,1:time.periods])) 
   r2<- diag(r2)
   names(r2) <- names(ffmObj$r2)
@@ -68,6 +67,6 @@ portRsqr <- function(ffmObj, weight=NULL, ...)
   p <- K-1
   adj.r2 <- 1 - ((n.assets - 1)*(1- r2) / (n.assets - p - 1))
   
-  return(list(port.Rsqr = r2, port.AdjRsqr = adj.r2))
+  list(port.Rsqr = r2, port.AdjRsqr = adj.r2)
 }
 
