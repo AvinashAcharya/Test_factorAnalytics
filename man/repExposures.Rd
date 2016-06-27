@@ -2,41 +2,56 @@
 % Please edit documentation in R/repExposures.R
 \name{repExposures}
 \alias{repExposures}
-\title{Portfolio return reports for risk decomposition and performance analysis}
+\title{Portfolio Exposures Report}
 \usage{
-repExposures(ffmObj, weights = NULL, isPlot = FALSE, ...)
+repExposures(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE,
+  scaleType = "free", stripLeft = TRUE, layout = NULL, digits = 1, ...)
 }
 \arguments{
-\item{ffmObj}{fit object of class \code{tsfm}, \code{sfm} or \code{ffm}.}
+\item{ffmObj}{an object of class ffm returned by fitFfm.}
 
 \item{isPlot}{logical variable to generate plot or not.}
 
-\item{...}{additional arguments unused}
+\item{isPrint}{logical variable to print numeric summary or not.}
+
+\item{scaleType}{scaleType controls if use a same scale of y-axis, choose from c('same', 'free')}
+
+\item{stripLeft}{logical variable to choose the position of strip, "TRUE" for drawing strips on the left of each panel, "FALSE" for drawing strips on the top of each panel. Used only when isPlot = 'TRUE'}
+
+\item{layout}{layout is a numeric vector of length 2 or 3 giving the number of columns, rows, and pages (optional) in a multipanel display. Used only when isPlot = 'TRUE'}
+
+\item{digits}{digits of printout numeric summary. Used only when isPrint = 'TRUE'}
+
+\item{...}{other graphics parameters available in tsPlotMP can be passed in through the ellipses, see \code{\link[factorAnalytics]{tsPlotMP}}}
 
 \item{weight}{a vector of weights of the assets in the portfolio. Default is NULL.}
 }
 \description{
-conduct portfolio exposures analysis reporting
+Calculate k factor time series based on fundamental factor model. This method takes fundamental factor model fit, "ffm" object, and portfolio weight as inputs and generates numeric summary and plot visualization.
 }
 \examples{
 
-#Load the data 
+#Load fundamental and return data 
 data("stocks145scores6")
- 
-#Fit a Ffm
-fit <- fitFfm(data = data145, # Change fit object to mixed.mod
-exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
-date.var = "DATE", 
-ret.var = "RETURN", 
-asset.var = "TICKER", 
-fit.method="WLS",
-z.score = F)
-              
-#Conduct portfolio exposures analysis reporting with default weights.               
-repExposures(fit)
+dat = stocks145scores6
+dat$DATE = as.yearmon(dat$DATE)
+dat = dat[dat$DATE >=as.yearmon("2008-01-01") & dat$DATE <= as.yearmon("2012-12-31"),]
 
+#Load long-only GMV weights for the return data
+data("wtsStocks145GmvLo")
+wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)  
+                                                     
+#fit a fundamental factor model
+fit <- fitFfm(data = dat, 
+              exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
+              date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
+              fit.method="WLS", z.score = T)
+
+repExposures(fit, wtsStocks145GmvLo, isPlot = FALSE, digits = 4)
+repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE, add.grid = T, scaleType = 'same', layout = c(3,2))
+repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE, add.grid = F, zeroLine = T, color = 'Blue')
 }
 \author{
-Lingjie Yi
+Douglas Martin, Lingjie Yi
 }
 
