@@ -15,7 +15,8 @@ Depends:
     xts (>= 0.9)
 Imports:
     zoo,
-	lattice
+	lattice,
+	factorAnalytics
 Suggests:
     testthat, roxygen2
 LazyLoad: yes
