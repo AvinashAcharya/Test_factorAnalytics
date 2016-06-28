@@ -3,7 +3,9 @@
 #' @description
 #'  Calculate and plot the time series of the R-squared values, t-statistic vales and the
 #'  number of risk indices with significant t-stats for a fundamentally fit object.
-#' 
+#' @importFrom xts xts
+#' @importFrom zoo plot.zoo, as.yearmon
+#'  
 #' @param ffmObj  an object of class \code{ffm} produced by \code{fitFfm}
 #' @param isPlot  logical. If \code{TRUE} the barplots are plotted.
 #' @param col     A specification for the default plotting color. Default is cyan

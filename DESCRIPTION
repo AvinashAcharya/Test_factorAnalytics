@@ -1,13 +1,24 @@
 Package: TestfactorAnalytics
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1
+Title: Development of factorAnalytics package as a part of GSoC-2016
+Version: 1.1
 Date: 2016-06-13
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
-LazyData: TRUE
+Author: Avinash Acharya, Lingjie Yi 
+Maintainer: <acharya@uw.edu>, <lingjy@uw.edu>
+Description: Linear factor model fitting for asset returns (three major types- time series, fundamental and statistical factor models);
+			 related risk (volatility, VaR and ES) and performance attribution (factor-contributed vs idiosyncratic returns);
+			 tabular displays of risk and performance reports; 
+			 factor model Monte Carlo, single and multiple imputation methods for simulating returns and backfilling unequal histories.
+License: GPL-2
+Depends:
+    R (>= 3.0.0),
+    xts (>= 0.9)
+Imports:
+    zoo,
+	lattice
 Suggests:
-    testthat
+    testthat, roxygen2
+LazyLoad: yes
+LazyDataCompression: xz
+URL: http://r-forge.r-project.org/projects/returnanalytics/
 RoxygenNote: 5.0.1
