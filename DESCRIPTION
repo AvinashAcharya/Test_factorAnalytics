@@ -10,6 +10,7 @@ Description: Linear factor model fitting for asset returns (three major types- t
 			 tabular displays of risk and performance reports; 
 			 factor model Monte Carlo, single and multiple imputation methods for simulating returns and backfilling unequal histories.
 License: GPL-2
+Remotes: braverock/factorAnalytics
 Depends:
     R (>= 3.0.0),
     xts (>= 0.9)
@@ -19,7 +20,6 @@ Imports:
 	factorAnalytics
 Suggests:
     testthat, roxygen2
-Remotes: avinashacharya/Test_factorAnalytics
 LazyLoad: yes
 LazyDataCompression: xz
 URL: http://r-forge.r-project.org/projects/returnanalytics/
