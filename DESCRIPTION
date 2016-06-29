@@ -19,6 +19,7 @@ Imports:
 	factorAnalytics
 Suggests:
     testthat, roxygen2
+Remotes: avinashacharya/Test_factorAnalytics
 LazyLoad: yes
 LazyDataCompression: xz
 URL: http://r-forge.r-project.org/projects/returnanalytics/

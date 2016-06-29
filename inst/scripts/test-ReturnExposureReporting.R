@@ -6,7 +6,7 @@
 #' @author Lingjie Yi
 
 
-library(factorAnalytics)
+require(factorAnalytics)
 ##sample data
 load("stocks145scores6.rda")
 stacked.df = data145
@@ -16,7 +16,7 @@ load("wts145stocksGMVlong.rda")
 head(wts.lo)
 
 # GET FIVE YEAR SEGMENT
-short = T
+short = TRUE
 if(short)
 {stacked.df$DATE = as.yearmon(stacked.df$DATE)
 stacked.df = stacked.df[stacked.df$DATE >=as.yearmon("2008-01-01") &
@@ -30,7 +30,7 @@ industry.mod <- fitFfm(data = stacked.df, # Change fit object to mixed.mod
                        ret.var = "RETURN", 
                        asset.var = "TICKER", 
                        fit.method="WLS",
-                       z.score = F)
+                       z.score = FALSE)
 
 
 repExposures(industry.mod, wts.lo, isPlot = TRUE)

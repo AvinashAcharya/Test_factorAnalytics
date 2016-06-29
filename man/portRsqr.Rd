@@ -32,6 +32,7 @@ Calcluate and plot the R-squared and Adjusted R-squared for a portfolio of asset
  data("factorDataSetDjia5Yrs")
 
 #Fit a Ffm
+require(factorAnalytics)
  fit <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN",
               date.var="DATE", exposure.vars="SECTOR")
 

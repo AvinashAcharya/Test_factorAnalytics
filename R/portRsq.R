@@ -3,6 +3,8 @@
 #' @description Calcluate and plot the R-squared and Adjusted R-squared for a portfolio of assets
 #'
 #' @importFrom zoo as.yearmon
+#' @importFrom factorAnalytics fitFfm
+#' 
 #' @param ffmObj   an object of class \code{ffm} produced by \code{fitFfm}
 #' @param weight   a vector of weights of the assets in the portfolio. Default is NULL.
 #' @param rsq      logical; if \code{TRUE}, R-squared values are computed for the portfolio. Default is \code{TRUE}.
@@ -20,6 +22,7 @@
 #'  data("factorDataSetDjia5Yrs")
 #'
 #' #Fit a Ffm
+#' require(factorAnalytics)
 #'  fit <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN",
 #'               date.var="DATE", exposure.vars="SECTOR")
 #'

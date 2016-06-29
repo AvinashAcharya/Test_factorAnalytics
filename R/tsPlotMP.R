@@ -2,7 +2,8 @@
 #' 
 #' @description Plot time series with specific plotting parameters 
 #'
-#' @importForm lattice panel.abline
+#' @importFrom lattice panel.abline xyplot
+#' @importFrom xts xts
 #' 
 #' @param ret an time series exposure/return object  
 #' @param stripLeft logical variable to choose the position of strip, "TRUE" for drawing strips on the left of each panel, "FALSE" for drawing strips on the top of each panel
@@ -14,7 +15,8 @@
 #' @author Douglas Martin, Lingjie Yi
 #' @examples 
 #'
-#' #Load the data 
+#' #Load the data
+#' require(factorAnalytics) 
 #' data("stocks145scores6")
 #' dat = stocks145scores6
 #' returns = tapply(dat$RETURN,list(dat$DATE,dat$TICKER),I)
@@ -22,8 +24,8 @@
 #' 
 #' #generate return time series plot               
 #' tsPlotMP(ret, color = 'Blue')
-#' tsPlotMP(ret, scaleType = "same", zeroLine = F)
-#' tsPlotMP(ret, stripLeft = F, main = 'Time Series Plot')
+#' tsPlotMP(ret, scaleType = "same", zeroLine = FALSE)
+#' tsPlotMP(ret, stripLeft = FALSE, main = 'Time Series Plot')
 #'  
 #'    
 #' @export
