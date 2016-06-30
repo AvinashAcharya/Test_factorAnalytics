@@ -6,6 +6,7 @@
 #' @importFrom xts as.xts
 #' @importFrom graphics boxplot par axis text 
 #' @importFrom stats sd
+#' @importFrom utils menu
 #' 
 #' @param ffmObj an object of class ffm returned by fitFfm.
 #' @param weights a vector of weights of the assets in the portfolio. Default is NULL.

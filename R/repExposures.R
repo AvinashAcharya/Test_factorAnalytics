@@ -5,6 +5,7 @@
 #' @importFrom zoo as.yearmon coredata index
 #' @importFrom graphics barplot boxplot
 #' @importFrom stats sd
+#' @importFrom utils menu
 #' 
 #' @param ffmObj an object of class ffm returned by fitFfm.
 #' @param weights a vector of weights of the assets in the portfolio. Default is NULL.
