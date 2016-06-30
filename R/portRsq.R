@@ -4,6 +4,7 @@
 #'
 #' @importFrom zoo as.yearmon
 #' @importFrom factorAnalytics fitFfm
+#' @importFrom graphics barplot
 #' 
 #' @param ffmObj   an object of class \code{ffm} produced by \code{fitFfm}
 #' @param weight   a vector of weights of the assets in the portfolio. Default is NULL.

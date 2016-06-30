@@ -7,6 +7,7 @@
 #' @importFrom zoo plot.zoo
 #' @importFrom zoo as.yearmon
 #' @importFrom factorAnalytics fitFfm
+#' @importFrom graphics barplot lines abline 
 #'  
 #' @param ffmObj  an object of class \code{ffm} produced by \code{fitFfm}
 #' @param isPlot  logical. If \code{TRUE} the barplots are plotted.
