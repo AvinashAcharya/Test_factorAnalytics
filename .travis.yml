@@ -4,6 +4,7 @@ warnings_are_errors: true
 r_github_packages:
   - hadley/testthat
   - jimhester/covr
+  - braverock/factorAnalytics
  
 after_success:
   - Rscript -e 'library(covr);coveralls()'
