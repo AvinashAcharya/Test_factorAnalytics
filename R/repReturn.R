@@ -141,10 +141,7 @@ repReturn <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, lay
     
     which.vec <- which
     which <- which[1]
-    #' 1 = Time Series plot of portfolio returns decomposition, \cr
-    #' 2 = Time Series plot of portfolio style factors returns, \cr
-    #' 3 = Time Series plot of portfolio sector returns, \cr
-    #' 4 = Barplot of Portfolio Returns Components. \cr \cr    
+    
     repeat {
       if (is.null(which)) {
         which <- 

@@ -2,6 +2,7 @@
 
 export(portRsqr)
 export(repExposures)
+export(repReturn)
 export(rsqTstatsTs)
 export(tsPlotMP)
 importFrom(factorAnalytics,fitFfm)
