@@ -5,7 +5,8 @@
 \title{Portfolio Exposures Report}
 \usage{
 repExposures(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE,
-  scaleType = "free", stripLeft = TRUE, layout = NULL, digits = 1, ...)
+  scaleType = "free", stripLeft = TRUE, layout = NULL, digits = 1,
+  which = NULL, ...)
 }
 \arguments{
 \item{ffmObj}{an object of class ffm returned by fitFfm.}
@@ -24,7 +25,15 @@ repExposures(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE,
 
 \item{digits}{digits of printout numeric summary. Used only when isPrint = 'TRUE'}
 
-\item{...}{other graphics parameters available in tsPlotMP can be passed in through the ellipses, see \code{\link[factorAnalytics]{tsPlotMP}}}
+\item{which}{a number to indicate the type of plot. If a subset of the plots 
+is required, specify a subset of the numbers 1:3 for plots. If \code{which=NULL} (default), the following menu 
+appears: \cr \cr
+For plots of a group of assets: \cr
+1 = Time Series plot of factor exposures, \cr
+2 = Boxplot of factor exposures, \cr
+3 = Barplot of factor exposures. \cr \cr}
+
+\item{...}{other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses, see \code{\link[factorAnalytics]{tsPlotMP}}}
 }
 \description{
 Calculate k factor time series based on fundamental factor model. This method takes fundamental factor model fit, "ffm" object, and portfolio weight as inputs and generates numeric summary and plot visualization.
@@ -49,9 +58,9 @@ fit <- fitFfm(data = dat,
               fit.method="WLS", z.score = TRUE)
 
 repExposures(fit, wtsStocks145GmvLo, isPlot = FALSE, digits = 4)
-repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE,
+repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 2,
              add.grid = TRUE, scaleType = 'same', layout = c(3,2))
-repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE,
+repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE, which = 1,
              add.grid = FALSE, zeroLine = TRUE, color = 'Blue')
 }
 \author{

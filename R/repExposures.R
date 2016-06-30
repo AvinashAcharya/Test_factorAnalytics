@@ -14,7 +14,14 @@
 #' @param layout layout is a numeric vector of length 2 or 3 giving the number of columns, rows, and pages (optional) in a multipanel display. Used only when isPlot = 'TRUE'
 #' @param scaleType scaleType controls if use a same scale of y-axis, choose from c('same', 'free')
 #' @param digits digits of printout numeric summary. Used only when isPrint = 'TRUE'
-#' @param ... other graphics parameters available in tsPlotMP can be passed in through the ellipses, see \code{\link[factorAnalytics]{tsPlotMP}}
+#' @param which a number to indicate the type of plot. If a subset of the plots 
+#' is required, specify a subset of the numbers 1:3 for plots. If \code{which=NULL} (default), the following menu 
+#' appears: \cr \cr
+#' For plots of a group of assets: \cr
+#' 1 = Time Series plot of factor exposures, \cr
+#' 2 = Boxplot of factor exposures, \cr
+#' 3 = Barplot of factor exposures. \cr \cr
+#' @param ... other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses, see \code{\link[factorAnalytics]{tsPlotMP}}
 #' @author Douglas Martin, Lingjie Yi
 #' @examples 
 #'
@@ -36,15 +43,15 @@
 #'               fit.method="WLS", z.score = TRUE)
 #' 
 #' repExposures(fit, wtsStocks145GmvLo, isPlot = FALSE, digits = 4)
-#' repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE,
+#' repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 2,
 #'              add.grid = TRUE, scaleType = 'same', layout = c(3,2))
-#' repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE,
+#' repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE, which = 1,
 #'              add.grid = FALSE, zeroLine = TRUE, color = 'Blue')
 #' @export
 
 
 repExposures <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, scaleType = 'free',
-                         stripLeft = TRUE, layout = NULL, digits = 1, ...) {
+                         stripLeft = TRUE, layout = NULL, digits = 1, which = NULL, ...) {
   
   if (!inherits(ffmObj, "ffm")) {
     stop("Invalid argument: ffmObj should be of class'ffm'.")
@@ -96,23 +103,55 @@ repExposures <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, 
   
   if(isPlot){
     
-    ###generate plots
-    for(i in 1:ncol(X[,exposures.num])){
-      name = colnames(X[,exposures.num])[i]
-      barplot(100*X[,exposures.num][,i],las=2,col=5,
-              names.arg= as.yearmon(index(X)),
-              cex.names=0.5, 
-              ylab = "Percentage (%)",
-              main=paste(name, "Exposure"))
-    } 
+    which.vec <- which
+    which <- which[1]
     
-    boxplot(100*coredata(X[,exposures.num]), col=5,
-            cex.names=0.5, nnotch = T,
-            ylab = "Percentage (%)",
-            main=paste("Distributions of Exposures"))
-    
-    tsPlotMP(X[,exposures.num], main = "Factor Exposures", stripLeft = stripLeft, layout = layout, scaleType = scaleType, ...)
+    repeat {
+      if (is.null(which)) {
+        which <- 
+          menu(c("Time Series plot of factor exposures",
+                 "Boxplot of factor exposures",
+                 "Barplot of factor exposures"), 
+               title="\nMake a plot selection (or 0 to exit):") 
+      }
+      
+      switch(which,
+             "1L" = { 
+               ## Time Series plot of factor exposures
+               tsPlotMP(X[,exposures.num], main = "Factor Exposures", stripLeft = stripLeft, layout = layout, 
+                        scaleType = scaleType, ...)
+             }, 
+             "2L" = {
+               ## Boxplot of factor exposures
+               boxplot(100*coredata(X[,exposures.num]), col=5,
+                       cex.names=0.5, nnotch = T,
+                       ylab = "Percentage (%)",
+                       main=paste("Distributions of Exposures"))
+             }, 
+             "3L" = {    
+               ## Barplot of factor exposures
+               for(i in 1:ncol(X[,exposures.num])){
+                 name = colnames(X[,exposures.num])[i]
+                 barplot(100*X[,exposures.num][,i],las=2,col=5,
+                         names.arg= as.yearmon(index(X)),
+                         cex.names=0.5, 
+                         ylab = "Percentage (%)",
+                         main=paste(name, "Exposure"))
+               } 
+             },
+             invisible()       
+      )         
+      # repeat menu if user didn't choose to exit from the plot options
+      if (which==0 || length(which.vec)==1) {break} 
+      if (length(which.vec)>1) {
+        which.vec <- which.vec[-1]
+        which <- which.vec[1]
+        par(ask=TRUE)
+      } else {which=NULL}   
+    }
+  
   }
+    
   
   if(isPrint){
     # tabular report 
