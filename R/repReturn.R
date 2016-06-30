@@ -15,7 +15,15 @@
 #' @param layout layout is a numeric vector of length 2 or 3 giving the number of columns, rows, and pages (optional) in a multipanel display.
 #' @param scaleType scaleType controls if use a same scale of y-axis, choose from c('same', 'free')
 #' @param digits digits of printout numeric summary. Used only when isPrint = 'TRUE'
-#' @param ... other graphics parameters available in tsPlotMP can be passed in through the ellipses, see \code{\link[factorAnalytics]{tsPlotMP}}
+#' @param which a number to indicate the type of plot. If a subset of the plots 
+#' is required, specify a subset of the numbers 1:3 for plots. If \code{which=NULL} (default), the following menu 
+#' appears: \cr \cr
+#' For plots of a group of assets: \cr
+#' 1 = Time Series plot of portfolio returns decomposition, \cr
+#' 2 = Time Series plot of portfolio style factors returns, \cr
+#' 3 = Time Series plot of portfolio sector returns, \cr
+#' 4 = Barplot of Portfolio Returns Components. \cr \cr
+#' @param ... other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses, see \code{\link[factorAnalytics]{tsPlotMP}}
 #' @author Douglas Martin, Lingjie Yi
 #' @examples 
 #'
@@ -37,14 +45,16 @@
 #'               fit.method="WLS", z.score = TRUE)
 #'
 #' repReturn(fit, wtsStocks145GmvLo, isPlot = FALSE, digits = 4)
-#' repReturn(fit, wtsStocks145GmvLo, isPlot = TRUE, add.grid = TRUE, scaleType = 'same')
-#' repReturn(fit, wtsStocks145GmvLo, isPlot = TRUE, add.grid = FALSE, 
-#'           zeroLine = TRUE, color = 'Blue')              
+#' repReturn(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 4)
+#' repReturn(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 1,
+#'           add.grid = TRUE, scaleType = 'same')
+#' repReturn(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 2,
+#'           add.grid = FALSE, zeroLine = TRUE, color = 'Blue')              
 #' @export
 
 
 repReturn <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, layout =NULL, scaleType = 'free',
-                      stripLeft = TRUE, digits = 1, ...) {
+                      stripLeft = TRUE, digits = 1, which = NULL, ...) {
   
   if (!inherits(ffmObj, "ffm")) {
     stop("Invalid argument: ffmObjshould be of class'ffm'.")
@@ -126,22 +136,68 @@ repReturn <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, lay
   colnames(ret.p) = 'Return'
   
   dat = merge(ret.p, sig.p, alpha, facRet.p, rk)
-  
+
   if(isPlot){
-    par(mar=c(7,5,5,5))
-    boxplot(100*coredata(dat), col=5, las = 2, 
-            xaxt = "n", 
-            ylab = "Percentage (%)",
-            main=paste("Portfolio Returns Components Distributions"))
-    axis(1, at=c(1:ncol(dat)) , labels = FALSE)
-    text(x = c(1:ncol(dat)), srt = 45, adj = 1, labels = colnames(dat), 
-         par("usr")[3] - 3, xpd = TRUE, cex = 0.8)
     
-    tsPlotMP(dat[,c('Return','Alpha','facRet','Residuals')], yname = NULL, main = "Portfolio Returns Decomposition", layout = c(3,3), stripLeft = stripLeft, scaleType = scaleType, ...)
-    tsPlotMP(dat[,c('facRet',exposures.num,'Residuals')], yname = NULL, main = "Portfolio Style Factors Returns", layout = c(3,3), stripLeft = stripLeft, scaleType = scaleType, ...)
-    tsPlotMP(dat[,c(exposures.char.name)], yname = NULL, main = "Portfolio Sector Returns", layout = c(3,4), stripLeft = stripLeft, scaleType = scaleType, ...)
+    which.vec <- which
+    which <- which[1]
     
-  }
+    repeat {
+      if (is.null(which)) {
+        which <- 
+          menu(c("Time Series plot of portfolio returns decomposition",
+                 "Time Series plot of portfolio style factors returns",
+                 "Time Series plot of portfolio sector returns",
+                 "Barplot of Portfolio Returns Components"), 
+               title="\nMake a plot selection (or 0 to exit):") 
+      }
+      
+      switch(which,
+             "1L" = { 
+               ## Time Series plot of portfolio returns decomposition
+               tsPlotMP(dat[,c('Return','Alpha','facRet','Residuals')], 
+                        main = "Portfolio Returns Decomposition", layout = c(1,3), stripLeft = stripLeft, 
+                        scaleType = scaleType, ...)
+               
+             }, 
+             "2L" = {
+               ## Time Series plot of portfolio style factors returns
+               tsPlotMP(dat[,c('facRet',exposures.num,'Residuals')], 
+                        main = "Portfolio Style Factors Returns", layout = c(3,3), stripLeft = stripLeft, 
+                        scaleType = scaleType, ...)
+               
+             }, 
+             "3L" = {    
+               ## Time Series plot of portfolio sector returns
+               tsPlotMP(dat[,c(exposures.char.name)], 
+                        main = "Portfolio Sector Returns", layout = c(3,4), stripLeft = stripLeft, 
+                        scaleType = scaleType, ...)
+               
+             },
+             "4L" = {    
+               ## Barplot of Portfolio Returns Components
+               par(mar=c(7,5,5,5))
+               boxplot(100*coredata(dat), col=5, las = 2, 
+                       xaxt = "n", 
+                       ylab = "Percentage (%)",
+                       main=paste("Portfolio Returns Components Distributions"))
+               axis(1, at=c(1:ncol(dat)) , labels = FALSE)
+               text(x = c(1:ncol(dat)), srt = 45, adj = 1, labels = colnames(dat), 
+                    par("usr")[3] - 3, xpd = TRUE, cex = 0.8)
+               
+             },
+             invisible()       
+      )         
+      # repeat menu if user didn't choose to exit from the plot options
+      if (which==0 || length(which.vec)==1) {break} 
+      if (length(which.vec)>1) {
+        which.vec <- which.vec[-1]
+        which <- which.vec[1]
+        par(ask=TRUE)
+      } else {which=NULL}   
+    }
+    
+  }  
   
   if(isPrint){
     # tabular report 
