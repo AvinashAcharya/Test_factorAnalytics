@@ -125,8 +125,7 @@ repExposures <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, 
              "2L" = {
                ## Boxplot of factor exposures
                boxplot(100*coredata(X[,exposures.num]), col=5,
-                       cex.names=0.5, nnotch = T,
-                       ylab = "Percentage (%)",
+                       notch = T, ylab = "Percentage (%)",
                        main=paste("Distributions of Exposures"))
              }, 
              "3L" = {    
