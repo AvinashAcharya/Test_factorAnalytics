@@ -1,10 +1,10 @@
 language: R
-warnings_are_errors: FALSE
+warnings_are_errors: TRUE
  
 r_github_packages:
   - hadley/testthat
   - jimhester/covr
-  - braverock/factorAnalytics
+
  
 after_success:
   - Rscript -e 'library(covr);coveralls()'
