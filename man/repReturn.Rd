@@ -34,7 +34,7 @@ For plots of a group of assets: \cr
 3 = Time Series plot of portfolio sector returns, \cr
 4 = Barplot of Portfolio Returns Components. \cr \cr}
 
-\item{...}{other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses, see \code{\link[factorAnalytics]{tsPlotMP}}}
+\item{...}{other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses}
 }
 \description{
 Decompostite return of portfolio into return of different factors based on fundamental factor model. This method takes fundamental factor model fit, "ffm" object, and portfolio weight as inputs and generates numeric summary and plot visualization.

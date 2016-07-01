@@ -33,7 +33,7 @@ For plots of a group of assets: \cr
 2 = Boxplot of factor exposures, \cr
 3 = Barplot of factor exposures. \cr \cr}
 
-\item{...}{other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses, see \code{\link[factorAnalytics]{tsPlotMP}}}
+\item{...}{other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses}
 }
 \description{
 Calculate k factor time series based on fundamental factor model. This method takes fundamental factor model fit, "ffm" object, and portfolio weight as inputs and generates numeric summary and plot visualization.

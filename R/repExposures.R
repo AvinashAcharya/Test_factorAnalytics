@@ -22,7 +22,7 @@
 #' 1 = Time Series plot of factor exposures, \cr
 #' 2 = Boxplot of factor exposures, \cr
 #' 3 = Barplot of factor exposures. \cr \cr
-#' @param ... other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses, see \code{\link[factorAnalytics]{tsPlotMP}}
+#' @param ... other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses 
 #' @author Douglas Martin, Lingjie Yi
 #' @examples 
 #'

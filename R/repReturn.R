@@ -24,7 +24,7 @@
 #' 2 = Time Series plot of portfolio style factors returns, \cr
 #' 3 = Time Series plot of portfolio sector returns, \cr
 #' 4 = Barplot of Portfolio Returns Components. \cr \cr
-#' @param ... other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses, see \code{\link[factorAnalytics]{tsPlotMP}}
+#' @param ... other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses 
 #' @author Douglas Martin, Lingjie Yi
 #' @examples 
 #'
