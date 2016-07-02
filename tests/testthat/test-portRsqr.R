@@ -17,9 +17,9 @@ out <- portRsqr(fit, rsq = T, rsqAdj = T)
 expect_equal(length(out), 2)
 
 #test for error msg
-out <- portRsqr(fit, rsq = F, rsqAdj = F)
-expect_error(out, "Invalid arguments: Inputs rsq and rsqAdj both cannot be False") 
+expect_error(portRsqr(fit, rsq = F, rsqAdj = F), 
+             "Invalid arguments: Inputs rsq and rsqAdj both cannot be False") 
 #Make w=N+1 to generate error msg
 w<- c(w,"dummy" = 0.02)
-out <- portRsqr(fit, rsq = T, rsqAdj = F, weight = w)
-expect_error(out, "Error: Length of weight should be equal to the number of assets") 
+expect_error(portRsqr(fit, rsq = T, rsqAdj = F, weight = w),
+             "Error: Length of weight should be equal to the number of assets") 

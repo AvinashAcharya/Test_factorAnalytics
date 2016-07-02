@@ -24,9 +24,9 @@ repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 2,
              add.grid = TRUE, scaleType = 'same', layout = c(3,2))
 
 #testing error message
-out = repExposures(fit, weights = c(0.5,0.5), isPlot = TRUE, which = 1,
-             add.grid = FALSE, zeroLine = TRUE, color = 'Blue')
-expect_error(out, "Error: Length of weight should be equal to the number of assets") 
+expect_error(repExposures(fit, weights = c(0.5,0.5), isPlot = TRUE, which = 1,
+                          add.grid = FALSE, zeroLine = TRUE, color = 'Blue'), 
+             "Invalid argument: incorrect number of weights") 
 
 
 
@@ -42,9 +42,9 @@ repReturn(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 1,
           add.grid = TRUE, scaleType = 'same')
 
 #testing error message
-out = repReturn(fit, weights = c(0.5,0.5), isPrint = FALSE, isPlot = TRUE, which = 2,
-          add.grid = FALSE, zeroLine = TRUE, color = 'Blue')  
-expect_error(out, "Error: Length of weight should be equal to the number of assets") 
+expect_error(repReturn(fit, weights = c(0.5,0.5), isPrint = FALSE, isPlot = TRUE, which = 2,
+                       add.grid = FALSE, zeroLine = TRUE, color = 'Blue'), 
+             "Invalid argument: incorrect number of weights") 
 
 
 
