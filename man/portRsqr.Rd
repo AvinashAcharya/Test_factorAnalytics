@@ -4,16 +4,16 @@
 \alias{portRsqr}
 \title{R-squared and Adjusted R-squared for a Portfolio}
 \usage{
-portRsqr(ffmObj, weight = NULL, rsq = T, rsqAdj = F, digits = 2, ...)
+portRsqr(ffmObj, rsq = T, rsqAdj = F, VIF = F, digits = 2, ...)
 }
 \arguments{
 \item{ffmObj}{an object of class \code{ffm} produced by \code{fitFfm}}
 
-\item{weight}{a vector of weights of the assets in the portfolio. Default is NULL.}
-
 \item{rsq}{logical; if \code{TRUE}, R-squared values are computed for the portfolio. Default is \code{TRUE}.}
 
 \item{rsqAdj}{logical; if \code{TRUE}, Adjusted R-squared values are computed for the portfolio. Default is \code{FALSE}.}
+
+\item{VIF}{logical; if \code{TRUE}, Variance Inflation factor is calculated. Default is \code{FALSE}.}
 
 \item{digits}{an integer indicating the number of decimal places to be used for rounding. Default is 2.}
 
