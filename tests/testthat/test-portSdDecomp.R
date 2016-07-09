@@ -18,7 +18,7 @@ fit <- fitFfm(data = dat,
 
 #generating statistic
 expect_equal(is.list(portSdDecomp(fit, wtsStocks145GmvLo, isPlot = FALSE)), TRUE) 
-expect_equal(is.list(portSdDecomp(fit, wtsStocks145GmvLo, isPlot = TRUE)), TRUE) 
+expect_equal(is.list(portSdDecomp(fit, wtsStocks145GmvLo, isPlot = TRUE, which = 1)), TRUE) 
 
 #testing error message
 expect_error(portSdDecomp(fit, weights = c(0.5,0.5), isPlot = TRUE, which = 1,
