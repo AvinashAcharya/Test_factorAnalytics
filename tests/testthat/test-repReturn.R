@@ -22,6 +22,12 @@ expect_equal(is.numeric(repReturn(fit, wtsStocks145GmvLo, isPlot = FALSE, digits
 expect_equal(is.numeric(repReturn(fit, wtsStocks145GmvLo, isPlot = TRUE, scaleType = "free", 
                                      stripLeft = TRUE,digits = 4, which = 1)), TRUE) 
 
+expect_equal(is.numeric(repReturn(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, scaleType = "same", 
+                                  stripLeft = FALSE, which = 2)), TRUE) 
+
+expect_equal(is.numeric(repReturn(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, scaleType = "same", 
+                                  stripLeft = TRUE, which = 3, layout = c(3,3))), TRUE) 
+
 #testing error message
 expect_error(repReturn(fit, weights = c(0.5,0.5), isPlot = TRUE, which = 1,
                           add.grid = FALSE, zeroLine = TRUE, color = 'Blue'), 
