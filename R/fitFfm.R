@@ -130,23 +130,22 @@
 #' @examples
 #'
 #' # Load fundamental and return data
-#' data(Stock.df)
+#' data("factorDataSetDjia5Yrs")
 #' 
 #' # fit a fundamental factor model
 #' exposure.vars <- c("BOOK2MARKET", "LOG.MARKETCAP")
-#' fit <- fitFfm(data=stock, asset.var="TICKER", ret.var="RETURN", 
+#' fit <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
 #'               date.var="DATE", exposure.vars=exposure.vars)
 #' names(fit)
 #' 
 #' # fit a BARRA Industry Factor Model
 #' exposure.vars <- c("GICS.SECTOR")
-#' fit1 <- fitFfm(data=stock, asset.var="TICKER", ret.var="RETURN", 
-#'                date.var="DATE", exposure.vars=exposure.vars, 
-#'                fit.method="Rob", rob.stats=TRUE)
+#' fit1 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
+#'                date.var="DATE", exposure.vars=exposure.vars)
 #' 
 #' # example with sector dummy included
 #' exposure.vars <- c("BOOK2MARKET", "LOG.MARKETCAP", "GICS.SECTOR")
-#' fit2 <- fitFfm(data=stock, asset.var="TICKER", ret.var="RETURN", 
+#' fit2 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
 #'               date.var="DATE", exposure.vars=exposure.vars)
 #'
 #' @export
@@ -235,12 +234,7 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
       data[[i]] <- unlist(std.expo.num)
     }
   }
-  if (length(exposures.char) > 1) {
-    #stop("Only one dummy variable can be included per regression at this time.")
-    #Assumed that Intercept is present if length(exposures.char) > 1. 
-    add.intercept = TRUE
-  }
-  
+
   # determine factor model formula to be passed to lm or lmRob
   fm.formula <- paste(ret.var, "~", paste(exposure.vars, collapse="+"))
   if (length(exposures.char)) {
@@ -254,6 +248,12 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
   }
   # convert the pasted expression into a formula object
   fm.formula <- as.formula(fm.formula)
+  
+  if (length(exposures.char) > 1) {
+    #stop("Only one dummy variable can be included per regression at this time.")
+    #Assumed that Intercept is present if length(exposures.char) > 1. 
+    add.intercept = TRUE
+  }
   
   # estimate factor returns using LS or Robust regression
   # returns a list of the fitted lm or lmRob objects for each time period
