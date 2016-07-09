@@ -21,10 +21,10 @@ expect_equal(is.numeric(repExposures(fit, wtsStocks145GmvLo, isPlot = FALSE, dig
 expect_equal(is.numeric(repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE, scaleType = "free", 
                                      stripLeft = TRUE,digits = 4, which = 3)), TRUE) 
 
-expect_equal(is.numeric(repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, scaleType = "same", 
+expect_equal(is.numeric(repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE, scaleType = "same", 
                                      stripLeft = FALSE, which = 2)), TRUE) 
 
-expect_equal(is.numeric(repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, scaleType = "same", 
+expect_equal(is.numeric(repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE, scaleType = "same", 
                                      stripLeft = TRUE, which = 1, layout = c(3,3))), TRUE) 
 
 #testing error message
