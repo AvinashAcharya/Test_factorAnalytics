@@ -106,7 +106,7 @@ portSdDecomp <- function(ffmObj, weights = NULL, isPlot = TRUE, layout =NULL, sc
   Sig = ffmObj$factor.cov
     
   comRisk = as.xts(diag(coredata(X) %*% coredata(Sig)  %*% t(coredata(X))), order.by = index(X)) 
-  names(speRisk) = 'Common Risk'
+  names(comRisk) = 'Common Risk'
   speRisk = weights %*% D %*% weights
   names(speRisk) = 'Residual Risk'
   tolRisk = comRisk + as.xts(rep(speRisk, TP), order.by = index(X)) 
