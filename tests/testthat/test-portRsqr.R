@@ -15,7 +15,13 @@ expect_equal(length(out), 1)
 out <- portRsqr(fit, rsq = T, rsqAdj = T)
 expect_equal(length(out), 2)
 
+out <- portRsqr(fit, rsq = T, rsqAdj = T, VIF = T)
+expect_equal(length(out), 3)
+
+out <- portRsqr(fit, rsq = F, rsqAdj = T, VIF = T)
+expect_equal(length(out), 2)
+
 #test for error msg
-expect_error(portRsqr(fit, rsq = F, rsqAdj = F), 
-             "Invalid arguments: Inputs rsq and rsqAdj both cannot be False") 
+expect_error(portRsqr(fit, rsq = F, rsqAdj = F,VIF = F), 
+             "Invalid arguments: Inputs rsq, rsqAdj and VIF cannot be False") 
 

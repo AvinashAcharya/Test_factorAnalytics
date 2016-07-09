@@ -44,9 +44,9 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, ...)
     stop("Invalid argument: Object should be of class'ffm'.")
   }
   
-  if (!(rsq) && !(rsqAdj))
+  if (!(rsq) && !(rsqAdj) && !(VIF))
   {
-    stop("Invalid arguments: Inputs rsq and rsqAdj both cannot be False.")
+    stop("Invalid arguments: Inputs rsq, rsqAdj and VIF cannot be False.")
   }
   
   n.assets <- length(ffmObj$asset.names)
