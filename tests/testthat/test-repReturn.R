@@ -17,9 +17,12 @@ fit <- fitFfm(data = dat,
               fit.method="WLS", z.score = TRUE)
 
 #generating statistic
-expect_equal(is.numeric(repExposures(fit, wtsStocks145GmvLo, isPlot = FALSE, digits = 4)), TRUE) 
+expect_equal(is.numeric(repReturn(fit, wtsStocks145GmvLo, isPlot = FALSE, digits = 4)), TRUE) 
+
+expect_equal(is.numeric(repReturn(fit, wtsStocks145GmvLo, isPlot = TRUE, scaleType = "free", 
+                                     stripLeft = TRUE,digits = 4, which = 1)), TRUE) 
 
 #testing error message
-expect_error(repExposures(fit, weights = c(0.5,0.5), isPlot = TRUE, which = 1,
+expect_error(repReturn(fit, weights = c(0.5,0.5), isPlot = TRUE, which = 1,
                           add.grid = FALSE, zeroLine = TRUE, color = 'Blue'), 
              "Invalid argument: incorrect number of weights") 

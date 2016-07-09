@@ -22,7 +22,6 @@
 #' @examples 
 #'
 #' #Load the data
-#' require(factorAnalytics) 
 #' data("stocks145scores6")
 #' dat = stocks145scores6
 #' returns = tapply(dat$RETURN,list(dat$DATE,dat$TICKER),I)
