@@ -131,7 +131,7 @@
 #'
 #' 
 #' # Load fundamental and return data
-#' #' data("factorDataSetDjia5Yrs")
+#'  data("factorDataSetDjia5Yrs")
 #' 
 #' # fit a fundamental factor model
 #' exposure.vars <- c("P2B", "MARKETCAP")
