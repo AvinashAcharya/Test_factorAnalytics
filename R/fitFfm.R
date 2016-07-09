@@ -129,22 +129,23 @@
 #'
 #' @examples
 #'
+#' 
 #' # Load fundamental and return data
-#' data("factorDataSetDjia5Yrs")
+#' #' data("factorDataSetDjia5Yrs")
 #' 
 #' # fit a fundamental factor model
-#' exposure.vars <- c("BOOK2MARKET", "LOG.MARKETCAP")
+#' exposure.vars <- c("P2B", "MARKETCAP")
 #' fit <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
 #'               date.var="DATE", exposure.vars=exposure.vars)
 #' names(fit)
 #' 
 #' # fit a BARRA Industry Factor Model
-#' exposure.vars <- c("GICS.SECTOR")
+#' exposure.vars <- c("SECTOR")
 #' fit1 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
 #'                date.var="DATE", exposure.vars=exposure.vars)
 #' 
 #' # example with sector dummy included
-#' exposure.vars <- c("BOOK2MARKET", "LOG.MARKETCAP", "GICS.SECTOR")
+#' exposure.vars <- c("P2B", "MARKETCAP", "SECTOR")
 #' fit2 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
 #'               date.var="DATE", exposure.vars=exposure.vars)
 #'
