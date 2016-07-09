@@ -5,6 +5,7 @@
 #' @importFrom zoo as.yearmon
 #' @importFrom factorAnalytics fitFfm
 #' @importFrom graphics barplot
+#' @importFrom stats lm
 #' 
 #' @param ffmObj   an object of class \code{ffm} produced by \code{fitFfm}
 #' @param rsq      logical; if \code{TRUE}, R-squared values are computed for the portfolio. Default is \code{TRUE}.
