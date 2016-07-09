@@ -43,7 +43,8 @@
 #' re-factored, tested, corrected and expanded the functionalities and S3 
 #' methods.
 #'
-#' @importFrom stats lm
+#' @importFrom stats lm as.formula coef contr.treatment fitted mad median model.matrix
+#'             na.exclude na.fail na.omit var 
 #' @importFrom robustbase scaleTau2 covOGK
 #' @importFrom PerformanceAnalytics checkData
 #' @importFrom robust covRob covClassic lmRob
@@ -218,10 +219,6 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
   which.numeric <- sapply(data[,exposure.vars,drop=FALSE], is.numeric)
   exposures.num <- exposure.vars[which.numeric]
   exposures.char <- exposure.vars[!which.numeric]
-  if (length(exposures.char) > 1) {
-    stop("Only one dummy variable can be included per regression at this time.")
-  }
-  
   # convert numeric exposures to z-scores
   if (z.score) {
     if (!is.null(weight.var)) {
@@ -237,6 +234,11 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
                          i=i, w=w, rob.stats=rob.stats)
       data[[i]] <- unlist(std.expo.num)
     }
+  }
+  if (length(exposures.char) > 1) {
+    #stop("Only one dummy variable can be included per regression at this time.")
+    #Assumed that Intercept is present if length(exposures.char) > 1. 
+    add.intercept = TRUE
   }
   
   # determine factor model formula to be passed to lm or lmRob
