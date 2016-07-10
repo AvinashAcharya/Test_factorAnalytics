@@ -81,11 +81,14 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, ...)
   }
   if(VIF)
   {
-    object = ffmObj$factor.returns  
+    exposure.vars= ffmObj$exposure.vars
+    which.numeric <- sapply(ffmObj$data[,exposure.vars,drop=FALSE], is.numeric)
+    exposures.num <- exposure.vars[which.numeric]
+    object = ffmObj$data[exposures.num]  
     object <- as.matrix(object)
     ncols <- dim(object)[2]
-    vif = lapply(seq(ncols), function(x) 1/(1 - summary(lm(object[, x] ~ 
-                                                             object[, -x]))$r.squared))
+    vif = lapply(seq(ncols), function(x)
+                  1/(1 - summary(lm(object[, x] ~ object[, -x]))$r.squared))
     names(vif) <- dimnames(object)[[2]]
     vif = unlist(vif)
     out<- c(out, list("VIF" = vif))
@@ -93,3 +96,4 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, ...)
   }
   print(out)
 }
+
