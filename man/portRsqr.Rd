@@ -38,9 +38,12 @@ require(factorAnalytics)
 
 #Calcuate and plot the portfolio R-squared values
  portRsqr(fit)
+ 
+ fit1 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN",
+              date.var="DATE", exposure.vars=c("SECTOR", "P2B", "EV2S", "MARKETCAP"))
 
-
-
+#Calcuate and plot the portfolio R-squared values and VIF for the continous variables
+ portRsqr(fit1, VIF=TRUE)
 }
 \author{
 Avinash Acharya

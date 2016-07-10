@@ -15,10 +15,13 @@ expect_equal(length(out), 1)
 out <- portRsqr(fit, rsq = T, rsqAdj = T)
 expect_equal(length(out), 2)
 
-out <- portRsqr(fit, rsq = T, rsqAdj = T, VIF = T)
+fit1 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
+               date.var="DATE", exposure.vars=c("SECTOR", "P2B", "EV2S", "MARKETCAP"))
+
+out <- portRsqr(fit1, rsq = T, rsqAdj = T, VIF = T)
 expect_equal(length(out), 3)
 
-out <- portRsqr(fit, rsq = F, rsqAdj = T, VIF = T)
+out <- portRsqr(fit1, rsq = F, rsqAdj = T, VIF = T)
 expect_equal(length(out), 2)
 
 #test for error msg
