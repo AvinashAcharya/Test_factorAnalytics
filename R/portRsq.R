@@ -115,14 +115,9 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, ...)
     colnames(vifs) <- dimnames(object)[[2]]
     vifs.xts = xts(vifs, order.by = ffmObj$time.periods)
     vifs.mean = colMeans(vifs.xts)
-    
-    for(i in 1:ncols)
-      {
-        barplot(vifs.xts[,i],las=2,col=5,
-                names.arg= as.yearmon(index(vifs.xts)),
-                cex.names=0.5,
-                main=paste("Varinace Inflation Factor - ", exposures.num[i] ))
-      }
+    #Assuming the number of continous variables in exposure.vars is less than 6,layout=c(1,ncols) is defined.
+    tsPlotMP(0.01*vifs.xts,stripLeft = FALSE, layout = c(1,ncols), scaleType = "same",
+             color = "blue", yname = "", main = "Time series of VIF")
     out<- append(out, list("Mean.VIF" = vifs.mean))
     ret<- append(ret, list("VIF" = vifs.xts))
   }
