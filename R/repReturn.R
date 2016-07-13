@@ -23,7 +23,7 @@
 #' 1 = Time Series plot of portfolio returns decomposition, \cr
 #' 2 = Time Series plot of portfolio style factors returns, \cr
 #' 3 = Time Series plot of portfolio sector returns, \cr
-#' 4 = Barplot of Portfolio Returns Components. \cr \cr
+#' 4 = Baxplot of Portfolio Returns Components. \cr \cr
 #' @param ... other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses 
 #' @author Douglas Martin, Lingjie Yi
 #' @examples 
@@ -39,7 +39,6 @@
 #' wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)                         
 #'                                                                                  
 #' #fit a fundamental factor model
-#' require(factorAnalytics) 
 #' fit <- fitFfm(data = dat, 
 #'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
 #'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
@@ -134,7 +133,7 @@ repReturn <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, lay
     ret.p =facRet.p + sig.p
   }  
   
-  colnames(ret.p) = 'Return'
+  colnames(ret.p) = 'PortfolioRet'
   
   dat = merge(ret.p, sig.p, alpha, facRet.p, rk)
 
@@ -156,7 +155,7 @@ repReturn <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, lay
       switch(which,
              "1L" = { 
                ## Time Series plot of portfolio returns decomposition
-               tsPlotMP(dat[,c('Return','Alpha','facRet','Residuals')], 
+               tsPlotMP(dat[,c('PortfolioRet','Alpha','facRet','Residuals')], 
                         main = "Portfolio Returns Decomposition", layout = c(1,3), stripLeft = stripLeft, 
                         scaleType = scaleType, ...)
                

@@ -37,7 +37,6 @@
 #' wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)  
 #'                                                      
 #' #fit a fundamental factor model
-#' require(factorAnalytics) 
 #' fit <- fitFfm(data = dat, 
 #'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
 #'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
@@ -134,7 +133,7 @@ repExposures <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, 
                  name = colnames(X[,exposures.num])[i]
                  barplot(100*X[,exposures.num][,i],las=2,col=5,
                          names.arg= as.yearmon(index(X)),
-                         cex.names=0.5, 
+                         cex.names=0.5, layout = layout, 
                          ylab = "Percentage (%)",
                          main=paste(name, "Exposure"))
                } 
