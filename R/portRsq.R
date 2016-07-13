@@ -64,10 +64,13 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, isPlot
   
   if(rsq)
   {
-    barplot(r2,las=2,col=5,
-            names.arg= as.yearmon(names(r2)),
-            cex.names=0.5,
-            main="Factor Model R-squared Values")
+    if(isPlot)
+      {
+        barplot(r2,las=2,col=5,
+                names.arg= as.yearmon(names(r2)),
+                cex.names=0.5,
+                main="Factor Model R-squared Values")
+      }
     r2.mean<- round(mean(r2),digits = digits)
     names(r2.mean) <- "Mean R-Square"
     out<- r2.mean
@@ -79,10 +82,13 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, isPlot
     K <- length(ffmObj$factor.name)
     p <- K-1
     adj.r2 <- 1 - ((n.assets - 1)*(1- r2) / (n.assets - p - 1))
-    barplot(adj.r2,las=2,col=5,
+    if(isPlot)
+    {
+      barplot(adj.r2,las=2,col=5,
             names.arg= as.yearmon(names(r2)),
             cex.names=0.5,
             main=" Factor Model Adjusted R-squared Values")
+    }
     adj.r2.mean<- round(mean(adj.r2),digits = digits)
     names(adj.r2.mean) <- "Mean Adj R-Square"
     out<- adj.r2.mean
@@ -118,9 +124,12 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, isPlot
     colnames(vifs) <- dimnames(object)[[2]]
     vifs.xts = xts(vifs, order.by = ffmObj$time.periods)
     vifs.mean = round(colMeans(vifs.xts),digits = digits)
+    if(isPlot)
+    {
     #Assuming the number of continous variables in exposure.vars is less than 6,layout=c(1,ncols) is defined.
-    tsPlotMP(0.01*vifs.xts,stripLeft = FALSE, layout = c(1,ncols), scaleType = "same",
-             color = "blue", yname = "", main = "Factor Model VIF Values")
+    tsPlotMP(0.01*vifs.xts,stripLeft = TRUE, layout = c(1,ncols), scaleType = "same",
+             color = "blue", yname = "", main = "Factor Model VIF Values", type = "h")
+    }
     vifs.xts = round(vifs.xts,digits = digits)
     out<- append(out, list("Mean.VIF" = vifs.mean))
     ret<- append(ret, list("VIF" = vifs.xts))
