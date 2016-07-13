@@ -1,6 +1,6 @@
-#' @title  R-squared and Adjusted R-squared for a Portfolio
+#' @title  Factor Model R-squared and VIF Values
 #'
-#' @description Calcluate and plot the R-squared, Adjusted R-squared and Variance Inflation Factors for a portfolio of assets
+#' @description Calcluate and plot the Factor Model R-squared, Adjusted R-squared and Variance Inflation Factors for a portfolio of assets
 #'
 #' @importFrom zoo as.yearmon
 #' @importFrom factorAnalytics fitFfm
@@ -9,13 +9,14 @@
 #' @importFrom xts xts
 #' 
 #' @param ffmObj   an object of class \code{ffm} produced by \code{fitFfm}
-#' @param rsq      logical; if \code{TRUE}, R-squared values are computed for the portfolio. Default is \code{TRUE}.
+#' @param rsq      logical; if \code{TRUE}, Factor Model R-squared values are computed for the portfolio. Default is \code{TRUE}.
 #' @param rsqAdj   logical; if \code{TRUE}, Adjusted R-squared values are computed for the portfolio. Default is \code{FALSE}.
 #' @param VIF      logical; if \code{TRUE}, Variance Inflation factor is calculated. Default is \code{FALSE}.
-#'                 At least 2 continous variables are required to find VIF.
+#'                 At least 2 continous variables are required in \code{exposure.vars} of fitted model to find VIF.
 #' @param digits   an integer indicating the number of decimal places to be used for rounding. Default is 2.
 #' @param ...      potentially further arguments passed.
-#' @param isPrint  logical. if \code{TRUE}, the time series of the output is printed. Default is \code{FALSE}, 
+#' @param isPrint  logical. if \code{TRUE}, the time series of the computed factor model values is printed along with their mean values. Default is \code{FALSE}, 
+#' @param isPlot   logical. if \code{TRUE}, the time series of the output is plotted. Default is \code{TRUE}, 
 #' @author Avinash Acharya
 #'
 #' @return \code{portRsqr} returns the sample mean values and plots the time series of corresponding R squared values
@@ -43,7 +44,7 @@
 #' @export
 
 # Not the final version
-portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, ...)
+portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, isPlot =T...)
 {
   # set defaults and check input validity
   if (!inherits(ffmObj, "ffm"))
@@ -66,10 +67,11 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, ...)
     barplot(r2,las=2,col=5,
             names.arg= as.yearmon(names(r2)),
             cex.names=0.5,
-            main="R-squared Values for the Portfolio")
+            main="Factor Model R-squared Values")
     r2.mean<- round(mean(r2),digits = digits)
     names(r2.mean) <- "Mean R-Square"
     out<- r2.mean
+    r2<- round(r2,digits = digits)
     ret<- list("R-squared" = r2)
   }
   if(rsqAdj)
@@ -80,11 +82,12 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, ...)
     barplot(adj.r2,las=2,col=5,
             names.arg= as.yearmon(names(r2)),
             cex.names=0.5,
-            main="Adjusted R-squared Values for the Portfolio")
+            main=" Factor Model Adjusted R-squared Values")
     adj.r2.mean<- round(mean(adj.r2),digits = digits)
     names(adj.r2.mean) <- "Mean Adj R-Square"
     out<- adj.r2.mean
-    ret<- list("Adj.r-Squared" = adj.r2)
+    adj.r2 <- round(adj.r2,digits = digits)
+    ret<- list("Adj.r-Squared" = adj.r2 )
   }
   if(rsqAdj && rsq)
   {
@@ -114,20 +117,19 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, ...)
       }
     colnames(vifs) <- dimnames(object)[[2]]
     vifs.xts = xts(vifs, order.by = ffmObj$time.periods)
-    vifs.mean = colMeans(vifs.xts)
+    vifs.mean = round(colMeans(vifs.xts),digits = digits)
     #Assuming the number of continous variables in exposure.vars is less than 6,layout=c(1,ncols) is defined.
     tsPlotMP(0.01*vifs.xts,stripLeft = FALSE, layout = c(1,ncols), scaleType = "same",
-             color = "blue", yname = "", main = "Time series of VIF")
+             color = "blue", yname = "", main = "Factor Model VIF Values")
+    vifs.xts = round(vifs.xts,digits = digits)
     out<- append(out, list("Mean.VIF" = vifs.mean))
     ret<- append(ret, list("VIF" = vifs.xts))
   }
 
   if(isPrint)
     {
-      print(out)
-      print(ret)
       return(c(out, ret))
     }
-  print(out)
+  out
 }
 
