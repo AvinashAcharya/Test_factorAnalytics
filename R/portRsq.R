@@ -1,6 +1,6 @@
 #' @title  R-squared and Adjusted R-squared for a Portfolio
 #'
-#' @description Calcluate and plot the R-squared and Adjusted R-squared for a portfolio of assets
+#' @description Calcluate and plot the R-squared, Adjusted R-squared and Variance Inflation Factors for a portfolio of assets
 #'
 #' @importFrom zoo as.yearmon
 #' @importFrom factorAnalytics fitFfm
@@ -12,13 +12,15 @@
 #' @param rsq      logical; if \code{TRUE}, R-squared values are computed for the portfolio. Default is \code{TRUE}.
 #' @param rsqAdj   logical; if \code{TRUE}, Adjusted R-squared values are computed for the portfolio. Default is \code{FALSE}.
 #' @param VIF      logical; if \code{TRUE}, Variance Inflation factor is calculated. Default is \code{FALSE}.
+#'                 At least 2 continous variables are required to find VIF.
 #' @param digits   an integer indicating the number of decimal places to be used for rounding. Default is 2.
 #' @param ...      potentially further arguments passed.
 #' @param isPrint  logical. if \code{TRUE}, the time series of the output is printed. Default is \code{FALSE}, 
 #' @author Avinash Acharya
 #'
-#' @return \code{portRsqr} returns the sample mean and plots the time series of corresponding R squared values for the portfolio
-#'                        depending on the values of \code{rsq} and \code{rsqAdj}.
+#' @return \code{portRsqr} returns the sample mean values and plots the time series of corresponding R squared values
+#'                         and the Variance Inflation factors depending on the values of \code{rsq}, \code{rsqAdj} and \code{VIF}.
+#'                         The time series of the output values are also printed if \code{isPrint} is \code{TRUE} 
 #'
 #' @examples
 #'
@@ -36,12 +38,12 @@
 #'  fit1 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN",
 #'               date.var="DATE", exposure.vars=c("SECTOR", "P2B", "EV2S", "MARKETCAP"))
 #'
-#' #Calcuate and plot the portfolio R-squared values and VIF for the continous variables
-#'  portRsqr(fit1, VIF=TRUE)
+#' #Plot and print the time series of VIF
+#'  portRsqr(fit1, VIF=TRUE, isPrint=T)
 #' @export
 
 # Not the final version
-portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2,isPrint=F, ...)
+portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, ...)
 {
   # set defaults and check input validity
   if (!inherits(ffmObj, "ffm"))
@@ -94,6 +96,11 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2,isPrint=F, ...)
     exposure.vars= ffmObj$exposure.vars
     which.numeric <- sapply(ffmObj$data[,exposure.vars,drop=FALSE], is.numeric)
     exposures.num <- exposure.vars[which.numeric]
+    if(length(exposures.num) < 2)
+      {
+        stop(" At least 2 continous variables required to find VIF")
+      }
+
     object = ffmObj$data[exposures.num]  
     object <- as.matrix(object)
     ncols <- dim(object)[2]

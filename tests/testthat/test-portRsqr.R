@@ -27,7 +27,10 @@ expect_equal(length(out), 2)
 out<- portRsqr(fit1, rsq = T,rsqAdj = T, VIF = T, isPrint = T)
 expect_equal(length(out), 6)
 
-#test for error msg
+#tests for error msgs
 expect_error(portRsqr(fit, rsq = F, rsqAdj = F,VIF = F), 
              "Invalid arguments: Inputs rsq, rsqAdj and VIF cannot be False") 
+
+expect_error(portRsqr(fit, rsq = T, rsqAdj = T,VIF = T),
+             "At least 2 continous variables required to find VIF")
 

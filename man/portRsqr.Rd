@@ -14,7 +14,8 @@ portRsqr(ffmObj, rsq = T, rsqAdj = F, VIF = F, digits = 2,
 
 \item{rsqAdj}{logical; if \code{TRUE}, Adjusted R-squared values are computed for the portfolio. Default is \code{FALSE}.}
 
-\item{VIF}{logical; if \code{TRUE}, Variance Inflation factor is calculated. Default is \code{FALSE}.}
+\item{VIF}{logical; if \code{TRUE}, Variance Inflation factor is calculated. Default is \code{FALSE}.
+At least 2 continous variables are required to find VIF.}
 
 \item{digits}{an integer indicating the number of decimal places to be used for rounding. Default is 2.}
 
@@ -23,11 +24,12 @@ portRsqr(ffmObj, rsq = T, rsqAdj = F, VIF = F, digits = 2,
 \item{...}{potentially further arguments passed.}
 }
 \value{
-\code{portRsqr} returns the sample mean and plots the time series of corresponding R squared values for the portfolio
-                       depending on the values of \code{rsq} and \code{rsqAdj}.
+\code{portRsqr} returns the sample mean values and plots the time series of corresponding R squared values
+                        and the Variance Inflation factors depending on the values of \code{rsq}, \code{rsqAdj} and \code{VIF}.
+                        The time series of the output values are also printed if \code{isPrint} is \code{TRUE}
 }
 \description{
-Calcluate and plot the R-squared and Adjusted R-squared for a portfolio of assets
+Calcluate and plot the R-squared, Adjusted R-squared and Variance Inflation Factors for a portfolio of assets
 }
 \examples{
 
@@ -45,8 +47,8 @@ require(factorAnalytics)
  fit1 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN",
               date.var="DATE", exposure.vars=c("SECTOR", "P2B", "EV2S", "MARKETCAP"))
 
-#Calcuate and plot the portfolio R-squared values and VIF for the continous variables
- portRsqr(fit1, VIF=TRUE)
+#Plot and print the time series of VIF
+ portRsqr(fit1, VIF=TRUE, isPrint=T)
 }
 \author{
 Avinash Acharya
