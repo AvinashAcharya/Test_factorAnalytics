@@ -47,6 +47,8 @@
 #'              add.grid = TRUE, scaleType = 'same', layout = c(3,2))
 #' repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE, which = 1,
 #'              add.grid = FALSE, zeroLine = TRUE, color = 'Blue')
+#' repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 3,
+#'              add.grid = FALSE, zeroLine = FALSE, color = 'Blue', layout = c(1,3))
 #' @export
 
 
@@ -129,14 +131,16 @@ repExposures <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, 
              }, 
              "3L" = {    
                ## Barplot of factor exposures
+               par(mfrow = layout)
                for(i in 1:ncol(X[,exposures.num])){
                  name = colnames(X[,exposures.num])[i]
                  barplot(100*X[,exposures.num][,i],las=2,col=5,
                          names.arg= as.yearmon(index(X)),
-                         cex.names=0.5, layout = layout, 
+                         cex.names=0.5, 
                          ylab = "Percentage (%)",
                          main=paste(name, "Exposure"))
                } 
+               par(mfrow = c(1,1))
              },
              invisible()       
       )         

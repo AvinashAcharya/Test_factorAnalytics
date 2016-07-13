@@ -61,6 +61,8 @@ repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 2,
              add.grid = TRUE, scaleType = 'same', layout = c(3,2))
 repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE, which = 1,
              add.grid = FALSE, zeroLine = TRUE, color = 'Blue')
+repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 3,
+             add.grid = FALSE, zeroLine = FALSE, color = 'Blue', layout = c(1,3))
 }
 \author{
 Douglas Martin, Lingjie Yi
