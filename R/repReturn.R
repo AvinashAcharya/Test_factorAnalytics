@@ -49,7 +49,7 @@
 #' repReturn(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 1,
 #'           add.grid = TRUE, scaleType = 'same')
 #' repReturn(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 2,
-#'           add.grid = FALSE, zeroLine = TRUE, color = 'Blue')              
+#'           add.grid = FALSE, zeroLine = TRUE, color = 'Blue', scaleTyoe = 'free')              
 #' @export
 
 
