@@ -39,7 +39,7 @@
 #'               date.var="DATE", exposure.vars=c("SECTOR", "P2B", "EV2S", "MARKETCAP"))
 #'
 #' #Plot and print the time series of VIF
-#'  portRsqr(fit1, VIF=TRUE, isPrint=T)
+#'  portRsqr(fit1, VIF=TRUE, isPrint=TRUE)
 #' @export
 
 # Not the final version
