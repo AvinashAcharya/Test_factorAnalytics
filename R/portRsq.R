@@ -44,7 +44,7 @@
 #' @export
 
 # Not the final version
-portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, isPlot =T...)
+portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, isPlot =T, ...)
 {
   # set defaults and check input validity
   if (!inherits(ffmObj, "ffm"))

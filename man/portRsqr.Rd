@@ -5,7 +5,7 @@
 \title{Factor Model R-squared and VIF Values}
 \usage{
 portRsqr(ffmObj, rsq = T, rsqAdj = F, VIF = F, digits = 2,
-  isPrint = F, isPlot = T...)
+  isPrint = F, isPlot = T, ...)
 }
 \arguments{
 \item{ffmObj}{an object of class \code{ffm} produced by \code{fitFfm}}
