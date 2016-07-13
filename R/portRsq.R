@@ -6,6 +6,7 @@
 #' @importFrom factorAnalytics fitFfm
 #' @importFrom graphics barplot
 #' @importFrom stats lm
+#' @importFrom xts xts
 #' 
 #' @param ffmObj   an object of class \code{ffm} produced by \code{fitFfm}
 #' @param rsq      logical; if \code{TRUE}, R-squared values are computed for the portfolio. Default is \code{TRUE}.
@@ -13,6 +14,7 @@
 #' @param VIF      logical; if \code{TRUE}, Variance Inflation factor is calculated. Default is \code{FALSE}.
 #' @param digits   an integer indicating the number of decimal places to be used for rounding. Default is 2.
 #' @param ...      potentially further arguments passed.
+#' @param isPrint  logical. if \code{TRUE}, the time series of the output is printed. Default is \code{FALSE}, 
 #' @author Avinash Acharya
 #'
 #' @return \code{portRsqr} returns the sample mean and plots the time series of corresponding R squared values for the portfolio
@@ -39,7 +41,7 @@
 #' @export
 
 # Not the final version
-portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, ...)
+portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2,isPrint=F, ...)
 {
   # set defaults and check input validity
   if (!inherits(ffmObj, "ffm"))
@@ -54,6 +56,8 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, ...)
   
   n.assets <- length(ffmObj$asset.names)
   r2<- ffmObj$r2
+  out<- list()
+  ret<- list()
   
   if(rsq)
   {
@@ -64,6 +68,7 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, ...)
     r2.mean<- round(mean(r2),digits = digits)
     names(r2.mean) <- "Mean R-Square"
     out<- r2.mean
+    ret<- list("R-squared" = r2)
   }
   if(rsqAdj)
   {
@@ -77,10 +82,12 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, ...)
     adj.r2.mean<- round(mean(adj.r2),digits = digits)
     names(adj.r2.mean) <- "Mean Adj R-Square"
     out<- adj.r2.mean
+    ret<- list("Adj.r-Squared" = adj.r2)
   }
   if(rsqAdj && rsq)
   {
     out<- c(r2.mean, adj.r2.mean)
+    ret<- list("R-Squared"= r2, "Adj.R-Squared" = adj.r2)
   }
   if(VIF)
   {
@@ -90,13 +97,35 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, ...)
     object = ffmObj$data[exposures.num]  
     object <- as.matrix(object)
     ncols <- dim(object)[2]
-    vif = lapply(seq(ncols), function(x)
-                  1/(1 - summary(lm(object[, x] ~ object[, -x]))$r.squared))
-    names(vif) <- dimnames(object)[[2]]
-    vif = unlist(vif)
-    out<- c(out, list("VIF" = vif))
+    time.periods = length(ffmObj$time.periods)
+    vifs = matrix(0, nrow = time.periods, ncol = ncols)
+    for(i in 1:60)
+      {
+      vifs[i,1:ncols] = sapply(seq(ncols), function(x)
+                                1/(1 - summary(lm(object[((i-1)*n.assets+1) : (i*n.assets), x] ~ 
+                                                  object[((i-1)*n.assets+1) :(i*n.assets), -x]))$r.squared))
+      }
+    colnames(vifs) <- dimnames(object)[[2]]
+    vifs.xts = xts(vifs, order.by = ffmObj$time.periods)
+    vifs.mean = colMeans(vifs.xts)
     
+    for(i in 1:ncols)
+      {
+        barplot(vifs.xts[,i],las=2,col=5,
+                names.arg= as.yearmon(index(vifs.xts)),
+                cex.names=0.5,
+                main=paste("Varinace Inflation Factor - ", exposures.num[i] ))
+      }
+    out<- append(out, list("Mean.VIF" = vifs.mean))
+    ret<- append(ret, list("VIF" = vifs.xts))
   }
+
+  if(isPrint)
+    {
+      print(out)
+      print(ret)
+      return(c(out, ret))
+    }
   print(out)
 }
 

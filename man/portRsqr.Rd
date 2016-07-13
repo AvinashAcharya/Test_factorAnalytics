@@ -4,7 +4,8 @@
 \alias{portRsqr}
 \title{R-squared and Adjusted R-squared for a Portfolio}
 \usage{
-portRsqr(ffmObj, rsq = T, rsqAdj = F, VIF = F, digits = 2, ...)
+portRsqr(ffmObj, rsq = T, rsqAdj = F, VIF = F, digits = 2,
+  isPrint = F, ...)
 }
 \arguments{
 \item{ffmObj}{an object of class \code{ffm} produced by \code{fitFfm}}
@@ -16,6 +17,8 @@ portRsqr(ffmObj, rsq = T, rsqAdj = F, VIF = F, digits = 2, ...)
 \item{VIF}{logical; if \code{TRUE}, Variance Inflation factor is calculated. Default is \code{FALSE}.}
 
 \item{digits}{an integer indicating the number of decimal places to be used for rounding. Default is 2.}
+
+\item{isPrint}{logical. if \code{TRUE}, the time series of the output is printed. Default is \code{FALSE},}
 
 \item{...}{potentially further arguments passed.}
 }
