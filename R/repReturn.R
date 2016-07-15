@@ -169,7 +169,7 @@ repReturn <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, lay
              }, 
              "2L" = {
                ## Time Series plot of portfolio style factors returns
-               tsPlotMP(dat[,c('facRet',exposures.num,'Residuals')], 
+               tsPlotMP(dat[,c('FactorRet',exposures.num,'SpecificRet')], 
                         main = "Portfolio Style Factors Returns", layout = c(3,3), stripLeft = stripLeft, 
                         scaleType = scaleType, ...)
                
