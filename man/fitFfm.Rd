@@ -154,7 +154,7 @@ names(fit)
 # fit a BARRA Industry Factor Model
 exposure.vars <- c("SECTOR")
 fit1 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
-               date.var="DATE", exposure.vars=exposure.vars)
+               date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE)
 
 # example with sector dummy included
 exposure.vars <- c("P2B", "MARKETCAP", "SECTOR")
