@@ -14,7 +14,7 @@ portSdDecomp(object, weights = NULL, ...)
 \method{portSdDecomp}{ffm}(object, weights = NULL, ...)
 }
 \arguments{
-\item{object}{fit object of class \code{tsfm}, or \code{ffm}.}
+\item{object}{an object of class ffm returned by fitFfm or of class tsfm returned by fitTsfm}
 
 \item{weights}{a vector of weights of the assets in the portfolio. Default is NULL.}
 
@@ -31,28 +31,12 @@ A list containing
 \item{Sd.fm}{length-1 vector of factor model SDs of portfolio return.}
 \item{mSd}{length-(N + K) vector of marginal contributions to SD.}
 \item{cSd}{length-(N + K) vector of component contributions to SD.}
-\item{pcSd}length-{(N + K) vector of percentage component contributions to SD.}
-Where, \code{K} is the number of factors and N is the number of assets.
+\item{pcSd}{length-(N + K) vector of percentage component contributions to SD.}
+Where, K is the number of factors and N is the number of assets.
 }
 \description{
 Compute the factor contributions to standard deviation (SD) of 
 portfolio return based on Euler's theorem, given the fitted factor model.
-}
-\details{
-The factor model for a portfolio's return at time \code{t} has the 
-form \cr \cr \code{R(t) = beta'f(t) + e(t) = beta.star'f.star(t)} \cr \cr 
-where, \code{beta.star=(beta,sig.e)} and \code{f.star(t)=[f(t)',z(t)]'}. 
-\cr \cr By Euler's theorem, the standard deviation of the asset's return 
-is given as: \cr \cr 
-\code{Sd.fm = sum(cSd_k) = sum(beta.star_k*mSd_k)} \cr \cr 
-where, summation is across the \code{K} factors and the residual, 
-\code{cSd} and \code{mSd} are the component and marginal 
-contributions to \code{SD} respectively. Computing \code{Sd.fm} and 
-\code{mSd} is very straight forward. The formulas are given below and 
-details are in the references. The covariance term is approximated by the 
-sample covariance. \cr \cr
-\code{Sd.fm = sqrt(beta.star''cov(F.star)beta.star)} \cr 
-\code{mSd = cov(F.star)beta.star / Sd.fm}
 }
 \examples{
 # Time Series Factor Model

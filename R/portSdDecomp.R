@@ -5,23 +5,7 @@
 #' 
 #' @importFrom stats cov
 #' 
-#' 
-#' @details The factor model for a portfolio's return at time \code{t} has the 
-#' form \cr \cr \code{R(t) = beta'f(t) + e(t) = beta.star'f.star(t)} \cr \cr 
-#' where, \code{beta.star=(beta,sig.e)} and \code{f.star(t)=[f(t)',z(t)]'}. 
-#' \cr \cr By Euler's theorem, the standard deviation of the asset's return 
-#' is given as: \cr \cr 
-#' \code{Sd.fm = sum(cSd_k) = sum(beta.star_k*mSd_k)} \cr \cr 
-#' where, summation is across the \code{K} factors and the residual, 
-#' \code{cSd} and \code{mSd} are the component and marginal 
-#' contributions to \code{SD} respectively. Computing \code{Sd.fm} and 
-#' \code{mSd} is very straight forward. The formulas are given below and 
-#' details are in the references. The covariance term is approximated by the 
-#' sample covariance. \cr \cr
-#' \code{Sd.fm = sqrt(beta.star''cov(F.star)beta.star)} \cr 
-#' \code{mSd = cov(F.star)beta.star / Sd.fm}
-#' 
-#' @param object fit object of class \code{tsfm}, or \code{ffm}.
+#' @param object  an object of class ffm returned by fitFfm or of class tsfm returned by fitTsfm
 #' @param weights a vector of weights of the assets in the portfolio. Default is NULL.
 #' @param use an optional character string giving a method for computing 
 #' covariances in the presence of missing values. This must be (an 
@@ -34,8 +18,8 @@
 #' \item{Sd.fm}{length-1 vector of factor model SDs of portfolio return.}
 #' \item{mSd}{length-(N + K) vector of marginal contributions to SD.}
 #' \item{cSd}{length-(N + K) vector of component contributions to SD.}
-#' \item{pcSd}length-{(N + K) vector of percentage component contributions to SD.}
-#' Where, \code{K} is the number of factors and N is the number of assets.
+#' \item{pcSd}{length-(N + K) vector of percentage component contributions to SD.}
+#' Where, K is the number of factors and N is the number of assets.
 #' 
 #' @author Douglas Martin, Lingjie Yi
 #' 
