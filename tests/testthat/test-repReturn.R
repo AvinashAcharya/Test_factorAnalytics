@@ -24,6 +24,9 @@ expect_equal(is.numeric(repReturn(fit, wtsStocks145GmvLo, isPlot = FALSE, digits
 expect_equal(is.numeric(repReturn(fit, wtsStocks145GmvLo, isPlot = TRUE, scaleType = "free", 
                                      stripLeft = TRUE,digits = 4, which = 1)), TRUE) 
 
+expect_equal(is.numeric(repReturn(fit, isPlot = TRUE, scaleType = "free", 
+                                  stripLeft = TRUE,digits = 4, which = 3)), TRUE) 
+
 expect_equal(is.numeric(repReturn(fit, wtsStocks145GmvLo, isPlot = TRUE, scaleType = "same", 
                                   stripLeft = FALSE, which = 2)), TRUE) 
 
