@@ -3,7 +3,7 @@
 #' @description Compute the factor contributions to standard deviation (SD) of 
 #' portfolio return based on Euler's theorem, given the fitted factor model.
 #' 
-#' @importFrom stas cov
+#' @importFrom stats cov
 #' 
 #' 
 #' @details The factor model for a portfolio's return at time \code{t} has the 
