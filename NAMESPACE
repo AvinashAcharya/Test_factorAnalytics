@@ -2,11 +2,8 @@
 
 S3method(coef,ffm)
 S3method(fitted,ffm)
-S3method(fmSdDecomp,ffm)
-S3method(fmSdDecomp,tsfm)
 S3method(residuals,ffm)
 export(fitFfm)
-export(fmSdDecomp)
 export(portRsqr)
 export(repExposures)
 export(repReturn)
