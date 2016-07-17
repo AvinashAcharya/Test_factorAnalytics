@@ -67,7 +67,7 @@ decomp$cSd
 # random weights
 wts = runif(6)
 wts = wts/sum(wts)
-portSdDecomp(fit.cross, wts) 
+portSdDecomp(fit.macro, wts) 
 
 # Fundamental Factor Model
 data("stocks145scores6")
