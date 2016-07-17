@@ -36,7 +36,6 @@
 #' @author Douglas Martin, Lingjie Yi
 #' 
 #' 
-#' 
 #' @examples
 #' # Time Series Factor Model
 #' data(managers)
