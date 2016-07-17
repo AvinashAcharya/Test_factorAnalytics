@@ -1,4 +1,22 @@
 
+# Time Series Factor Model
+data(managers)
+fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
+                     factor.names=colnames(managers[,(7:9)]),
+                     rf.name="US.3m.TR", data=managers)
+
+expect_equal(is.list(portSdDecomp(fit.macro)), TRUE) 
+
+# random weights
+wts = runif(6)
+wts = wts/sum(wts)
+expect_equal(is.list(portSdDecomp(fit.macro,wts)), TRUE) 
+
+#testing error message
+expect_error(portSdDecomp(fit.macro, weights = c(0.5,0.5)), 
+             "Invalid argument: incorrect number of weights") 
+
+
 #Load fundamental and return data 
 data("stocks145scores6")
 dat = stocks145scores6
@@ -10,19 +28,16 @@ data("wtsStocks145GmvLo")
 wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)  
 
 #fit a fundamental factor model
-require(factorAnalytics) 
-fit <- fitFfm(data = dat, 
+fit.cross <- fitFfm(data = dat, 
               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
               fit.method="WLS", z.score = TRUE)
 
 #generating statistic
-expect_equal(is.list(portSdDecomp(fit, wtsStocks145GmvLo, isPlot = FALSE)), TRUE) 
-expect_equal(is.list(portSdDecomp(fit, wtsStocks145GmvLo, isPlot = TRUE)), TRUE) 
-expect_equal(is.list(portSdDecomp(fit, wtsStocks145GmvLo, isPlot = TRUE, scaleType = 'same',
-                                  stripLeft = FALSE)), TRUE) 
+expect_equal(is.list(portSdDecomp(fit.cross, wtsStocks145GmvLo)), TRUE) 
+expect_equal(is.list(portSdDecomp(fit.cross)), TRUE) 
+ 
 
 #testing error message
-expect_error(portSdDecomp(fit, weights = c(0.5,0.5), isPlot = TRUE, 
-                          add.grid = FALSE, zeroLine = TRUE, color = 'Blue'), 
+expect_error(portSdDecomp(fit.cross, weights = c(0.5,0.5)), 
              "Invalid argument: incorrect number of weights") 
