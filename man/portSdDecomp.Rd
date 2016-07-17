@@ -6,7 +6,7 @@
 \alias{portSdDecomp.tsfm}
 \title{Decompose portfolio standard deviation into individual factor contributions}
 \usage{
-portSdDecomp(object, ...)
+portSdDecomp(object, weights = NULL, ...)
 
 \method{portSdDecomp}{tsfm}(object, weights = NULL,
   use = "pairwise.complete.obs", ...)
@@ -15,6 +15,8 @@ portSdDecomp(object, ...)
 }
 \arguments{
 \item{object}{fit object of class \code{tsfm}, or \code{ffm}.}
+
+\item{weights}{a vector of weights of the assets in the portfolio. Default is NULL.}
 
 \item{...}{optional arguments passed to \code{\link[stats]{cov}}.}
 
@@ -54,6 +56,7 @@ sample covariance. \cr \cr
 }
 \examples{
 # Time Series Factor Model
+require(factorAnalytics)
 data(managers)
 fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
                      factor.names=colnames(managers[,(7:9)]),

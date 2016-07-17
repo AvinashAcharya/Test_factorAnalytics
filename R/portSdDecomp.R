@@ -22,6 +22,7 @@
 #' \code{mSd = cov(F.star)beta.star / Sd.fm}
 #' 
 #' @param object fit object of class \code{tsfm}, or \code{ffm}.
+#' @param weights a vector of weights of the assets in the portfolio. Default is NULL.
 #' @param use an optional character string giving a method for computing 
 #' covariances in the presence of missing values. This must be (an 
 #' abbreviation of) one of the strings "everything", "all.obs", 
@@ -41,6 +42,7 @@
 #' 
 #' @examples
 #' # Time Series Factor Model
+#' require(factorAnalytics)
 #' data(managers)
 #' fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
 #'                      factor.names=colnames(managers[,(7:9)]),
@@ -64,7 +66,6 @@
 #' wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)  
 #'                                                      
 #' #fit a fundamental factor model
-#' require(factorAnalytics)
 #' fit.cross <- fitFfm(data = dat, 
 #'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
 #'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
@@ -76,7 +77,7 @@
 #'  
 #' @export                                       
 
-portSdDecomp <- function(object, ...){
+portSdDecomp <- function(object, weights = NULL, ...){
   # check input object validity
   if (!inherits(object, c("tsfm", "ffm"))) {
     stop("Invalid argument: Object should be of class 'tsfm',  or 'ffm'.")
