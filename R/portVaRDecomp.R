@@ -6,7 +6,7 @@
 #' factor return given fund return is equal to its VaR and approximated by a
 #' kernel estimator. Option to choose between non-parametric and Normal.
 #' 
-#' @importFrom stats quantile residuals cov
+#' @importFrom stats quantile residuals cov resid time qnorm
 #' @importFrom xts as.xts xts
 #' @importFrom zoo as.Date 
 #' 
@@ -297,6 +297,7 @@ portVaRDecomp.ffm <- function(object, p=0.95, type=c("np","normal"), weights = N
   pcVaR <- rep(NA, N+K)
   names(mVaR)=names(cVaR)=names(pcVaR)=c(colnames(factor.cov),asset.names)
   
+  dat = object$data
   # return data for portfolio
   R.xts = tapply(dat[,object$ret.var], list(dat[,object$date.var], dat[,object$asset.var]), FUN = I)
   R.xts <- R.xts * weights
