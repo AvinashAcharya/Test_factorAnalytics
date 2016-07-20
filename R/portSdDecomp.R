@@ -5,7 +5,7 @@
 #' 
 #' @importFrom stats cov
 #' 
-#' @param object  an object of class ffm returned by fitFfm or of class tsfm returned by fitTsfm
+#' @param object fit object of class \code{tsfm}, or \code{ffm}.
 #' @param weights a vector of weights of the assets in the portfolio. Default is NULL.
 #' @param use an optional character string giving a method for computing 
 #' covariances in the presence of missing values. This must be (an 

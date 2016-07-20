@@ -14,7 +14,7 @@ portSdDecomp(object, weights = NULL, ...)
 \method{portSdDecomp}{ffm}(object, weights = NULL, ...)
 }
 \arguments{
-\item{object}{an object of class ffm returned by fitFfm or of class tsfm returned by fitTsfm}
+\item{object}{fit object of class \code{tsfm}, or \code{ffm}.}
 
 \item{weights}{a vector of weights of the assets in the portfolio. Default is NULL.}
 
