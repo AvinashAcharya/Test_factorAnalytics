@@ -7,8 +7,8 @@
 #' kernel estimator. Option to choose between non-parametric and Normal.
 #' 
 #' @importFrom stats quantile residuals cov
-#' @importFrom xts as.xts 
-#' @importFrom zoo as.Date time
+#' @importFrom xts as.xts xts
+#' @importFrom zoo as.Date 
 #' 
 #' @details The factor model for an portfolio's return at time \code{t} has the 
 #' form \cr \cr \code{R(t) = beta'f(t) + e(t) = beta.star'f.star(t)} \cr \cr 
