@@ -54,7 +54,7 @@
 #' fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
 #'                      factor.names=colnames(managers[,(7:9)]),
 #'                      rf.name="US.3m.TR", data=managers)
-#' decomp <- fmVaRDecomp(fit.macro)
+#' decomp <- portVaRDecomp(fit.macro)
 #' # get the factor contributions of risk
 #' decomp$cVaR
 #' # random weights
@@ -84,7 +84,7 @@
 #'  
 #' @export   
 
-portVaRDecomp <- function(object, weights = NULL, p=0.95, type=c("np","normal"), ...){
+portVaRDecomp <- function(object,  ...){
   # check input object validity
   if (!inherits(object, c("tsfm", "ffm"))) {
     stop("Invalid argument: Object should be of class 'tsfm', or 'ffm'.")
@@ -229,7 +229,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
 #' @method portVaRDecomp ffm
 #' @export
 
-portVaRDecomp.ffm <- function(object, ...) {
+portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal"), ...) {
   
   # set default for type
   type = type[1]
@@ -339,9 +339,9 @@ portVaRDecomp.ffm <- function(object, ...) {
   
   # compute marginal, component and percentage contributions to VaR
   # each of these have dimensions: N x (K+1)
-  mVaR <- cf * mVaR
-  cVaR <- mVaR * beta.star
-  pcVaR <- 100* cVaR / VaR.fm
+  mVaR <- drop(cf * mVaR)
+  cVaR <- drop(mVaR * beta.star)
+  pcVaR <- drop(100* cVaR / VaR.fm)
   
   fm.VaR.decomp <- list(VaR.fm=VaR.fm, n.exceed=n.exceed, idx.exceed=idx.exceed, 
                         mVaR=mVaR, cVaR=cVaR, pcVaR=pcVaR)

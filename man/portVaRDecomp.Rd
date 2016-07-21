@@ -6,16 +6,19 @@
 \alias{portVaRDecomp.tsfm}
 \title{Decompose portfolio VaR into individual factor contributions}
 \usage{
-portVaRDecomp(object, weights = NULL, p = 0.95, type = c("np", "normal"),
-  ...)
+portVaRDecomp(object, ...)
 
 \method{portVaRDecomp}{tsfm}(object, weights = NULL, p = 0.95,
   type = c("np", "normal"), use = "pairwise.complete.obs", ...)
 
-\method{portVaRDecomp}{ffm}(object, ...)
+\method{portVaRDecomp}{ffm}(object, weights = NULL, p = 0.95,
+  type = c("np", "normal"), ...)
 }
 \arguments{
 \item{object}{fit object of class \code{tsfm}, or \code{ffm}.}
+
+\item{...}{other optional arguments passed to \code{\link[stats]{quantile}} and 
+optional arguments passed to \code{\link[stats]{cov}}}
 
 \item{weights}{a vector of weights of the assets in the portfolio. Default is NULL.}
 
@@ -23,9 +26,6 @@ portVaRDecomp(object, weights = NULL, p = 0.95, type = c("np", "normal"),
 
 \item{type}{one of "np" (non-parametric) or "normal" for calculating VaR. 
 Default is "np".}
-
-\item{...}{other optional arguments passed to \code{\link[stats]{quantile}} and 
-optional arguments passed to \code{\link[stats]{cov}}}
 
 \item{use}{an optional character string giving a method for computing factor
 covariances in the presence of missing values. This must be (an 
@@ -70,7 +70,7 @@ data(managers)
 fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
                      factor.names=colnames(managers[,(7:9)]),
                      rf.name="US.3m.TR", data=managers)
-decomp <- fmVaRDecomp(fit.macro)
+decomp <- portVaRDecomp(fit.macro)
 # get the factor contributions of risk
 decomp$cVaR
 # random weights
