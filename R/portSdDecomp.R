@@ -61,7 +61,7 @@
 #'  
 #' @export                                       
 
-portSdDecomp <- function(object, weights = NULL, ...){
+portSdDecomp <- function(object, ...){
   # check input object validity
   if (!inherits(object, c("tsfm", "ffm"))) {
     stop("Invalid argument: Object should be of class 'tsfm',  or 'ffm'.")

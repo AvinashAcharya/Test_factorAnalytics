@@ -7,8 +7,8 @@
 #' kernel estimator. Option to choose between non-parametric and Normal.
 #' 
 #' @importFrom stats quantile residuals cov resid time qnorm
-#' @importFrom xts as.xts xts
-#' @importFrom zoo as.Date 
+#' @importFrom xts as.xts 
+#' @importFrom zoo as.Date  
 #' 
 #' @details The factor model for an portfolio's return at time \code{t} has the 
 #' form \cr \cr \code{R(t) = beta'f(t) + e(t) = beta.star'f.star(t)} \cr \cr 
@@ -32,7 +32,8 @@
 #' abbreviation of) one of the strings "everything", "all.obs", 
 #' "complete.obs", "na.or.complete", or "pairwise.complete.obs". Default is 
 #' "pairwise.complete.obs".
-#' @param ... other optional arguments passed to \code{\link[stats]{quantile}}.
+#' @param ... other optional arguments passed to \code{\link[stats]{quantile}} and 
+#' optional arguments passed to \code{\link[stats]{cov}}
 #' 
 #' @return A list containing 
 #' \item{VaR.fm}{length-1 vector of factor model VaRs of portfolio returns.}
@@ -55,7 +56,7 @@
 #'                      rf.name="US.3m.TR", data=managers)
 #' decomp <- fmVaRDecomp(fit.macro)
 #' # get the factor contributions of risk
-#' decomp$cSd
+#' decomp$cVaR
 #' # random weights
 #' wts = runif(6)
 #' wts = wts/sum(wts)
@@ -78,12 +79,12 @@
 #'               fit.method="WLS", z.score = TRUE)
 #' decomp = portVaRDecomp(fit.cross) 
 #' # get the factor contributions of risk 
-#' decomp$cSd
-#' portVaRDecomp(fit.cross, wtsStocks145GmvLo)               
+#' decomp$cVaR
+#' portVaRDecomp(fit.cross, weights = wtsStocks145GmvLo)               
 #'  
 #' @export   
 
-portVaRDecomp <- function(object, weights = NULL, ...){
+portVaRDecomp <- function(object, weights = NULL, p=0.95, type=c("np","normal"), ...){
   # check input object validity
   if (!inherits(object, c("tsfm", "ffm"))) {
     stop("Invalid argument: Object should be of class 'tsfm', or 'ffm'.")
@@ -95,7 +96,7 @@ portVaRDecomp <- function(object, weights = NULL, ...){
 #' @method portVaRDecomp tsfm
 #' @export
 
-portVaRDecomp.tsfm <- function(object, p=0.95, type=c("np","normal"), weights = NULL,
+portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","normal"),  
                              use="pairwise.complete.obs", ...) {
   
   # set default for type
@@ -131,8 +132,6 @@ portVaRDecomp.tsfm <- function(object, p=0.95, type=c("np","normal"), weights = 
   resid.xts <- as.xts(t(t(residuals(object))/object$resid.sd))
   time(resid.xts) <- as.Date(time(resid.xts))
 
-  factor <- as.matrix(object$data[, object$factor.names])
-  factor.cov = cov(factor, use=use, ...)
   
   if (type=="normal") {
     # get cov(F): K x K
@@ -164,7 +163,7 @@ portVaRDecomp.tsfm <- function(object, p=0.95, type=c("np","normal"), weights = 
   mVaR <- rep(NA, N+K)
   cVaR <- rep(NA, N+K)
   pcVaR <- rep(NA, N+K)
-  names(mVaR)=names(cVaR)=names(pcVaR)=c(colnames(factor.cov),asset.names)
+  names(mVaR)=names(cVaR)=names(pcVaR)=c(colnames(beta),asset.names)
 
   # return data for portfolio
   match = colnames(object$data) %in% asset.names
@@ -230,7 +229,7 @@ portVaRDecomp.tsfm <- function(object, p=0.95, type=c("np","normal"), weights = 
 #' @method portVaRDecomp ffm
 #' @export
 
-portVaRDecomp.ffm <- function(object, p=0.95, type=c("np","normal"), weights = NULL, ...) {
+portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal"), ...) {
   
   # set default for type
   type = type[1]
@@ -265,7 +264,6 @@ portVaRDecomp.ffm <- function(object, p=0.95, type=c("np","normal"), weights = N
   resid.xts <- as.xts(t(t(residuals(object))/sqrt(object$resid.var)))
   time(resid.xts) <- as.Date(time(resid.xts))
   
-  factor.cov = object$factor.cov
   if (type=="normal") {
     # get cov(F): K x K
     factor.cov = object$factor.cov
@@ -295,7 +293,7 @@ portVaRDecomp.ffm <- function(object, p=0.95, type=c("np","normal"), weights = N
   mVaR <- rep(NA, N+K)
   cVaR <- rep(NA, N+K)
   pcVaR <- rep(NA, N+K)
-  names(mVaR)=names(cVaR)=names(pcVaR)=c(colnames(factor.cov),asset.names)
+  names(mVaR)=names(cVaR)=names(pcVaR)=c(colnames(beta),asset.names)
   
   dat = object$data
   # return data for portfolio

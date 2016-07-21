@@ -6,7 +6,7 @@
 \alias{portSdDecomp.tsfm}
 \title{Decompose portfolio standard deviation into individual factor contributions}
 \usage{
-portSdDecomp(object, weights = NULL, ...)
+portSdDecomp(object, ...)
 
 \method{portSdDecomp}{tsfm}(object, weights = NULL,
   use = "pairwise.complete.obs", ...)
@@ -16,9 +16,9 @@ portSdDecomp(object, weights = NULL, ...)
 \arguments{
 \item{object}{fit object of class \code{tsfm}, or \code{ffm}.}
 
-\item{weights}{a vector of weights of the assets in the portfolio. Default is NULL.}
-
 \item{...}{optional arguments passed to \code{\link[stats]{cov}}.}
+
+\item{weights}{a vector of weights of the assets in the portfolio. Default is NULL.}
 
 \item{use}{an optional character string giving a method for computing 
 covariances in the presence of missing values. This must be (an 
