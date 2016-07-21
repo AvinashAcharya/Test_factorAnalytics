@@ -45,7 +45,7 @@ data(managers)
 fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
                      factor.names=colnames(managers[,(7:9)]),
                      rf.name="US.3m.TR", data=managers)
-decomp <- fmSdDecomp(fit.macro)
+decomp <- portSdDecomp(fit.macro)
 # get the factor contributions of risk
 decomp$cSd
 # random weights

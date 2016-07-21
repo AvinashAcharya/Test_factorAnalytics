@@ -229,7 +229,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
 #' @method portVaRDecomp ffm
 #' @export
 
-portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal"), ...) {
+portVaRDecomp.ffm <- function(object, ...) {
   
   # set default for type
   type = type[1]

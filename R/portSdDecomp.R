@@ -31,7 +31,7 @@
 #' fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
 #'                      factor.names=colnames(managers[,(7:9)]),
 #'                      rf.name="US.3m.TR", data=managers)
-#' decomp <- fmSdDecomp(fit.macro)
+#' decomp <- portSdDecomp(fit.macro)
 #' # get the factor contributions of risk
 #' decomp$cSd
 #' # random weights
@@ -174,9 +174,9 @@ portSdDecomp.ffm <- function(object, weights = NULL, ...) {
   
   # compute marginal, component and percentage contributions to sd
   # each of these have dimensions: N+K
-  mSd <- (t(factor.star.cov %*% t(beta.star)))/Sd.fm 
-  cSd <- mSd * beta.star 
-  pcSd = 100* cSd/Sd.fm 
+  mSd <- drop((t(factor.star.cov %*% t(beta.star)))/Sd.fm)
+  cSd <- drop(mSd * beta.star)
+  pcSd <- drop(100* cSd/Sd.fm) 
   
   fm.sd.decomp <- list(Sd.fm=Sd.fm, mSd=mSd, cSd=cSd, pcSd=pcSd)
   

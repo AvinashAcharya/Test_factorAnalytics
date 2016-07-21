@@ -12,8 +12,7 @@ portVaRDecomp(object, weights = NULL, p = 0.95, type = c("np", "normal"),
 \method{portVaRDecomp}{tsfm}(object, weights = NULL, p = 0.95,
   type = c("np", "normal"), use = "pairwise.complete.obs", ...)
 
-\method{portVaRDecomp}{ffm}(object, weights = NULL, p = 0.95,
-  type = c("np", "normal"), ...)
+\method{portVaRDecomp}{ffm}(object, ...)
 }
 \arguments{
 \item{object}{fit object of class \code{tsfm}, or \code{ffm}.}
