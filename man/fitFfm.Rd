@@ -151,16 +151,20 @@ fit <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN",
               date.var="DATE", exposure.vars=exposure.vars)
 names(fit)
 
-# fit a BARRA Industry Factor Model
-exposure.vars <- c("SECTOR")
+# fit a Industry Factor Model with Intercept
+exposure.vars <- c("SECTOR","P2B")
 fit1 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
                date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE)
+               
+# Fit a SECTOR+COUNTRY+Style model with Intercept
+# Create a COUNTRY column with just 3 countries
 
-# example with sector dummy included
-exposure.vars <- c("P2B", "MARKETCAP", "SECTOR")
-fit2 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
-              date.var="DATE", exposure.vars=exposure.vars)
-
+ factorDataSetDjia5Yrs$COUNTRY = rep(rep(c(rep("US", 1 ),rep("INDIA", 1),
+                                       rep("GERMANY", 1 )), 10), 60)
+ exposure.vars= c("SECTOR", "COUNTRY","P2B", "MARKETCAP")
+ 
+ fit.MICM <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
+                   date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE)
 }
 \author{
 Sangeetha Srinivasan, Guy Yollin and Yi-An Chen
