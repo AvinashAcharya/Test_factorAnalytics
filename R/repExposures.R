@@ -35,13 +35,14 @@
 #' #Load long-only GMV weights for the return data
 #' data("wtsStocks145GmvLo")
 #' wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)  
-#'                                                      
+#' 
 #' #fit a fundamental factor model
+#' require(factorAnalytics)
 #' fit <- fitFfm(data = dat, 
 #'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
 #'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
 #'               fit.method="WLS", z.score = TRUE)
-#' 
+#'
 #' repExposures(fit, wtsStocks145GmvLo, isPlot = FALSE, digits = 4)
 #' repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 2,
 #'              add.grid = TRUE, scaleType = 'same', layout = c(3,2))

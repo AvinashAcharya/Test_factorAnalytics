@@ -6,15 +6,16 @@ fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
                      factor.names=colnames(managers[,(7:9)]),
                      rf.name="US.3m.TR", data=managers)
 
-expect_equal(is.list(portSdDecomp(fit.macro)), TRUE) 
+expect_equal(is.list(portVaRDecomp(fit.macro)), TRUE) 
+expect_equal(is.list(portVaRDecomp(fit.macro,p=0.9,type='normal')), TRUE) 
 
 # random weights
 wts = runif(6)
 wts = wts/sum(wts)
-expect_equal(is.list(portSdDecomp(fit.macro,wts)), TRUE) 
+expect_equal(is.list(portVaRDecomp(fit.macro,wts,p=0.9,type='normal')), TRUE) 
 
 #testing error message
-expect_error(portSdDecomp(fit.macro, weights = c(0.5,0.5)), 
+expect_error(portVaRDecomp(fit.macro, weights = c(0.5,0.5)), 
              "Invalid argument: incorrect number of weights") 
 
 
@@ -30,15 +31,17 @@ wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)
 
 #fit a fundamental factor model
 fit.cross <- fitFfm(data = dat, 
-              exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
-              date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
-              fit.method="WLS", z.score = TRUE)
+                    exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
+                    date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
+                    fit.method="WLS", z.score = TRUE)
 
 #generating statistic
-expect_equal(is.list(portSdDecomp(fit.cross, wtsStocks145GmvLo)), TRUE) 
-expect_equal(is.list(portSdDecomp(fit.cross)), TRUE) 
- 
+expect_equal(is.list(portVaRDecomp(fit.cross, wtsStocks145GmvLo, p=0.9,type='normal')), TRUE) 
+expect_equal(is.list(portVaRDecomp(fit.cross, p=0.9, type='normal')), TRUE) 
+
 
 #testing error message
-expect_error(portSdDecomp(fit.cross, weights = c(0.5,0.5)), 
+expect_error(portVaRDecomp(fit.cross, weights = c(0.5,0.5)), 
              "Invalid argument: incorrect number of weights") 
+
+

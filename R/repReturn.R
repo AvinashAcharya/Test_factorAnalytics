@@ -39,6 +39,7 @@
 #' wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)                         
 #'                                                                                  
 #' #fit a fundamental factor model
+#' require(factorAnalytics)
 #' fit <- fitFfm(data = dat, 
 #'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
 #'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
@@ -125,17 +126,24 @@ repReturn <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, lay
   
   rk = as.xts(coredata(X) * coredata(facRet), order.by = index(sig.p)) 
   facRet.p = as.xts(rowSums(coredata(rk)), order.by = index(sig.p))
-  colnames(facRet.p) = 'facRet'
+  colnames(facRet.p) = 'FactorRet'
   
   if(!length(exposures.char)){
     ret.p = alpha + facRet.p + sig.p
   }else{
     ret.p =facRet.p + sig.p
   }  
+
+  if(!length(exposures.char)){
+    spe.p = alpha + sig.p
+  }else{
+    spe.p = sig.p
+  } 
+  names(spe.p) = 'SpecificRet'
   
   colnames(ret.p) = 'PortfolioRet'
   
-  dat = merge(ret.p, sig.p, alpha, facRet.p, rk)
+  dat = merge(ret.p, spe.p, sig.p, alpha, facRet.p, rk)
 
   if(isPlot){
     
@@ -155,14 +163,14 @@ repReturn <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, lay
       switch(which,
              "1L" = { 
                ## Time Series plot of portfolio returns decomposition
-               tsPlotMP(dat[,c('PortfolioRet','Alpha','facRet','Residuals')], 
+               tsPlotMP(dat[,c('PortfolioRet','SpecificRet','FactorRet')], 
                         main = "Portfolio Returns Decomposition", layout = c(1,3), stripLeft = stripLeft, 
                         scaleType = scaleType, ...)
                
              }, 
              "2L" = {
                ## Time Series plot of portfolio style factors returns
-               tsPlotMP(dat[,c('facRet',exposures.num,'Residuals')], 
+               tsPlotMP(dat[,c('FactorRet',exposures.num,'SpecificRet')], 
                         main = "Portfolio Style Factors Returns", layout = c(3,3), stripLeft = stripLeft, 
                         scaleType = scaleType, ...)
                

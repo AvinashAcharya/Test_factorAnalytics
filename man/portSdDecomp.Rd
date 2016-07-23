@@ -2,32 +2,58 @@
 % Please edit documentation in R/portSdDecomp.R
 \name{portSdDecomp}
 \alias{portSdDecomp}
-\title{Portfolio variance/covariance decomposition report}
+\alias{portSdDecomp.ffm}
+\alias{portSdDecomp.tsfm}
+\title{Decompose portfolio standard deviation into individual factor contributions}
 \usage{
-portSdDecomp(ffmObj, weights = NULL, isPlot = TRUE, layout = NULL,
-  scaleType = "free", stripLeft = TRUE, ...)
+portSdDecomp(object, ...)
+
+\method{portSdDecomp}{tsfm}(object, weights = NULL,
+  use = "pairwise.complete.obs", ...)
+
+\method{portSdDecomp}{ffm}(object, weights = NULL, ...)
 }
 \arguments{
-\item{ffmObj}{an object of class ffm returned by fitFfm.}
+\item{object}{fit object of class \code{tsfm}, or \code{ffm}.}
+
+\item{...}{optional arguments passed to \code{\link[stats]{cov}}.}
 
 \item{weights}{a vector of weights of the assets in the portfolio. Default is NULL.}
 
-\item{isPlot}{logical variable to generate plot or not.}
-
-\item{layout}{layout is a numeric vector of length 2 or 3 giving the number of columns, rows, and pages (optional) in a multipanel display.}
-
-\item{scaleType}{scaleType controls if use a same scale of y-axis, choose from c('same', 'free')}
-
-\item{stripLeft}{logical variable to choose the position of strip, "TRUE" for drawing strips on the left of each panel, "FALSE" for drawing strips on the top of each panel. Used only when isPlot = 'TRUE'}
-
-\item{...}{other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses}
+\item{use}{an optional character string giving a method for computing 
+covariances in the presence of missing values. This must be (an 
+abbreviation of) one of the strings "everything", "all.obs", 
+"complete.obs", "na.or.complete", or "pairwise.complete.obs". Default is 
+"pairwise.complete.obs".}
+}
+\value{
+A list containing 
+\item{Sd.fm}{length-1 vector of factor model SDs of portfolio return.}
+\item{mSd}{length-(N + K) vector of marginal contributions to SD.}
+\item{cSd}{length-(N + K) vector of component contributions to SD.}
+\item{pcSd}{length-(N + K) vector of percentage component contributions to SD.}
+Where, K is the number of factors and N is the number of assets.
 }
 \description{
-Calculate factor contribution to portfolio variance based on fundamental factor model. This method takes fundamental factor model fit, "ffm" object, and portfolio weight as inputs and generates numeric summary and plot visualization.
+Compute the factor contributions to standard deviation (SD) of 
+portfolio return based on Euler's theorem, given the fitted factor model.
 }
 \examples{
+# Time Series Factor Model
+require(factorAnalytics)
+data(managers)
+fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
+                     factor.names=colnames(managers[,(7:9)]),
+                     rf.name="US.3m.TR", data=managers)
+decomp <- portSdDecomp(fit.macro)
+# get the factor contributions of risk
+decomp$cSd
+# random weights
+wts = runif(6)
+wts = wts/sum(wts)
+portSdDecomp(fit.macro, wts) 
 
-#Load fundamental and return data 
+# Fundamental Factor Model
 data("stocks145scores6")
 dat = stocks145scores6
 dat$DATE = as.yearmon(dat$DATE)
@@ -35,18 +61,18 @@ dat = dat[dat$DATE >=as.yearmon("2008-01-01") & dat$DATE <= as.yearmon("2012-12-
 
 #Load long-only GMV weights for the return data
 data("wtsStocks145GmvLo")
-wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)                         
-                                                                                 
+wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)  
+                                                     
 #fit a fundamental factor model
-require(factorAnalytics) 
-fit <- fitFfm(data = dat, 
+fit.cross <- fitFfm(data = dat, 
               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
               fit.method="WLS", z.score = TRUE)
-
-portSdDecomp(fit, wtsStocks145GmvLo, isPlot = FALSE)
-portSdDecomp(fit, wtsStocks145GmvLo, isPlot = TRUE, add.grid = TRUE, 
-             scaleType = 'same')
+decomp = portSdDecomp(fit.cross) 
+# get the factor contributions of risk 
+decomp$cSd
+portSdDecomp(fit.cross, wtsStocks145GmvLo)               
+ 
 }
 \author{
 Douglas Martin, Lingjie Yi

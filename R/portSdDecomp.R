@@ -1,21 +1,45 @@
-#' @title Portfolio variance/covariance decomposition report
+#' @title Decompose portfolio standard deviation into individual factor contributions
 #' 
-#' @description Calculate factor contribution to portfolio variance based on fundamental factor model. This method takes fundamental factor model fit, "ffm" object, and portfolio weight as inputs and generates numeric summary and plot visualization. 
+#' @description Compute the factor contributions to standard deviation (SD) of 
+#' portfolio return based on Euler's theorem, given the fitted factor model.
 #' 
-#' @importFrom zoo as.yearmon coredata index
-#' @importFrom xts as.xts
+#' @importFrom stats cov
 #' 
-#' @param ffmObj an object of class ffm returned by fitFfm.
+#' @param object fit object of class \code{tsfm}, or \code{ffm}.
 #' @param weights a vector of weights of the assets in the portfolio. Default is NULL.
-#' @param isPlot logical variable to generate plot or not.
-#' @param stripLeft logical variable to choose the position of strip, "TRUE" for drawing strips on the left of each panel, "FALSE" for drawing strips on the top of each panel. Used only when isPlot = 'TRUE'
-#' @param layout layout is a numeric vector of length 2 or 3 giving the number of columns, rows, and pages (optional) in a multipanel display.
-#' @param scaleType scaleType controls if use a same scale of y-axis, choose from c('same', 'free')
-#' @param ... other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses 
+#' @param use an optional character string giving a method for computing 
+#' covariances in the presence of missing values. This must be (an 
+#' abbreviation of) one of the strings "everything", "all.obs", 
+#' "complete.obs", "na.or.complete", or "pairwise.complete.obs". Default is 
+#' "pairwise.complete.obs".
+#' @param ... optional arguments passed to \code{\link[stats]{cov}}.
+#' 
+#' @return A list containing 
+#' \item{Sd.fm}{length-1 vector of factor model SDs of portfolio return.}
+#' \item{mSd}{length-(N + K) vector of marginal contributions to SD.}
+#' \item{cSd}{length-(N + K) vector of component contributions to SD.}
+#' \item{pcSd}{length-(N + K) vector of percentage component contributions to SD.}
+#' Where, K is the number of factors and N is the number of assets.
+#' 
 #' @author Douglas Martin, Lingjie Yi
-#' @examples 
-#'
-#' #Load fundamental and return data 
+#' 
+#' 
+#' @examples
+#' # Time Series Factor Model
+#' require(factorAnalytics)
+#' data(managers)
+#' fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
+#'                      factor.names=colnames(managers[,(7:9)]),
+#'                      rf.name="US.3m.TR", data=managers)
+#' decomp <- portSdDecomp(fit.macro)
+#' # get the factor contributions of risk
+#' decomp$cSd
+#' # random weights
+#' wts = runif(6)
+#' wts = wts/sum(wts)
+#' portSdDecomp(fit.macro, wts) 
+#' 
+#' # Fundamental Factor Model
 #' data("stocks145scores6")
 #' dat = stocks145scores6
 #' dat$DATE = as.yearmon(dat$DATE)
@@ -23,45 +47,39 @@
 #'
 #' #Load long-only GMV weights for the return data
 #' data("wtsStocks145GmvLo")
-#' wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)                         
-#'                                                                                  
+#' wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)  
+#'                                                      
 #' #fit a fundamental factor model
-#' require(factorAnalytics) 
-#' fit <- fitFfm(data = dat, 
+#' fit.cross <- fitFfm(data = dat, 
 #'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
 #'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
 #'               fit.method="WLS", z.score = TRUE)
-#'
-#' portSdDecomp(fit, wtsStocks145GmvLo, isPlot = FALSE)
-#' portSdDecomp(fit, wtsStocks145GmvLo, isPlot = TRUE, add.grid = TRUE, 
-#'              scaleType = 'same')
+#' decomp = portSdDecomp(fit.cross) 
+#' # get the factor contributions of risk 
+#' decomp$cSd
+#' portSdDecomp(fit.cross, wtsStocks145GmvLo)               
+#'  
+#' @export                                       
+
+portSdDecomp <- function(object, ...){
+  # check input object validity
+  if (!inherits(object, c("tsfm", "ffm"))) {
+    stop("Invalid argument: Object should be of class 'tsfm',  or 'ffm'.")
+  }
+  UseMethod("portSdDecomp")
+}
+
+#' @rdname portSdDecomp
+#' @method portSdDecomp tsfm
 #' @export
 
-
-portSdDecomp <- function(ffmObj, weights = NULL, isPlot = TRUE, layout =NULL, scaleType = 'free',
-                      stripLeft = TRUE, ...) {
+portSdDecomp.tsfm <- function(object, weights = NULL, use="pairwise.complete.obs", ...) {
   
-  if (!inherits(ffmObj, "ffm")) {
-    stop("Invalid argument: ffmObjshould be of class'ffm'.")
-  }
-  
-  which.numeric <- sapply(ffmObj$data[,ffmObj$exposure.vars,drop=FALSE], is.numeric)
-  exposures.num <- ffmObj$exposure.vars[which.numeric]
-  exposures.char <- ffmObj$exposure.vars[!which.numeric]
-  exposures.char.name <- as.vector(unique(ffmObj$data[,exposures.char]))
-  
-  # get factor model returns from 
-  facRet = ffmObj$factor.returns
-  
-  if(!length(exposures.char)){
-    facRet = facRet[,-1]
-  }
-  
-  # get parameters from the factor model fit  
-  beta = ffmObj$beta
+  # get beta.star: 1 x (K+N)
+  beta <- object$beta
+  beta[is.na(beta)] <- 0
   n.assets = nrow(beta)
-  asset.names <- unique(ffmObj$data[[ffmObj$asset.var]])
-  TP = length(ffmObj$time.periods)
+  asset.names <- object$asset.names
   
   # check if there is weight input
   if(is.null(weights)){
@@ -72,62 +90,95 @@ portSdDecomp <- function(ffmObj, weights = NULL, isPlot = TRUE, layout =NULL, sc
       stop("Invalid argument: incorrect number of weights")
     }
     weights = weights[asset.names]
-  }
-  
-  
-  #Diagonal Covariance Matrix
-  D = diag(ffmObj$resid.var)
-  rownames(D) = names(ffmObj$resid.var)
-  colnames(D) = names(ffmObj$resid.var)
-  
-  if(length(exposures.char)){
-    dat <- ffmObj$data[ffmObj$data$DATE==ffmObj$time.periods[TP], ]
-    B <- as.matrix(table(dat$TICKER,dat$SECTOR))
-    B[B>0] <- 1
-    B <- B[asset.names,]
-  }else{
-    B = c()
-  }
-  
-  #calculate x = t(w) * B
-  X = c()
-  for(i in 1:TP){
-    dat <- ffmObj$data[ffmObj$data$DATE==ffmObj$time.periods[i], ]
-    beta <- as.matrix(dat[,exposures.num])
-    rownames(beta) <- asset.names
-    beta = cbind(beta,B)
-    
-    temp = as.data.frame(weights %*% beta)
-    temp = cbind('Date'=ffmObj$time.periods[i],temp)
-    X = rbind(X,temp)
-  }
-  X = as.xts(X[,-1],order.by = X[,1])
-  
-  Sig = ffmObj$factor.cov
-    
-  comRisk = as.xts(diag(coredata(X) %*% coredata(Sig)  %*% t(coredata(X))), order.by = index(X)) 
-  names(comRisk) = 'Common Risk'
-  speRisk = weights %*% D %*% weights
-  names(speRisk) = 'Residual Risk'
-  tolRisk = comRisk + as.xts(rep(speRisk, TP), order.by = index(X)) 
-  
-  fac.sig = diag(Sig)
-  facRisk = X * X * fac.sig
-  
-  ret = list('FactorContribution' = facRisk, 'CommonRisk' = comRisk, 'ResidualRisk' = speRisk)  
+  } 
 
-  if(isPlot){
-    
-    if(is.null(layout)){
-      layout = c(3,3)
+  # get portfolio beta.star: 1 x (K+N)
+  beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), t(weights * object$resid.sd)))  
+
+  # get cov(F): K x K
+  factor <- as.matrix(object$data[, object$factor.names])
+  factor.cov = cov(factor, use=use, ...)
+  
+  # get cov(F.star): (K+N) x (K+N)
+  K <- ncol(object$beta)
+  factor.star.cov <- diag(K+n.assets)
+  factor.star.cov[1:K, 1:K] <- factor.cov
+  colnames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
+  rownames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
+  
+  # compute factor model sd; a vector of length 1
+  Sd.fm <- sqrt(rowSums(beta.star %*% factor.star.cov * beta.star))
+  
+  # compute marginal, component and percentage contributions to sd
+  # each of these have dimensions: N + K
+  mSd <- (t(factor.star.cov %*% t(beta.star)))/Sd.fm 
+  cSd <- mSd * beta.star 
+  pcSd = 100* cSd/Sd.fm 
+  
+  fm.sd.decomp <- list(Sd.fm=Sd.fm, mSd=mSd, cSd=cSd, pcSd=pcSd)
+  
+  return(fm.sd.decomp)
+}
+
+#' @rdname portSdDecomp
+#' @method portSdDecomp ffm
+#' @export
+
+portSdDecomp.ffm <- function(object, weights = NULL, ...) {
+  
+  which.numeric <- sapply(object$data[,object$exposure.vars,drop=FALSE], is.numeric)
+  exposures.num <- object$exposure.vars[which.numeric]
+  exposures.char <- object$exposure.vars[!which.numeric]
+  
+  # get beta.star: 1 x (K+N)
+  if(!length(exposures.char)){
+    beta <- object$beta[,-1]
+  }else{
+    beta <- object$beta
+  }
+  beta[is.na(beta)] <- 0
+  n.assets = nrow(beta)
+  asset.names <- unique(object$data[[object$asset.var]])
+  
+  # check if there is weight input
+  if(is.null(weights)){
+    weights = rep(1/n.assets, n.assets)
+  }else{
+    # check if number of weight parameter matches 
+    if(n.assets != length(weights)){
+      stop("Invalid argument: incorrect number of weights")
     }
-    
-    tsPlotMP(facRisk, 
-             main = "Time Series plot of portfolio Facotor Contribution", layout = layout, stripLeft = stripLeft, 
-             scaleType = scaleType, ...)
-    
+    weights = weights[asset.names]
+  } 
+  
+  # get portfolio beta.star: 1 x (K+N)
+  beta.star <- as.matrix(cbind(weights %*% beta, t(weights * sqrt(object$resid.var))))
+  
+  # get cov(F): K x K
+  if(!length(exposures.char)){
+    factor.cov = object$factor.cov[,-1][-1,]
+  }else{
+    factor.cov = object$factor.cov
   }  
+
   
-  return(ret)
+  # get cov(F.star): (K+N) x (K+N)
+  K <- ncol(beta)
+  factor.star.cov <- diag(K+n.assets)
+  factor.star.cov[1:K, 1:K] <- factor.cov
+  colnames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
+  rownames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
   
+  # compute factor model sd; a vector of length 1
+  Sd.fm <- sqrt(rowSums(beta.star %*% factor.star.cov * beta.star))
+  
+  # compute marginal, component and percentage contributions to sd
+  # each of these have dimensions: N+K
+  mSd <- drop((t(factor.star.cov %*% t(beta.star)))/Sd.fm)
+  cSd <- drop(mSd * beta.star)
+  pcSd <- drop(100* cSd/Sd.fm) 
+  
+  fm.sd.decomp <- list(Sd.fm=Sd.fm, mSd=mSd, cSd=cSd, pcSd=pcSd)
+  
+  return(fm.sd.decomp)
 }
