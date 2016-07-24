@@ -2,6 +2,7 @@
 
 S3method(coef,ffm)
 S3method(fitted,ffm)
+S3method(portEsDecomp,ffm)
 S3method(portEsDecomp,tsfm)
 S3method(portSdDecomp,ffm)
 S3method(portSdDecomp,tsfm)
