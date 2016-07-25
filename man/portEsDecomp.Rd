@@ -20,8 +20,9 @@ portEsDecomp(object, ...)
 \item{...}{other optional arguments passed to \code{\link[stats]{quantile}} and 
 optional arguments passed to \code{\link[stats]{cov}}}
 
-\item{weights}{a vector of weights of the assets in the portfolio. Default is NULL, 
-in which case an equal weights will be used.}
+\item{weights}{a vector of weights of the assets in the portfolio, names of 
+the vector should match with asset names. Default is NULL, in which case an 
+equal weights will be used.}
 
 \item{p}{confidence level for calculation. Default is 0.95.}
 
@@ -68,7 +69,6 @@ average of the observations in that data window.
 }
 \examples{
 # Time Series Factor Model
-require(factorAnalytics)
 data(managers)
 fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
                      factor.names=colnames(managers[,(7:8)]), data=managers)
@@ -76,6 +76,11 @@ ES.decomp <- portEsDecomp(fit.macro)
 # get the component contributions
 ES.decomp$cES
 
+# random weights 
+wts = runif(6)
+wts = wts/sum(wts)
+names(wts) <- colnames(managers)[1:6]
+portEsDecomp(fit.macro, wts)
 
 # Fundamental Factor Model
 data("stocks145scores6")
@@ -83,11 +88,11 @@ dat = stocks145scores6
 dat$DATE = as.yearmon(dat$DATE)
 dat = dat[dat$DATE >=as.yearmon("2008-01-01") & dat$DATE <= as.yearmon("2012-12-31"),]
 
-#Load long-only GMV weights for the return data
+# Load long-only GMV weights for the return data
 data("wtsStocks145GmvLo")
 wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)  
                                                      
-#fit a fundamental factor model
+# fit a fundamental factor model
 fit.cross <- fitFfm(data = dat, 
               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
