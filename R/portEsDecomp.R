@@ -73,7 +73,7 @@
 #'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
 #'               fit.method="WLS", z.score = TRUE)
 #' decomp = portEsDecomp(fit.cross) 
-#' # get the factor contributions of risk 
+#' #get the factor contributions of risk 
 #' decomp$cES
 #' portEsDecomp(fit.cross, weights = wtsStocks145GmvLo)  
 #' @export
@@ -85,6 +85,7 @@ portEsDecomp <- function(object, ...){
   }
   UseMethod("portEsDecomp")
 }
+
 
 #' @rdname portEsDecomp
 #' @method portEsDecomp tsfm

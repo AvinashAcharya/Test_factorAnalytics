@@ -60,7 +60,8 @@
 #' decomp$cSd
 #' portSdDecomp(fit.cross, wtsStocks145GmvLo)               
 #'  
-#' @export                                       
+#' @export    
+                                   
 
 portSdDecomp <- function(object, ...){
   # check input object validity

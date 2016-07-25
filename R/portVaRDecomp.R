@@ -97,6 +97,7 @@ portVaRDecomp <- function(object,  ...){
 #' @method portVaRDecomp tsfm
 #' @export
 
+
 portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","normal"),  
                              use="pairwise.complete.obs", ...) {
   

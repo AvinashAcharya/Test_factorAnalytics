@@ -93,7 +93,7 @@ fit.cross <- fitFfm(data = dat,
               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
               fit.method="WLS", z.score = TRUE)
 decomp = portEsDecomp(fit.cross) 
-# get the factor contributions of risk 
+#get the factor contributions of risk 
 decomp$cES
 portEsDecomp(fit.cross, weights = wtsStocks145GmvLo)  
 }
