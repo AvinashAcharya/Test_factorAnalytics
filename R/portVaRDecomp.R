@@ -122,7 +122,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
     if(n.assets != length(weights)){
       stop("Invalid argument: incorrect number of weights")
     }
-    if(!is.null(names(wts))){
+    if(!is.null(names(weights))){
       weights = weights[asset.names]
     }
   }  

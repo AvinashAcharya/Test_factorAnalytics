@@ -21,8 +21,9 @@
 #' 
 #' @param object fit object of class \code{tsfm}, or \code{ffm}.
 #' @param p confidence level for calculation. Default is 0.95.
-#' @param weights a vector of weights of the assets in the portfolio. Default is NULL, 
-#' in which case an equal weights will be used.
+#' @param weights a vector of weights of the assets in the portfolio, names of 
+#' the vector should match with asset names. Default is NULL, in which case an 
+#' equal weights will be used.
 #' @param type one of "np" (non-parametric) or "normal" for calculating VaR. 
 #' Default is "np".
 #' @param use an optional character string giving a method for computing factor
@@ -48,7 +49,6 @@
 #' 
 #' @examples
 #' # Time Series Factor Model
-#' require(factorAnalytics)
 #' data(managers)
 #' fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
 #'                      factor.names=colnames(managers[,(7:8)]), data=managers)
@@ -56,6 +56,11 @@
 #' # get the component contributions
 #' ES.decomp$cES
 #' 
+#' # random weights 
+#' wts = runif(6)
+#' wts = wts/sum(wts)
+#' names(wts) <- colnames(managers)[1:6]
+#' portEsDecomp(fit.macro, wts)
 #' 
 #' # Fundamental Factor Model
 #' data("stocks145scores6")
@@ -63,11 +68,11 @@
 #' dat$DATE = as.yearmon(dat$DATE)
 #' dat = dat[dat$DATE >=as.yearmon("2008-01-01") & dat$DATE <= as.yearmon("2012-12-31"),]
 #'
-#' #Load long-only GMV weights for the return data
+#' # Load long-only GMV weights for the return data
 #' data("wtsStocks145GmvLo")
 #' wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)  
 #'                                                      
-#' #fit a fundamental factor model
+#' # fit a fundamental factor model
 #' fit.cross <- fitFfm(data = dat, 
 #'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
 #'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
@@ -115,8 +120,10 @@ portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norma
     if(n.assets != length(weights)){
       stop("Invalid argument: incorrect number of weights")
     }
-    if(!is.null(names(wts))){
+    if(!is.null(names(weights))){
       weights = weights[asset.names]
+    }else{
+      stop("Invalid argument: names of weights vector should match with asset names")
     }
   }  
   
@@ -224,10 +231,12 @@ portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal
     if(n.assets != length(weights)){
       stop("Invalid argument: incorrect number of weights")
     }
-    if(!is.null(names(wts))){
+    if(!is.null(names(weights))){
       weights = weights[asset.names]
+    }else{
+      stop("Invalid argument: names of weights vector should match with asset names")
     }
-  } 
+  }  
   
   # get portfolio beta.star: 1 x (K+N)
   beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), t(weights * sqrt(object$resid.var))))   

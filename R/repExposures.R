@@ -3,7 +3,7 @@
 #' @description Calculate k factor time series based on fundamental factor model. This method takes fundamental factor model fit, "ffm" object, and portfolio weight as inputs and generates numeric summary and plot visualization. 
 #' 
 #' @importFrom zoo as.yearmon coredata index
-#' @importFrom graphics barplot boxplot
+#' @importFrom graphics barplot boxplot legend 
 #' @importFrom stats sd
 #' @importFrom utils menu
 #' 

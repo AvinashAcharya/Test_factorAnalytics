@@ -146,7 +146,6 @@ portSdDecomp.ffm <- function(object, weights = NULL, ...) {
   asset.names <- unique(object$data[[object$asset.var]])
   
   # check if there is weight input
-  # check if there is weight input
   if(is.null(weights)){
     weights = rep(1/n.assets, n.assets)
   }else{
