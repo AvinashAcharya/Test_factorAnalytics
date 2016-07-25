@@ -74,7 +74,7 @@
 #'               fit.method="WLS", z.score = TRUE)
 #' decomp = portEsDecomp(fit.cross) 
 #' # get the factor contributions of risk 
-#' decomp$cEs
+#' decomp$cES
 #' portEsDecomp(fit.cross, weights = wtsStocks145GmvLo)  
 #' @export
 
@@ -114,8 +114,10 @@ portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norma
     if(n.assets != length(weights)){
       stop("Invalid argument: incorrect number of weights")
     }
-    weights = weights[asset.names]
-  }   
+    if(!is.null(names(wts))){
+      weights = weights[asset.names]
+    }
+  }  
   
   # get portfolio beta.star: 1 x (K+N)
   beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), t(weights * object$resid.sd)))  
@@ -221,8 +223,10 @@ portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal
     if(n.assets != length(weights)){
       stop("Invalid argument: incorrect number of weights")
     }
-    weights = weights[asset.names]
-  }   
+    if(!is.null(names(wts))){
+      weights = weights[asset.names]
+    }
+  } 
   
   # get portfolio beta.star: 1 x (K+N)
   beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), t(weights * sqrt(object$resid.var))))   

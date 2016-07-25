@@ -83,6 +83,7 @@ portSdDecomp.tsfm <- function(object, weights = NULL, use="pairwise.complete.obs
   asset.names <- object$asset.names
   
   # check if there is weight input
+  # check if there is weight input
   if(is.null(weights)){
     weights = rep(1/n.assets, n.assets)
   }else{
@@ -90,7 +91,9 @@ portSdDecomp.tsfm <- function(object, weights = NULL, use="pairwise.complete.obs
     if(n.assets != length(weights)){
       stop("Invalid argument: incorrect number of weights")
     }
-    weights = weights[asset.names]
+    if(!is.null(names(wts))){
+      weights = weights[asset.names]
+    }
   } 
 
   # get portfolio beta.star: 1 x (K+N)
@@ -142,6 +145,7 @@ portSdDecomp.ffm <- function(object, weights = NULL, ...) {
   asset.names <- unique(object$data[[object$asset.var]])
   
   # check if there is weight input
+  # check if there is weight input
   if(is.null(weights)){
     weights = rep(1/n.assets, n.assets)
   }else{
@@ -149,7 +153,9 @@ portSdDecomp.ffm <- function(object, weights = NULL, ...) {
     if(n.assets != length(weights)){
       stop("Invalid argument: incorrect number of weights")
     }
-    weights = weights[asset.names]
+    if(!is.null(names(wts))){
+      weights = weights[asset.names]
+    }
   } 
   
   # get portfolio beta.star: 1 x (K+N)
