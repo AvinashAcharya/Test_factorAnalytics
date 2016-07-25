@@ -77,8 +77,12 @@ repExposures <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, 
     if(n.assets != length(weights)){
       stop("Invalid argument: incorrect number of weights")
     }
-    weights = weights[asset.names]
-  }
+    if(!is.null(names(weights))){
+      weights = weights[asset.names]
+    }else{
+      stop("Invalid argument: names of weights vector should match with asset names")
+    }
+  } 
   
   if(length(exposures.char)){
     dat <- ffmObj$data[ffmObj$data[,ffmObj$date.var]==ffmObj$time.periods[TP], ]

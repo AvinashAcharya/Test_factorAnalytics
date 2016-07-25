@@ -90,8 +90,12 @@ repReturn <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, lay
     if(n.assets != length(weights)){
       stop("Invalid argument: incorrect number of weights")
     }
-    weights = weights[asset.names]
-  }
+    if(!is.null(names(weights))){
+      weights = weights[asset.names]
+    }else{
+      stop("Invalid argument: names of weights vector should match with asset names")
+    }
+  } 
   
   
   #portfolio residuals
