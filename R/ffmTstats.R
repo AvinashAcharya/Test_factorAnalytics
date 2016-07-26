@@ -12,6 +12,7 @@
 #'  
 #' @param ffmObj  an object of class \code{ffm} produced by \code{fitFfm}
 #' @param isPlot  logical. If \code{TRUE} the barplots are plotted.
+#' @param isPrint  logical. if \code{TRUE}, the time series of the computed factor model values is printed. Default is \code{FALSE}, 
 #' @param col     specification for the default plotting color. Default is cyan
 #' @param z.alpha critical value corresponding to the confidence interval. Default is 1.96 i.e 95\% C.I
 #' @param layout  numeric vector of length 2 or 3 giving the number of columns, rows, and pages (optional) in the xyplot of t-statistics. Default is c(2,3).
@@ -22,7 +23,7 @@
 #' 
 #' @author Doug Martin, Avinash Acharya
 #' 
-#' @return \code{rsqTstatsTs} plots the R-squared, t-stats and significant t-stats values  if \code{isPlot} is \code{TRUE} and returns a list with following components:
+#' @return \code{ffmTstats} plots the R-squared, t-stats and significant t-stats values  if \code{isPlot} is \code{TRUE} and returns a list with following components:
 #' \item{R-squared}{ length-T vector of R-squared values.}
 #' \item{tstats}{ an xts object of t-stats values.}
 #' \item{z.alpha}{ critical value corresponding to the confidence interval.}
@@ -36,21 +37,21 @@
 #'                date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS")
 #'                
 #'  #Find r2, tstats  with C.I = 95% and plot the results.
-#'  stats = rsqTstatsTs(fit, isPlot = TRUE, col = "blue", z.alpha =1.96)  
+#'  stats = ffmTstats(fit, isPlot = TRUE, col = "blue", z.alpha =1.96)  
 #'    
 #'               
 #' 
 #' @export
 
-rsqTstatsTs<- function(ffmObj, isPlot = TRUE, col = "cyan", z.alpha = 1.96, layout =c(2,3),type ="h", ... )
+ffmTstats<- function(ffmObj, isPlot = TRUE, isPrint = FALSE, col = "cyan", z.alpha = 1.96, layout =c(2,3),type ="h", ... )
 {
   
   # CREATE TIME SERIES OF T-STATS
   time.periods = length(ffmObj$time.periods)
   n.exposures =  length(ffmObj$exposure.vars)
   tstats = lapply(seq(time.periods), function(a) summary(ffmObj)$sum.list[[a]]$coefficients[,3])
-  tstats = matrix(unlist(tstats), byrow = TRUE, nrow = time.periods, ncol = n.exposures+1 )
-  secNames = c("INTCEPT",ffmObj$exposure.vars)
+  secNames = names(tstats[[1]])
+  tstats = matrix(unlist(tstats), byrow = TRUE, nrow = time.periods)
   colnames(tstats)=secNames
   tstatsTs = xts(tstats,order.by=as.yearmon(names(ffmObj$r2)))
   
@@ -81,5 +82,19 @@ rsqTstatsTs<- function(ffmObj, isPlot = TRUE, col = "cyan", z.alpha = 1.96, layo
     barplot(sigTstatsTs,col = col, main = "Number of Risk Indices with significant t-stats")
     
   }
-  list("R-squared" =ffmObj$r2, "tstats" =tstatsTs, "z.alpha" =z.alpha)
+  out = list("R-squared" =ffmObj$r2, "tstats" =tstatsTs, "z.alpha" =z.alpha)
+  if(isPrint){print(out)}else invisible(out)
+    
 }
+
+
+# data("factorDataSetDjia5Yrs")
+# 
+# #Fit a Ffm
+# require(factorAnalytics)
+# fit <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("ENTVALUE","P2B","EV2S"),
+#               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS")
+# 
+# #Find r2, tstats  with C.I = 95% and plot the results.
+# #ffmTstats.test(fit, isPlot = TRUE, col = "blue", z.alpha =1.96, isPrint = F)  
+ #xx = ffmRsq.test(fit, isPrint = F, VIF = T, rsqAdj = T, plt.type = 2, lwd = 2)

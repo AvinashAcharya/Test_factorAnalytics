@@ -13,13 +13,17 @@
 #' @param rsqAdj   logical; if \code{TRUE}, Adjusted R-squared values are computed for the portfolio. Default is \code{FALSE}.
 #' @param VIF      logical; if \code{TRUE}, Variance Inflation factor is calculated. Default is \code{FALSE}.
 #'                 At least 2 continous variables are required in \code{exposure.vars} of fitted model to find VIF.
+#' @param plt.type a number to indicate the type of plot for plotting Factor Model R-squared/Adj. R-squared values.
+#'                 1 indicates barplot, 2 indicates time series xy plot. Default is 1.
 #' @param digits   an integer indicating the number of decimal places to be used for rounding. Default is 2.
+#' @param isPrint  logical. if \code{TRUE}, the time series of the computed factor model values is printed along with their mean values.
+#'                 Else, only the mean values are printed. Default is \code{TRUE}.
+#' @param isPlot   logical. if \code{TRUE}, the time series of the output is plotted. Default is \code{TRUE}.
+#' @param lwd      line width relative to the default. Default is 1.
 #' @param ...      potentially further arguments passed.
-#' @param isPrint  logical. if \code{TRUE}, the time series of the computed factor model values is printed along with their mean values. Default is \code{FALSE}, 
-#' @param isPlot   logical. if \code{TRUE}, the time series of the output is plotted. Default is \code{TRUE}, 
 #' @author Avinash Acharya
 #'
-#' @return \code{portRsqr} returns the sample mean values and plots the time series of corresponding R squared values
+#' @return \code{ffmRsq} returns the sample mean values and plots the time series of corresponding R squared values
 #'                         and the Variance Inflation factors depending on the values of \code{rsq}, \code{rsqAdj} and \code{VIF}.
 #'                         The time series of the output values are also printed if \code{isPrint} is \code{TRUE} 
 #'
@@ -34,17 +38,17 @@
 #'               date.var="DATE", exposure.vars="SECTOR")
 #'
 #' #Calcuate and plot the portfolio R-squared values
-#'  portRsqr(fit)
+#'  ffmRsq(fit)
 #'  
 #'  fit1 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN",
 #'               date.var="DATE", exposure.vars=c("SECTOR", "P2B", "EV2S", "MARKETCAP"))
 #'
-#' #Plot and print the time series of VIF
-#'  portRsqr(fit1, VIF=TRUE, isPrint=TRUE)
+#' #Plot and print the time series of Adj R-squared and VIF values
+#'  ffmRsq(fit1, VIF=TRUE, rsqAdj=TRUE, isPrint=TRUE, plt.type = 2)
 #' @export
 
 # Not the final version
-portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, isPlot =T, ...)
+ffmRsq <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, plt.type= 1, digits=2, isPrint=T, isPlot =T, lwd =1, ...)
 {
   # set defaults and check input validity
   if (!inherits(ffmObj, "ffm"))
@@ -64,12 +68,18 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, isPlot
   
   if(rsq)
   {
-    if(isPlot)
+    if(isPlot && plt.type == 1)
       {
         barplot(r2,las=2,col=5,
                 names.arg= as.yearmon(names(r2)),
                 cex.names=0.5,
                 main="Factor Model R-squared Values")
+    }
+    else if (isPlot && plt.type == 2)
+      {
+      r2.xts = xts(r2, order.by = as.yearmon(names(r2)))
+      tsPlotMP(r2.xts,stripLeft = FALSE, scaleType = "same",
+               color = "blue", yname = "",lwd =lwd,  main = "Factor Model R-squared Values", type = "h")
       }
     r2.mean<- round(mean(r2),digits = digits)
     names(r2.mean) <- "Mean R-Square"
@@ -82,12 +92,18 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, isPlot
     K <- length(ffmObj$factor.name)
     p <- K-1
     adj.r2 <- 1 - ((n.assets - 1)*(1- r2) / (n.assets - p - 1))
-    if(isPlot)
+    if(isPlot && plt.type == 1)
     {
       barplot(adj.r2,las=2,col=5,
             names.arg= as.yearmon(names(r2)),
             cex.names=0.5,
             main=" Factor Model Adjusted R-squared Values")
+    }
+    else if (isPlot && plt.type == 2)
+    {
+      adj.r2.xts = xts(adj.r2, order.by = as.yearmon(names(r2)))
+      tsPlotMP(adj.r2.xts,stripLeft = FALSE, scaleType = "same",
+               color = "blue", yname = "", lwd = lwd, main = "Factor Model Adjusted R-squared Values", type = "h")
     }
     adj.r2.mean<- round(mean(adj.r2),digits = digits)
     names(adj.r2.mean) <- "Mean Adj R-Square"
@@ -128,7 +144,7 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, isPlot
     {
     #Assuming the number of continous variables in exposure.vars is less than 6,layout=c(1,ncols) is defined.
     tsPlotMP(0.01*vifs.xts,stripLeft = TRUE, layout = c(1,ncols), scaleType = "same",
-             color = "blue", yname = "", main = "Factor Model VIF Values", type = "h")
+             color = "blue", yname = "", lwd = lwd, main = "Factor Model VIF Values", type = "h")
     }
     vifs.xts = round(vifs.xts,digits = digits)
     out<- append(out, list("Mean.VIF" = vifs.mean))
@@ -137,8 +153,10 @@ portRsqr <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, digits=2, isPrint=F, isPlot
 
   if(isPrint)
     {
-      return(c(out, ret))
+      print(c(out, ret))
+    }else{
+      print(out)
+      invisible(c(out, ret))
     }
-  out
 }
 
