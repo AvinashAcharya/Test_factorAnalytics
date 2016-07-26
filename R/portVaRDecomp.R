@@ -6,9 +6,9 @@
 #' factor return given fund return is equal to its VaR and approximated by a
 #' kernel estimator. Option to choose between non-parametric and Normal.
 #' 
-#' @importFrom stats quantile residuals cov resid time qnorm
-#' @importFrom xts as.xts 
-#' @importFrom zoo as.Date  
+#' @importFrom stats quantile residuals cov resid qnorm
+#' @importFrom xts as.xts
+#' @importFrom zoo as.Date index
 #' 
 #' @details The factor model for an portfolio's return at time \code{t} has the 
 #' form \cr \cr \code{R(t) = beta'f(t) + e(t) = beta.star'f.star(t)} \cr \cr 
@@ -97,6 +97,7 @@ portVaRDecomp <- function(object,  ...){
 
 #' @rdname portVaRDecomp
 #' @method portVaRDecomp tsfm
+#' @importFrom zoo index 
 #' @export
 
 
@@ -138,7 +139,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
   # factor returns and residuals data
   factors.xts <- object$data[,object$factor.names]
   resid.xts <- as.xts(t(t(residuals(object))/object$resid.sd))
-  index(resid.xts) <- as.Date(index(resid.xts))
+  zoo::index(resid.xts) <- as.Date(zoo::index(resid.xts))
 
   
   if (type=="normal") {
@@ -177,7 +178,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
   match = colnames(object$data) %in% asset.names
   R.xts <- object$data[,match]
   R.xts <- R.xts * weights
-  R.xts = as.xts(rowSums(R.xts), order.by = index(R.xts))
+  R.xts = as.xts(rowSums(R.xts), order.by = zoo::index(R.xts))
   names(R.xts) = 'RETURN'
   
   # get VaR for porfolio
@@ -235,6 +236,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
 
 #' @rdname portVaRDecomp
 #' @method portVaRDecomp ffm
+#' @importFrom zoo index 
 #' @export
 
 portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal"), ...) {
@@ -274,7 +276,7 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   # factor returns and residuals data
   factors.xts <- object$factor.returns
   resid.xts <- as.xts(t(t(residuals(object))/sqrt(object$resid.var)))
-  index(resid.xts) <- as.Date(index(resid.xts))
+  zoo::index(resid.xts) <- as.Date(zoo::index(resid.xts))
   
   if (type=="normal") {
     # get cov(F): K x K
@@ -327,7 +329,7 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   n.exceed <- length(idx.exceed)
   
   # get F.star data object
-  index(factors.xts) <- index(resid.xts)
+  zoo::index(factors.xts) <- zoo::index(resid.xts)
   factor.star <- merge(factors.xts, resid.xts)
   
   

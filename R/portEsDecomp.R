@@ -7,6 +7,10 @@
 #' than or equal to its value-at-risk (VaR). Option to choose between 
 #' non-parametric and Normal.
 #' 
+#' @importFrom stats quantile residuals cov resid qnorm
+#' @importFrom xts as.xts  
+#' @importFrom zoo as.Date index 
+#' 
 #' @details The factor model for an asset's return at time \code{t} has the 
 #' form \cr \cr \code{R(t) = beta'f(t) + e(t) = beta.star'f.star(t)} \cr \cr 
 #' where, \code{beta.star=(beta,sig.e)} and \code{f.star(t)=[f(t)',z(t)]'}. By 
@@ -94,6 +98,7 @@ portEsDecomp <- function(object, ...){
 
 #' @rdname portEsDecomp
 #' @method portEsDecomp tsfm
+#' @importFrom zoo index 
 #' @export
 
 portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","normal"), 
@@ -134,7 +139,7 @@ portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   # factor returns and residuals data
   factors.xts <- object$data[,object$factor.names]
   resid.xts <- as.xts(t(t(residuals(object))/object$resid.sd))
-  index(resid.xts) <- as.Date(index(resid.xts))
+  zoo::index(resid.xts) <- as.Date(zoo::index(resid.xts))
   
   # initialize lists and matrices
   N <- length(object$asset.names)
@@ -153,7 +158,7 @@ portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   match = colnames(object$data) %in% asset.names
   R.xts <- object$data[,match]
   R.xts <- R.xts * weights
-  R.xts = as.xts(rowSums(R.xts), order.by = index(R.xts))
+  R.xts = as.xts(rowSums(R.xts), order.by = zoo::index(R.xts))
   names(R.xts) = 'RETURN'
   
   # get VaR for portfolio
@@ -206,6 +211,7 @@ portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norma
 
 #' @rdname portEsDecomp
 #' @method portEsDecomp ffm
+#' @importFrom zoo index 
 #' @export
 
 portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal"), ...){
@@ -245,7 +251,7 @@ portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal
   # factor returns and residuals data
   factors.xts <- object$factor.returns
   resid.xts <- as.xts(t(t(residuals(object))/sqrt(object$resid.var)))
-  index(resid.xts) <- as.Date(index(resid.xts))
+  zoo::index(resid.xts) <- as.Date(zoo::index(resid.xts))
   
   
   # initialize lists and matrices
@@ -286,7 +292,7 @@ portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal
   ES.fm <- mean(R.xts[idx.exceed], na.rm =TRUE)
   
   # get F.star data object
-  index(factors.xts) <- index(resid.xts)
+  zoo::index(factors.xts) <- zoo::index(resid.xts)
   factor.star <- merge(factors.xts, resid.xts)
   
   # compute marginal ES as expected value of factor returns, when the asset's 

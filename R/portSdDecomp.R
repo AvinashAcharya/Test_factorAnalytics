@@ -3,7 +3,10 @@
 #' @description Compute the factor contributions to standard deviation (SD) of 
 #' portfolio return based on Euler's theorem, given the fitted factor model.
 #' 
-#' @importFrom stats cov
+#' @importFrom stats quantile residuals cov resid qnorm
+#' @importFrom xts as.xts 
+#' @importFrom zoo index
+#' @importFrom zoo as.Date  
 #' 
 #' @param object fit object of class \code{tsfm}, or \code{ffm}.
 #' @param weights a vector of weights of the assets in the portfolio. Default is NULL, 
