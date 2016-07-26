@@ -32,7 +32,7 @@ For plots of a group of assets: \cr
 1 = Time Series plot of portfolio returns decomposition, \cr
 2 = Time Series plot of portfolio style factors returns, \cr
 3 = Time Series plot of portfolio sector returns, \cr
-4 = Baxplot of Portfolio Returns Components. \cr \cr}
+4 = Barplot of Portfolio Returns Components. \cr \cr}
 
 \item{...}{other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses}
 }
@@ -52,7 +52,6 @@ data("wtsStocks145GmvLo")
 wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)                         
                                                                                  
 #fit a fundamental factor model
-require(factorAnalytics)
 fit <- fitFfm(data = dat, 
               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 

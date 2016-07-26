@@ -6,9 +6,9 @@
 #' factor return given fund return is equal to its VaR and approximated by a
 #' kernel estimator. Option to choose between non-parametric and Normal.
 #' 
-#' @importFrom stats quantile residuals cov resid time qnorm
-#' @importFrom xts as.xts 
-#' @importFrom zoo as.Date  
+#' @importFrom stats quantile residuals cov resid qnorm
+#' @importFrom xts as.xts
+#' @importFrom zoo as.Date index
 #' 
 #' @details The factor model for an portfolio's return at time \code{t} has the 
 #' form \cr \cr \code{R(t) = beta'f(t) + e(t) = beta.star'f.star(t)} \cr \cr 
@@ -23,7 +23,8 @@
 #' Epperlein & Smillie (2006); a triangular smoothing kernel is used here. 
 #' 
 #' @param object fit object of class \code{tsfm}, or \code{ffm}.
-#' @param weights a vector of weights of the assets in the portfolio. Default is NULL.
+#' @param weights a vector of weights of the assets in the portfolio. Default is NULL, 
+#' in which case an equal weights will be used.
 #' @param p confidence level for calculation. Default is 0.95.
 #' @param type one of "np" (non-parametric) or "normal" for calculating VaR. 
 #' Default is "np".
@@ -49,18 +50,20 @@
 #' 
 #' @examples
 #' # Time Series Factor Model
-#' require(factorAnalytics)
 #' data(managers)
-#' fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
+#' fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
 #'                      factor.names=colnames(managers[,(7:9)]),
 #'                      rf.name="US.3m.TR", data=managers)
 #' decomp <- portVaRDecomp(fit.macro)
 #' # get the factor contributions of risk
 #' decomp$cVaR
-#' # random weights
+#' 
+#' # random weights 
 #' wts = runif(6)
 #' wts = wts/sum(wts)
-#' portVaRDecomp(fit.macro, wts) 
+#' names(wts) <- colnames(managers)[1:6]
+#' portVaRDecomp(fit.macro, wts)
+#' 
 #' 
 #' # Fundamental Factor Model
 #' data("stocks145scores6")
@@ -68,11 +71,11 @@
 #' dat$DATE = as.yearmon(dat$DATE)
 #' dat = dat[dat$DATE >=as.yearmon("2008-01-01") & dat$DATE <= as.yearmon("2012-12-31"),]
 #'
-#' #Load long-only GMV weights for the return data
+#' # Load long-only GMV weights for the return data
 #' data("wtsStocks145GmvLo")
 #' wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)  
-#'                                                      
-#' #fit a fundamental factor model
+#'                                                       
+#' # fit a fundamental factor model
 #' fit.cross <- fitFfm(data = dat, 
 #'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
 #'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
@@ -94,7 +97,9 @@ portVaRDecomp <- function(object,  ...){
 
 #' @rdname portVaRDecomp
 #' @method portVaRDecomp tsfm
+#' @importFrom zoo index 
 #' @export
+
 
 portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","normal"),  
                              use="pairwise.complete.obs", ...) {
@@ -120,8 +125,12 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
     if(n.assets != length(weights)){
       stop("Invalid argument: incorrect number of weights")
     }
-    weights = weights[asset.names]
-  }   
+    if(!is.null(names(weights))){
+      weights = weights[asset.names]
+    }else{
+      stop("Invalid argument: names of weights vector should match with asset names")
+    }
+  }  
   
   # get portfolio beta.star: 1 x (K+N)
   beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), t(weights * object$resid.sd)))  
@@ -130,7 +139,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
   # factor returns and residuals data
   factors.xts <- object$data[,object$factor.names]
   resid.xts <- as.xts(t(t(residuals(object))/object$resid.sd))
-  time(resid.xts) <- as.Date(time(resid.xts))
+  zoo::index(resid.xts) <- as.Date(zoo::index(resid.xts))
 
   
   if (type=="normal") {
@@ -169,7 +178,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
   match = colnames(object$data) %in% asset.names
   R.xts <- object$data[,match]
   R.xts <- R.xts * weights
-  R.xts = as.xts(rowSums(R.xts), order.by = index(R.xts))
+  R.xts = as.xts(rowSums(R.xts), order.by = zoo::index(R.xts))
   names(R.xts) = 'RETURN'
   
   # get VaR for porfolio
@@ -227,6 +236,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
 
 #' @rdname portVaRDecomp
 #' @method portVaRDecomp ffm
+#' @importFrom zoo index 
 #' @export
 
 portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal"), ...) {
@@ -252,8 +262,12 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
     if(n.assets != length(weights)){
       stop("Invalid argument: incorrect number of weights")
     }
-    weights = weights[asset.names]
-  }   
+    if(!is.null(names(weights))){
+      weights = weights[asset.names]
+    }else{
+      stop("Invalid argument: names of weights vector should match with asset names")
+    }
+  } 
   
   # get portfolio beta.star: 1 x (K+N)
   beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), t(weights * sqrt(object$resid.var))))   
@@ -262,7 +276,7 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   # factor returns and residuals data
   factors.xts <- object$factor.returns
   resid.xts <- as.xts(t(t(residuals(object))/sqrt(object$resid.var)))
-  time(resid.xts) <- as.Date(time(resid.xts))
+  zoo::index(resid.xts) <- as.Date(zoo::index(resid.xts))
   
   if (type=="normal") {
     # get cov(F): K x K
@@ -315,7 +329,7 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   n.exceed <- length(idx.exceed)
   
   # get F.star data object
-  time(factors.xts) <- time(resid.xts)
+  zoo::index(factors.xts) <- zoo::index(resid.xts)
   factor.star <- merge(factors.xts, resid.xts)
   
   

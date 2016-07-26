@@ -1,8 +1,7 @@
 
 # Time Series Factor Model
 data(managers)
-require(factorAnalytics)
-fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
+fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
                      factor.names=colnames(managers[,(7:9)]),
                      rf.name="US.3m.TR", data=managers)
 
@@ -11,6 +10,9 @@ expect_equal(is.list(portSdDecomp(fit.macro)), TRUE)
 # random weights
 wts = runif(6)
 wts = wts/sum(wts)
+expect_error(portSdDecomp(fit.macro, wts), 
+             "Invalid argument: names of weights vector should match with asset names") 
+names(wts) <- colnames(managers)[1:6]
 expect_equal(is.list(portSdDecomp(fit.macro,wts)), TRUE) 
 
 #testing error message

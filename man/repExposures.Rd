@@ -29,8 +29,8 @@ repExposures(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE,
 is required, specify a subset of the numbers 1:3 for plots. If \code{which=NULL} (default), the following menu 
 appears: \cr \cr
 For plots of a group of assets: \cr
-1 = Time Series plot of factor exposures, \cr
-2 = Boxplot of factor exposures, \cr
+1 = Time series plot of style factor exposures, \cr
+2 = Boxplot of style factor exposures, \cr
 3 = Barplot of factor exposures. \cr \cr}
 
 \item{...}{other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses}
@@ -51,7 +51,6 @@ data("wtsStocks145GmvLo")
 wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)  
 
 #fit a fundamental factor model
-require(factorAnalytics)
 fit <- fitFfm(data = dat, 
               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
@@ -59,7 +58,7 @@ fit <- fitFfm(data = dat,
 
 repExposures(fit, wtsStocks145GmvLo, isPlot = FALSE, digits = 4)
 repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 2,
-             add.grid = TRUE, scaleType = 'same', layout = c(3,2))
+             add.grid = TRUE, scaleType = 'same', layout = c(3,3))
 repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE, which = 1,
              add.grid = FALSE, zeroLine = TRUE, color = 'Blue')
 repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 3,
