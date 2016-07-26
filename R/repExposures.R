@@ -3,7 +3,7 @@
 #' @description Calculate k factor time series based on fundamental factor model. This method takes fundamental factor model fit, "ffm" object, and portfolio weight as inputs and generates numeric summary and plot visualization. 
 #' 
 #' @importFrom zoo as.yearmon coredata index
-#' @importFrom graphics barplot boxplot legend 
+#' @importFrom graphics barplot boxplot 
 #' @importFrom stats sd
 #' @importFrom utils menu
 #' 
@@ -143,9 +143,8 @@ repExposures <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, 
                sect = as.character(unique(dat[,exposures.char]))
                d = colMeans(X[,sect])
                
-               barplot(c,las=2,col=c(5,2), cex.axis = 0.8, beside = T, ylab = "Percent (%)", main="Style Exposures Means and Vols")
-               legend(x = 'topleft', legend = c('mean','vol'), pch = 15, col = c(5,2), bty = 'n')
-               
+               barplot(a,las=2,col=5, cex.axis = 0.8, ylab = "Percent (%)", main="Style Exposures Means")
+               barplot(b,las=2,col=5, cex.axis = 0.8, ylab = "Percent (%)", main="Style Exposures Vols")
                barplot(d,las=2,col=5, cex.axis = 0.8, ylab = "Percent (%)", main="Sector Exposure Means")
                
                par(mfrow = c(1,1))

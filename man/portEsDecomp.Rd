@@ -70,7 +70,7 @@ average of the observations in that data window.
 \examples{
 # Time Series Factor Model
 data(managers)
-fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
+fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
                      factor.names=colnames(managers[,(7:8)]), data=managers)
 ES.decomp <- portEsDecomp(fit.macro)
 # get the component contributions

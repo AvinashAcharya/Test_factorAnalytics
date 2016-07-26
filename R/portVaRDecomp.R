@@ -51,7 +51,7 @@
 #' @examples
 #' # Time Series Factor Model
 #' data(managers)
-#' fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
+#' fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
 #'                      factor.names=colnames(managers[,(7:9)]),
 #'                      rf.name="US.3m.TR", data=managers)
 #' decomp <- portVaRDecomp(fit.macro)
@@ -138,7 +138,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
   # factor returns and residuals data
   factors.xts <- object$data[,object$factor.names]
   resid.xts <- as.xts(t(t(residuals(object))/object$resid.sd))
-  time(resid.xts) <- as.Date(time(resid.xts))
+  index(resid.xts) <- as.Date(index(resid.xts))
 
   
   if (type=="normal") {
@@ -274,7 +274,7 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   # factor returns and residuals data
   factors.xts <- object$factor.returns
   resid.xts <- as.xts(t(t(residuals(object))/sqrt(object$resid.var)))
-  time(resid.xts) <- as.Date(time(resid.xts))
+  index(resid.xts) <- as.Date(index(resid.xts))
   
   if (type=="normal") {
     # get cov(F): K x K
@@ -327,7 +327,7 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   n.exceed <- length(idx.exceed)
   
   # get F.star data object
-  time(factors.xts) <- time(resid.xts)
+  index(factors.xts) <- index(resid.xts)
   factor.star <- merge(factors.xts, resid.xts)
   
   

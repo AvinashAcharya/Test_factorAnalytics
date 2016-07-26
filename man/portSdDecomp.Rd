@@ -42,7 +42,7 @@ portfolio return based on Euler's theorem, given the fitted factor model.
 \examples{
 # Time Series Factor Model
 data(managers)
-fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
+fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
                      factor.names=colnames(managers[,(7:9)]),
                      rf.name="US.3m.TR", data=managers)
 decomp <- portSdDecomp(fit.macro)

@@ -50,7 +50,7 @@
 #' @examples
 #' # Time Series Factor Model
 #' data(managers)
-#' fit.macro <- fitTsfm(asset.names=colnames(managers[,(1:6)]),
+#' fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
 #'                      factor.names=colnames(managers[,(7:8)]), data=managers)
 #' ES.decomp <- portEsDecomp(fit.macro)
 #' # get the component contributions
@@ -134,7 +134,7 @@ portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   # factor returns and residuals data
   factors.xts <- object$data[,object$factor.names]
   resid.xts <- as.xts(t(t(residuals(object))/object$resid.sd))
-  time(resid.xts) <- as.Date(time(resid.xts))
+  index(resid.xts) <- as.Date(index(resid.xts))
   
   # initialize lists and matrices
   N <- length(object$asset.names)
@@ -245,7 +245,7 @@ portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal
   # factor returns and residuals data
   factors.xts <- object$factor.returns
   resid.xts <- as.xts(t(t(residuals(object))/sqrt(object$resid.var)))
-  time(resid.xts) <- as.Date(time(resid.xts))
+  index(resid.xts) <- as.Date(index(resid.xts))
   
   
   # initialize lists and matrices
@@ -286,7 +286,7 @@ portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal
   ES.fm <- mean(R.xts[idx.exceed], na.rm =TRUE)
   
   # get F.star data object
-  time(factors.xts) <- time(resid.xts)
+  index(factors.xts) <- index(resid.xts)
   factor.star <- merge(factors.xts, resid.xts)
   
   # compute marginal ES as expected value of factor returns, when the asset's 
