@@ -19,9 +19,9 @@
 #' @param isPrint  logical. if \code{TRUE}, the time series of the computed factor model values is printed along with their mean values.
 #'                 Else, only the mean values are printed. Default is \code{TRUE}.
 #' @param isPlot   logical. if \code{TRUE}, the time series of the output is plotted. Default is \code{TRUE}.
-#' @param lwd      line width relative to the default. Default is 1.
+#' @param lwd      line width relative to the default. Default is 2.
 #' @param ...      potentially further arguments passed.
-#' @author Avinash Acharya
+#' @author Doug Martin, Avinash Acharya
 #'
 #' @return \code{ffmRsq} returns the sample mean values and plots the time series of corresponding R squared values
 #'                         and the Variance Inflation factors depending on the values of \code{rsq}, \code{rsqAdj} and \code{VIF}.
@@ -48,7 +48,7 @@
 #' @export
 
 # Not the final version
-ffmRsq <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, plt.type= 1, digits=2, isPrint=T, isPlot =T, lwd =1, ...)
+ffmRsq <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, plt.type= 1, digits=2, isPrint=T, isPlot =T, lwd =2, ...)
 {
   # set defaults and check input validity
   if (!inherits(ffmObj, "ffm"))
@@ -78,11 +78,11 @@ ffmRsq <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, plt.type= 1, digits=2, isPrin
     else if (isPlot && plt.type == 2)
       {
       r2.xts = xts(r2, order.by = as.yearmon(names(r2)))
-      tsPlotMP(r2.xts,stripLeft = FALSE, scaleType = "same",
+      tsPlotMP(0.01*r2.xts,stripLeft = FALSE, scaleType = "same",
                color = "blue", yname = "",lwd =lwd,  main = "Factor Model R-squared Values", type = "h")
       }
     r2.mean<- round(mean(r2),digits = digits)
-    names(r2.mean) <- "Mean R-Square"
+    names(r2.mean) <- "Mean R-Squared"
     out<- r2.mean
     r2<- round(r2,digits = digits)
     ret<- list("R-squared" = r2)
@@ -102,11 +102,11 @@ ffmRsq <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, plt.type= 1, digits=2, isPrin
     else if (isPlot && plt.type == 2)
     {
       adj.r2.xts = xts(adj.r2, order.by = as.yearmon(names(r2)))
-      tsPlotMP(adj.r2.xts,stripLeft = FALSE, scaleType = "same",
+      tsPlotMP(0.01*adj.r2.xts,stripLeft = FALSE, scaleType = "same",
                color = "blue", yname = "", lwd = lwd, main = "Factor Model Adjusted R-squared Values", type = "h")
     }
     adj.r2.mean<- round(mean(adj.r2),digits = digits)
-    names(adj.r2.mean) <- "Mean Adj R-Square"
+    names(adj.r2.mean) <- "Mean Adj R-Squared"
     out<- adj.r2.mean
     adj.r2 <- round(adj.r2,digits = digits)
     ret<- list("Adj.r-Squared" = adj.r2 )

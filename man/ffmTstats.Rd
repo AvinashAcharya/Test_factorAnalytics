@@ -4,8 +4,8 @@
 \alias{ffmTstats}
 \title{t-stats and Plots for a fitted Fundamental Factor Model}
 \usage{
-ffmTstats(ffmObj, isPlot = TRUE, isPrint = FALSE, col = "cyan",
-  z.alpha = 1.96, layout = c(2, 3), type = "h", ...)
+ffmTstats(ffmObj, isPlot = TRUE, isPrint = FALSE, col = "cyan", lwd = 2,
+  digits = 2, z.alpha = 1.96, layout = c(2, 3), type = "h", ...)
 }
 \arguments{
 \item{ffmObj}{an object of class \code{ffm} produced by \code{fitFfm}}
@@ -15,6 +15,10 @@ ffmTstats(ffmObj, isPlot = TRUE, isPrint = FALSE, col = "cyan",
 \item{isPrint}{logical. if \code{TRUE}, the time series of the computed factor model values is printed. Default is \code{FALSE},}
 
 \item{col}{specification for the default plotting color. Default is cyan}
+
+\item{lwd}{line width relative to the default. Default is 2.}
+
+\item{digits}{an integer indicating the number of decimal places to be used for rounding. Default is 2.}
 
 \item{z.alpha}{critical value corresponding to the confidence interval. Default is 1.96 i.e 95\% C.I}
 
@@ -26,8 +30,7 @@ and \code{"b"} for both. Deafault is \code{"h"}.}
 \item{...}{potentially further arguments passed.}
 }
 \value{
-\code{ffmTstats} plots the R-squared, t-stats and significant t-stats values  if \code{isPlot} is \code{TRUE} and returns a list with following components:
-\item{R-squared}{ length-T vector of R-squared values.}
+\code{ffmTstats} plots the t-stats and significant t-stats values  if \code{isPlot} is \code{TRUE} and returns a list with following components:
 \item{tstats}{ an xts object of t-stats values.}
 \item{z.alpha}{ critical value corresponding to the confidence interval.}
 }
@@ -44,8 +47,8 @@ Calculate and plot the time series of the R-squared values, t-statistic vales an
  fit <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("MARKETCAP","ENTVALUE","P2B","EV2S"),
                date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS")
                
- #Find r2, tstats  with C.I = 95\% and plot the results.
- stats = ffmTstats(fit, isPlot = TRUE, col = "blue", z.alpha =1.96)  
+ #Find tstats  with C.I = 95\% and plot the results.
+ stats = ffmTstats(fit, isPlot = TRUE, col = "blue", digits =3, z.alpha =1.96)  
    
               
 

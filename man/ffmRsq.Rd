@@ -5,7 +5,7 @@
 \title{Factor Model R-squared and VIF Values}
 \usage{
 ffmRsq(ffmObj, rsq = T, rsqAdj = F, VIF = F, plt.type = 1, digits = 2,
-  isPrint = T, isPlot = T, lwd = 1, ...)
+  isPrint = T, isPlot = T, lwd = 2, ...)
 }
 \arguments{
 \item{ffmObj}{an object of class \code{ffm} produced by \code{fitFfm}}
@@ -27,7 +27,7 @@ Else, only the mean values are printed. Default is \code{TRUE}.}
 
 \item{isPlot}{logical. if \code{TRUE}, the time series of the output is plotted. Default is \code{TRUE}.}
 
-\item{lwd}{line width relative to the default. Default is 1.}
+\item{lwd}{line width relative to the default. Default is 2.}
 
 \item{...}{potentially further arguments passed.}
 }
@@ -59,6 +59,6 @@ require(factorAnalytics)
  ffmRsq(fit1, VIF=TRUE, rsqAdj=TRUE, isPrint=TRUE, plt.type = 2)
 }
 \author{
-Avinash Acharya
+Doug Martin, Avinash Acharya
 }
 
