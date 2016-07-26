@@ -7,7 +7,7 @@ fit <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN",
 
 #test for output lengths
 out <- ffmRsq(fit)
-expect_equal(length(out), 1)
+expect_equal(length(out), 2)
 
 out <- ffmRsq(fit, rsq = F, rsqAdj = T)
 expect_equal(length(out), 2)
