@@ -10,7 +10,7 @@ ffmTstats(ffmObj, isPlot = TRUE, isPrint = FALSE, col = "cyan", lwd = 2,
 \arguments{
 \item{ffmObj}{an object of class \code{ffm} produced by \code{fitFfm}}
 
-\item{isPlot}{logical. If \code{TRUE} the barplots are plotted.}
+\item{isPlot}{logical. If \code{FALSE} no plots are displayed.}
 
 \item{isPrint}{logical. if \code{TRUE}, the time series of the computed factor model values is printed. Default is \code{FALSE},}
 
@@ -35,7 +35,7 @@ and \code{"b"} for both. Deafault is \code{"h"}.}
 \item{z.alpha}{ critical value corresponding to the confidence interval.}
 }
 \description{
-Calculate and plot the time series of the R-squared values, t-statistic vales and the
+Calculate and plot the time series of the t-statistic values and the
  number of risk indices with significant t-stats for a fundamentally fit object.
 }
 \examples{
@@ -44,7 +44,7 @@ Calculate and plot the time series of the R-squared values, t-statistic vales an
  
 #Fit a Ffm
  require(factorAnalytics)
- fit <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("MARKETCAP","ENTVALUE","P2B","EV2S"),
+ fit <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("MKTCAP","ENTVAL","P2B","EV2S"),
                date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS")
                
  #Find tstats  with C.I = 95\% and plot the results.

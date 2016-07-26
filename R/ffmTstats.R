@@ -1,7 +1,7 @@
 #' @title  t-stats and Plots for a fitted Fundamental Factor Model
 #' 
 #' @description
-#'  Calculate and plot the time series of the R-squared values, t-statistic vales and the
+#'  Calculate and plot the time series of the t-statistic values and the
 #'  number of risk indices with significant t-stats for a fundamentally fit object.
 #' @importFrom xts xts
 #' @importFrom zoo plot.zoo
@@ -11,7 +11,7 @@
 #' @importFrom lattice panel.abline xyplot panel.xyplot
 #'  
 #' @param ffmObj   an object of class \code{ffm} produced by \code{fitFfm}
-#' @param isPlot   logical. If \code{TRUE} the barplots are plotted.
+#' @param isPlot   logical. If \code{FALSE} no plots are displayed.
 #' @param isPrint  logical. if \code{TRUE}, the time series of the computed factor model values is printed. Default is \code{FALSE}, 
 #' @param col      specification for the default plotting color. Default is cyan
 #' @param lwd      line width relative to the default. Default is 2.
@@ -34,7 +34,7 @@
 #'  
 #' #Fit a Ffm
 #'  require(factorAnalytics)
-#'  fit <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("MARKETCAP","ENTVALUE","P2B","EV2S"),
+#'  fit <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("MKTCAP","ENTVAL","P2B","EV2S"),
 #'                date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS")
 #'                
 #'  #Find tstats  with C.I = 95% and plot the results.

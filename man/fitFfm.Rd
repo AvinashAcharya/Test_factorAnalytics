@@ -146,7 +146,7 @@ methods.
  data("factorDataSetDjia5Yrs")
 
 # fit a fundamental factor model
-exposure.vars <- c("P2B", "MARKETCAP")
+exposure.vars <- c("P2B", "MKTCAP")
 fit <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
               date.var="DATE", exposure.vars=exposure.vars)
 names(fit)
@@ -161,7 +161,7 @@ fit1 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN",
 
  factorDataSetDjia5Yrs$COUNTRY = rep(rep(c(rep("US", 1 ),rep("INDIA", 1),
                                        rep("GERMANY", 1 )), 10), 60)
- exposure.vars= c("SECTOR", "COUNTRY","P2B", "MARKETCAP")
+ exposure.vars= c("SECTOR", "COUNTRY","P2B", "MKTCAP")
  
  fit.MICM <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
                    date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE)
