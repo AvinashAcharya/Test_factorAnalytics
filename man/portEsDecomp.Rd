@@ -26,7 +26,7 @@ equal weights will be used.}
 
 \item{p}{confidence level for calculation. Default is 0.95.}
 
-\item{type}{one of "np" (non-parametric) or "normal" for calculating VaR. 
+\item{type}{one of "np" (non-parametric) or "normal" for calculating Es. 
 Default is "np".}
 
 \item{use}{an optional character string giving a method for computing factor
@@ -41,10 +41,10 @@ A list containing
 \item{n.exceed}{length-1 vector of number of observations beyond VaR for 
 portfolio.}
 \item{idx.exceed}{numeric vector of index values of exceedances.}
-\item{mES}{length-(N + K) vector of marginal contributions to VaR.}
-\item{cES}{length-(N + K) vector of component contributions to VaR.}
-\item{pcES}{length-(N + K) vector of percentage component contributions to VaR.}
-Where, K is the number of factors and N is the number of assets.
+\item{mES}{length-(K + 1) vector of marginal contributions to Es.}
+\item{cES}{length-(K + 1) vector of component contributions to Es.}
+\item{pcES}{length-(K + 1) vector of percentage component contributions to Es.}
+Where, K is the number of factors.
 }
 \description{
 Compute the factor contributions to Expected Tail Loss or 
@@ -104,5 +104,12 @@ portEsDecomp(fit.cross, weights = wtsStocks145GmvLo)
 }
 \author{
 Douglas Martin, Lingjie Yi
+}
+\seealso{
+\code{\link{fitTsfm}}, \code{\link{fitSfm}}, \code{\link{fitFfm}}
+for the different factor model fitting functions.
+
+\code{\link{portVaRDecomp}} for factor model VaR decomposition.
+\code{\link{portEsDecomp}} for factor model ES decomposition.
 }
 

@@ -40,13 +40,18 @@
 #' \item{VaR.fm}{length-1 vector of factor model VaRs of portfolio returns.}
 #' \item{n.exceed}{length-1 vector of number of observations beyond VaR.}
 #' \item{idx.exceed}{list of numeric vector of index values of exceedances.}
-#' \item{mVaR}{length-(N+K) vector of marginal contributions to VaR.}
-#' \item{cVaR}{length-(N+K) vector of component contributions to VaR.}
-#' \item{pcVaR}{length-(N+K) vector of percentage component contributions to VaR.}
-#' Where, K is the number of factors and N is the number of assets.
+#' \item{mVaR}{length-(K + 1) vector of marginal contributions to VaR.}
+#' \item{cVaR}{length-(K + 1) vector of component contributions to VaR.}
+#' \item{pcVaR}{length-(K + 1) vector of percentage component contributions to VaR.}
+#' Where, K is the number of factors.
 #' 
 #' @author Douglas Martin, Lingjie Yi
 #' 
+#' @seealso \code{\link{fitTsfm}}, \code{\link{fitSfm}}, \code{\link{fitFfm}}
+#' for the different factor model fitting functions.
+#' 
+#' \code{\link{portVaRDecomp}} for factor model VaR decomposition.
+#' \code{\link{portEsDecomp}} for factor model ES decomposition.
 #' 
 #' @examples
 #' # Time Series Factor Model
@@ -111,7 +116,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
     stop("Invalid args: type must be 'np' or 'normal' ")
   }
   
-  # get beta.star
+  # get beta.star: 1 x (K+1)
   beta <- object$beta
   beta[is.na(beta)] <- 0
   n.assets = nrow(beta)
@@ -130,49 +135,48 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
     }else{
       stop("Invalid argument: names of weights vector should match with asset names")
     }
-  }  
+  } 
   
-  # get portfolio beta.star: 1 x (K+N)
-  beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), t(weights * object$resid.sd)))  
+  # get portfolio beta.star: 1 x (K+1)
+  beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), sqrt(sum(weights^2 * object$resid.sd^2))))  
+  colnames(beta.star)[dim(beta.star)[2]] <- "residual"
 
 
   # factor returns and residuals data
   factors.xts <- object$data[,object$factor.names]
-  resid.xts <- as.xts(t(t(residuals(object))/object$resid.sd))
+  resid.xts <- as.xts(t(t(residuals(object))/object$resid.sd) %*% weights)
   zoo::index(resid.xts) <- as.Date(zoo::index(resid.xts))
-
   
   if (type=="normal") {
     # get cov(F): K x K
     factor <- as.matrix(object$data[, object$factor.names])
     factor.cov = cov(factor, use=use, ...)
     
-    # get cov(F.star): (K+N) x (K+N)
+    # get cov(F.star): (K+1) x (K+1)
     K <- ncol(object$beta)
-    factor.star.cov <- diag(K+n.assets)
+    factor.star.cov <- diag(K+1)
     factor.star.cov[1:K, 1:K] <- factor.cov
-    colnames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
-    rownames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
+    colnames(factor.star.cov) <- c(colnames(factor.cov),"residuals")
+    rownames(factor.star.cov) <- c(colnames(factor.cov),"residuals")
     
     # factor expected returns
-    MU <- c(colMeans(factors.xts, na.rm=TRUE), rep(0,n.assets))
-    names(MU) <- c(colnames(factor.cov),asset.names)
+    MU <- c(colMeans(factors.xts, na.rm=TRUE), 0)
+    names(MU) <- c(colnames(factor.cov),"residuals")
     
     # SIGMA*Beta to compute normal mVaR
     SIGB <-  beta.star %*% factor.star.cov
   }
   
   # initialize lists and matrices
-  N <- length(object$asset.names)
   K <- length(object$factor.names)
   VaR.fm <- rep(NA, 1)
   idx.exceed <- list()
   n.exceed <- rep(NA, 1)
   
-  mVaR <- rep(NA, N+K)
-  cVaR <- rep(NA, N+K)
-  pcVaR <- rep(NA, N+K)
-  names(mVaR)=names(cVaR)=names(pcVaR)=c(colnames(beta),asset.names)
+  mVaR <- rep(NA, 1+K)
+  cVaR <- rep(NA, 1+K)
+  pcVaR <- rep(NA, 1+K)
+  names(mVaR)=names(cVaR)=names(pcVaR)=colnames(beta.star)
 
   # return data for portfolio
   match = colnames(object$data) %in% asset.names
@@ -192,16 +196,10 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
   idx.exceed <- which(R.xts <= VaR.fm)
   # number of VaR exceedances
   n.exceed <- length(idx.exceed)
-  
-  #     # plot exceedances for asset i
-  #     plot(R.xts, type="b", main="Asset Returns and 5% VaR Violations",
-  #          ylab="Returns")
-  #     abline(h=0)
-  #     abline(h=VaR.fm, lwd=2, col="red")
-  #     points(R.xts[idx.exceed], type="p", pch=16, col="red")
-  
+
   # get F.star data object
   factor.star <- merge(factors.xts, resid.xts)
+  colnames(factor.star)[dim(factor.star)[2]] <- "residual"
   
   if (type=="np") {
     # epsilon is apprx. using Silverman's rule of thumb (bandwidth selection)
@@ -215,7 +213,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
     mVaR <- colMeans(factor.star*k.weight, na.rm =TRUE)
   } 
   else if (type=="normal")  {
-    mVaR <- MU + drop(SIGB) * qnorm(1-p)/sd(R.xts, na.rm=TRUE)
+    mVaR <- MU + SIGB * qnorm(1-p)/sd(R.xts, na.rm=TRUE)
   }
   
   # correction factor to ensure that sum(cVaR) = asset VaR
@@ -223,9 +221,9 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
   
   # compute marginal, component and percentage contributions to VaR
   # each of these have dimensions: N x (K+1)
-  mVaR <- cf * mVaR
-  cVaR <- mVaR * beta.star
-  pcVaR <- 100* cVaR / VaR.fm
+  mVaR <- drop(cf * mVaR)
+  cVaR <- drop(mVaR * beta.star)
+  pcVaR <- drop(100* cVaR / VaR.fm)
   
   fm.VaR.decomp <- list(VaR.fm=VaR.fm, n.exceed=n.exceed, idx.exceed=idx.exceed, 
                         mVaR=mVaR, cVaR=cVaR, pcVaR=pcVaR)
@@ -248,11 +246,20 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
     stop("Invalid args: type must be 'np' or 'normal' ")
   }
   
-  # get beta.star
-  beta <- object$beta
+  which.numeric <- sapply(object$data[,object$exposure.vars,drop=FALSE], is.numeric)
+  exposures.num <- object$exposure.vars[which.numeric]
+  exposures.char <- object$exposure.vars[!which.numeric]
+  
+  # get beta: 1 x K
+  if(!length(exposures.char)){
+    beta <- object$beta[,-1]
+  }else{
+    beta <- object$beta
+  }
+  
   beta[is.na(beta)] <- 0
   n.assets = nrow(beta)
-  asset.names <- object$asset.names
+  asset.names <- unique(object$data[[object$asset.var]])
   
   # check if there is weight input
   if(is.null(weights)){
@@ -267,47 +274,69 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
     }else{
       stop("Invalid argument: names of weights vector should match with asset names")
     }
-  } 
+  }   
   
-  # get portfolio beta.star: 1 x (K+N)
-  beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), t(weights * sqrt(object$resid.var))))   
-
+  # get cov(F): K x K
+  factor.cov = object$factor.cov
   
   # factor returns and residuals data
   factors.xts <- object$factor.returns
-  resid.xts <- as.xts(t(t(residuals(object))/sqrt(object$resid.var)))
+  resid.xts <- as.xts( t(t(residuals(object))/sqrt(object$resid.var)) %*% weights)
   zoo::index(resid.xts) <- as.Date(zoo::index(resid.xts))
   
-  if (type=="normal") {
-    # get cov(F): K x K
-    factor.cov = object$factor.cov
+  # re-order beta to match with factor.cov when both sector & style factors are used 
+  if(!is.null(exposures.char) & !is.null(exposures.num)){
+    sectors.sec <- levels(object$data[,exposures.char])
+    sectors.names <- paste(exposures.char,sectors.sec,sep="")
     
-    # get cov(F.star): (K+N) x (K+N)
+    for(i in 1:length(sectors.sec)){
+      colnames(beta)[colnames(beta) == sectors.names[i]] = sectors.sec[i]
+    }
+    
+    if(type == 'np'){
+      beta = beta[,colnames(factors.xts)]
+    }
+    else if(type == 'normal'){
+      beta = beta[,colnames(factor.cov)]
+    }
+  }
+  
+  # get portfolio beta.star: 1 x (K+1)
+  beta.star <- as.matrix(cbind(weights %*% beta, sqrt(sum(weights^2 * object$resid.var))))
+  colnames(beta.star)[dim(beta.star)[2]] <- "residual"
+  
+  if(type == 'np'){
+    # get F.star data object
+    zoo::index(factors.xts) <- zoo::index(resid.xts)
+    factor.star <- merge(factors.xts, resid.xts)
+    colnames(factor.star)[dim(factor.star)[2]] <- "residual"
+  }
+  else if (type=="normal") {
+    # get cov(F.star): (K+1) x (K+1)
     K <- ncol(object$beta)
-    factor.star.cov <- diag(K+n.assets)
+    factor.star.cov <- diag(K+1)
     factor.star.cov[1:K, 1:K] <- factor.cov
-    colnames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
-    rownames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
+    colnames(factor.star.cov) <- c(colnames(factor.cov),"residuals")
+    rownames(factor.star.cov) <- c(colnames(factor.cov),"residuals")
     
     # factor expected returns
-    MU <- c(colMeans(factors.xts, na.rm=TRUE), rep(0,n.assets))
-    names(MU) <- c(colnames(factor.cov),asset.names)
+    MU <- c(colMeans(factors.xts, na.rm=TRUE), 0)
+    names(MU) <- c(colnames(factor.cov),"residuals")
     
     # SIGMA*Beta to compute normal mVaR
     SIGB <-  beta.star %*% factor.star.cov
   }
-  
+
   # initialize lists and matrices
-  N <- length(object$asset.names)
   K <- length(object$factor.names)
   VaR.fm <- rep(NA, 1)
   idx.exceed <- list()
   n.exceed <- rep(NA, 1)
   
-  mVaR <- rep(NA, N+K)
-  cVaR <- rep(NA, N+K)
-  pcVaR <- rep(NA, N+K)
-  names(mVaR)=names(cVaR)=names(pcVaR)=c(colnames(beta),asset.names)
+  mVaR <- rep(NA, 1+K)
+  cVaR <- rep(NA, 1+K)
+  pcVaR <- rep(NA, 1+K)
+  names(mVaR)=names(cVaR)=names(pcVaR)=colnames(beta.star)
   
   dat = object$data
   # return data for portfolio
@@ -323,15 +352,11 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   else if (type=="normal") {
     VaR.fm <- mean(R.xts, na.rm=TRUE) + sd(R.xts, na.rm=TRUE)*qnorm(1-p)
   }
+  
   # index of VaR exceedances
   idx.exceed <- which(R.xts <= VaR.fm)
   # number of VaR exceedances
   n.exceed <- length(idx.exceed)
-  
-  # get F.star data object
-  zoo::index(factors.xts) <- zoo::index(resid.xts)
-  factor.star <- merge(factors.xts, resid.xts)
-  
   
   if (type=="np") {
     # epsilon is apprx. using Silverman's rule of thumb (bandwidth selection)

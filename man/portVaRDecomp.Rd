@@ -39,10 +39,10 @@ A list containing
 \item{VaR.fm}{length-1 vector of factor model VaRs of portfolio returns.}
 \item{n.exceed}{length-1 vector of number of observations beyond VaR.}
 \item{idx.exceed}{list of numeric vector of index values of exceedances.}
-\item{mVaR}{length-(N+K) vector of marginal contributions to VaR.}
-\item{cVaR}{length-(N+K) vector of component contributions to VaR.}
-\item{pcVaR}{length-(N+K) vector of percentage component contributions to VaR.}
-Where, K is the number of factors and N is the number of assets.
+\item{mVaR}{length-(K + 1) vector of marginal contributions to VaR.}
+\item{cVaR}{length-(K + 1) vector of component contributions to VaR.}
+\item{pcVaR}{length-(K + 1) vector of percentage component contributions to VaR.}
+Where, K is the number of factors.
 }
 \description{
 Compute the factor contributions to Value-at-Risk (VaR) of 
@@ -104,5 +104,12 @@ portVaRDecomp(fit.cross, weights = wtsStocks145GmvLo)
 }
 \author{
 Douglas Martin, Lingjie Yi
+}
+\seealso{
+\code{\link{fitTsfm}}, \code{\link{fitSfm}}, \code{\link{fitFfm}}
+for the different factor model fitting functions.
+
+\code{\link{portVaRDecomp}} for factor model VaR decomposition.
+\code{\link{portEsDecomp}} for factor model ES decomposition.
 }
 
