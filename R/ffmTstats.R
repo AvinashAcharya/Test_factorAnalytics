@@ -13,7 +13,8 @@
 #' @param ffmObj   an object of class \code{ffm} produced by \code{fitFfm}
 #' @param isPlot   logical. If \code{FALSE} no plots are displayed.
 #' @param isPrint  logical. if \code{TRUE}, the time series of the computed factor model values is printed. Default is \code{FALSE}, 
-#' @param col      specification for the default plotting color. Default is cyan
+#' @param myColor  length 2 vector specifying the plotting color for t-stats plot and for barplot 
+#'                 respectively. Default is \code{c("black", "cyan")}
 #' @param lwd      line width relative to the default. Default is 2.
 #' @param digits   an integer indicating the number of decimal places to be used for rounding. Default is 2.
 #' @param z.alpha  critical value corresponding to the confidence interval. Default is 1.96 i.e 95\% C.I
@@ -31,20 +32,25 @@
 #' @examples 
 #'  
 #'  data("factorDataSetDjia5Yrs")
-#'  
-#' #Fit a Ffm
+#'
+#'#Fit a Ffm with style factors only
 #'  require(factorAnalytics)
 #'  fit <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("MKTCAP","ENTVAL","P2B","EV2S"),
-#'                date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS")
-#'                
-#'  #Find tstats  with C.I = 95% and plot the results.
-#'  stats = ffmTstats(fit, isPlot = TRUE, col = "blue", digits =3, z.alpha =1.96)  
-#'    
-#'               
+#'              date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS",z.score = T)
+#'
+#'#Compute time series of t-stats and number of significant t-stats 
+#'  stats = ffmTstats(fit, isPlot = TRUE, lwd = 2, myColor = c("blue", "blue"), z.alpha =1.96)
+#'
+#'# Fit a Ffm with sector factors as well as style factors
+#'  fit2 <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("SECTOR","MKTCAP","ENTVAL","P2B","EV2S"),
+#'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS",z.score = T)
+#'
+#'#Compute time series of t-stats and number of significant t-stats 
+#'  stats = ffmTstats(fit2, isPlot = TRUE, z.alpha =1.96)  
 #' 
 #' @export
 
-ffmTstats<- function(ffmObj, isPlot = TRUE, isPrint = FALSE, col = "cyan",lwd =2, digits =2, z.alpha = 1.96, layout =c(2,3),type ="h", ... )
+ffmTstats<- function(ffmObj, isPlot = TRUE, isPrint = FALSE, myColor = c("black", "cyan"),lwd =2, digits =2, z.alpha = 1.96, layout =c(2,3),type ="h", ... )
 {
   
   # CREATE TIME SERIES OF T-STATS
@@ -69,17 +75,18 @@ ffmTstats<- function(ffmObj, isPlot = TRUE, isPrint = FALSE, col = "cyan",lwd =2
       panel.abline(h=hlines2,lty = 3, col = "red")
       panel.xyplot(...)
     }
-    # PLOT NUMBER OF RISK INDICES WITH SIGNIFICANT T-STATS EACH MONTH
-    barplot(sigTstatsTs,col = col, main = "Number of Risk Indices with significant t-stats")
-    
+    #plot.new()
     # PLOT T-STATS WITH XYPLOT
-    plt<- xyplot(tstatsTs, panel = panel, type = type, scales = list(y = list(cex = 1), x = list(cex = 1)),
-            layout = layout, main = "t-statistic values", col = col, lwd = lwd, strip.left = T, strip = F)
-    print(plt)
 
+   plt1 <- xyplot(tstatsTs, panel = panel, type = type, scales = list(y = list(cex = 1), x = list(cex = 1)),
+                 layout = layout,  main = "t-statistic values", col = myColor[1], lwd = lwd, strip.left = T, strip = F)
+   print(plt1)
+
+    # PLOT NUMBER OF RISK INDICES WITH SIGNIFICANT T-STATS EACH MONTH
+   barplot(sigTstatsTs,col = myColor[2], main = "Number of Risk Indices with significant t-stats")
+   
   }
   out = list("tstats" =round(tstatsTs, digits), "z.alpha" =z.alpha)
   if(isPrint){print(out)}else invisible(out)
     
 }
-
