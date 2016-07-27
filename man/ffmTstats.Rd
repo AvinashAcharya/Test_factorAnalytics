@@ -47,14 +47,14 @@ Calculate and plot the time series of the t-statistic values and the
 #Fit a Ffm with style factors only
  require(factorAnalytics)
  fit <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("MKTCAP","ENTVAL","P2B","EV2S"),
-             date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS",z.score = T)
+             date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS",z.score = TRUE)
 
 #Compute time series of t-stats and number of significant t-stats 
  stats = ffmTstats(fit, isPlot = TRUE, lwd = 2, myColor = c("blue", "blue"), z.alpha =1.96)
 
 # Fit a Ffm with sector factors as well as style factors
  fit2 <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("SECTOR","MKTCAP","ENTVAL","P2B","EV2S"),
-              date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS",z.score = T)
+              date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS",z.score = TRUE)
 
 #Compute time series of t-stats and number of significant t-stats 
  stats = ffmTstats(fit2, isPlot = TRUE, z.alpha =1.96)  
