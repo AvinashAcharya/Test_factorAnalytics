@@ -50,6 +50,11 @@
 #' 
 #' @author Douglas Martin, Lingjie Yi
 #' 
+#' @seealso \code{\link{fitTsfm}}, \code{\link{fitSfm}}, \code{\link{fitFfm}}
+#' for the different factor model fitting functions.
+#' 
+#' \code{\link{portVaRDecomp}} for factor model VaR decomposition.
+#' \code{\link{portEsDecomp}} for factor model ES decomposition.
 #' 
 #' @examples
 #' # Time Series Factor Model

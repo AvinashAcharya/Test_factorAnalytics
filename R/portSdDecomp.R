@@ -1,6 +1,6 @@
 #' @title Decompose portfolio standard deviation into individual factor contributions
 #' 
-#' @description Compute the factor contributions to standard deviation (SD) of 
+#' @description Compute the factor contributions to standard deviation (Sd) of 
 #' portfolio return based on Euler's theorem, given the fitted factor model.
 #' 
 #' @importFrom stats quantile residuals cov resid qnorm
@@ -19,10 +19,10 @@
 #' @param ... optional arguments passed to \code{\link[stats]{cov}}.
 #' 
 #' @return A list containing 
-#' \item{Sd.fm}{length-1 vector of factor model SDs of portfolio return.}
-#' \item{mSd}{length-(K + 1) vector of marginal contributions to SD.}
-#' \item{cSd}{length-(K + 1) vector of component contributions to SD.}
-#' \item{pcSd}{length-(K + 1) vector of percentage component contributions to SD.}
+#' \item{Sd.fm}{length-1 vector of factor model Sds of portfolio return.}
+#' \item{mSd}{length-(K + 1) vector of marginal contributions to Sd.}
+#' \item{cSd}{length-(K + 1) vector of component contributions to Sd.}
+#' \item{pcSd}{length-(K + 1) vector of percentage component contributions to Sd.}
 #' Where, K is the number of factors.
 #' 
 #' @author Douglas Martin, Lingjie Yi
