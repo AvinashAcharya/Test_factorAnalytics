@@ -30,10 +30,10 @@ abbreviation of) one of the strings "everything", "all.obs",
 \value{
 A list containing 
 \item{Sd.fm}{length-1 vector of factor model SDs of portfolio return.}
-\item{mSd}{length-(N + K) vector of marginal contributions to SD.}
-\item{cSd}{length-(N + K) vector of component contributions to SD.}
-\item{pcSd}{length-(N + K) vector of percentage component contributions to SD.}
-Where, K is the number of factors and N is the number of assets.
+\item{mSd}{length-(K + 1) vector of marginal contributions to SD.}
+\item{cSd}{length-(K + 1) vector of component contributions to SD.}
+\item{pcSd}{length-(K + 1) vector of percentage component contributions to SD.}
+Where, K is the number of factors.
 }
 \description{
 Compute the factor contributions to standard deviation (SD) of 
@@ -78,5 +78,12 @@ portSdDecomp(fit.cross, wtsStocks145GmvLo)
 }
 \author{
 Douglas Martin, Lingjie Yi
+}
+\seealso{
+\code{\link{fitTsfm}}, \code{\link{fitSfm}}, \code{\link{fitFfm}}
+for the different factor model fitting functions.
+
+\code{\link{portVaRDecomp}} for factor model VaR decomposition.
+\code{\link{portEsDecomp}} for factor model ES decomposition.
 }
 

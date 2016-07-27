@@ -43,10 +43,10 @@
 #' \item{n.exceed}{length-1 vector of number of observations beyond VaR for 
 #' portfolio.}
 #' \item{idx.exceed}{numeric vector of index values of exceedances.}
-#' \item{mES}{length-(N + K) vector of marginal contributions to VaR.}
-#' \item{cES}{length-(N + K) vector of component contributions to VaR.}
-#' \item{pcES}{length-(N + K) vector of percentage component contributions to VaR.}
-#' Where, K is the number of factors and N is the number of assets. 
+#' \item{mES}{length-(K + 1) vector of marginal contributions to VaR.}
+#' \item{cES}{length-(K + 1) vector of component contributions to VaR.}
+#' \item{pcES}{length-(K + 1) vector of percentage component contributions to VaR.}
+#' Where, K is the number of factors. 
 #' 
 #' @author Douglas Martin, Lingjie Yi
 #' 
@@ -111,7 +111,7 @@ portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norma
     stop("Invalid args: type must be 'np' or 'normal' ")
   }
   
-  # get beta.star
+  # get beta.star: 1 x (K+1)
   beta <- object$beta
   beta[is.na(beta)] <- 0
   n.assets = nrow(beta)
@@ -130,29 +130,29 @@ portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norma
     }else{
       stop("Invalid argument: names of weights vector should match with asset names")
     }
-  }  
+  } 
   
-  # get portfolio beta.star: 1 x (K+N)
-  beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), t(weights * object$resid.sd)))  
+  # get portfolio beta.star: 1 x (K+1)
+  beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), sqrt(sum(weights^2 * object$resid.sd^2))))  
+  colnames(beta.star)[dim(beta.star)[2]] <- "residual" 
   
   
   # factor returns and residuals data
   factors.xts <- object$data[,object$factor.names]
-  resid.xts <- as.xts(t(t(residuals(object))/object$resid.sd))
+  resid.xts <- as.xts(t(t(residuals(object))/object$resid.sd) %*% weights)
   zoo::index(resid.xts) <- as.Date(zoo::index(resid.xts))
   
   # initialize lists and matrices
-  N <- length(object$asset.names)
   K <- length(object$factor.names)
   VaR.fm <- rep(NA, 1)
   ES.fm <- rep(NA, 1)
   idx.exceed <- list()
   n.exceed <- rep(NA, 1)
 
-  mES <- rep(NA, N+K)
-  cES <- rep(NA, N+K)
-  pcES <- rep(NA, N+K)
-  names(mES)=names(cES)=names(pcES)=c(colnames(beta),asset.names)
+  mES <- rep(NA, 1+K)
+  cES <- rep(NA, 1+K)
+  pcES <- rep(NA, 1+K)
+  names(mES)=names(cES)=names(pcES) <- colnames(beta.star)
   
   # return data for portfolio
   match = colnames(object$data) %in% asset.names
@@ -177,16 +177,20 @@ portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   # return is less than or equal to its value-at-risk (VaR)
   ES.fm <- mean(R.xts[idx.exceed], na.rm =TRUE)
   
-  # get cov(F.star): (K+N) x (K+N)
-  K <- ncol(object$beta)
+  # get cov(F): K x K
   factor <- as.matrix(object$data[, object$factor.names])
   factor.cov = cov(factor, use=use, ...)
-  factor.star.cov <- diag(K+n.assets)
-  factor.star.cov[1:K, 1:K] <- factor.cov
-  colnames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
-  rownames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
   
+  # get cov(F.star): (K+1) x (K+1)
+  K <- ncol(object$beta)
+  factor.star.cov <- diag(K+1)
+  factor.star.cov[1:K, 1:K] <- factor.cov
+  colnames(factor.star.cov) <- c(colnames(factor.cov),"residuals")
+  rownames(factor.star.cov) <- c(colnames(factor.cov),"residuals")
+  
+  # get F.star data object
   factor.star <- merge(factors.xts, resid.xts)
+  colnames(factor.star)[dim(factor.star)[2]] <- "residual"
   
   # compute marginal ES as expected value of factor returns, when the asset's 
   # return is less than or equal to its value-at-risk (VaR)
@@ -223,11 +227,20 @@ portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal
     stop("Invalid args: type must be 'np' or 'normal' ")
   }
   
-  # get beta.star
-  beta <- object$beta
+  which.numeric <- sapply(object$data[,object$exposure.vars,drop=FALSE], is.numeric)
+  exposures.num <- object$exposure.vars[which.numeric]
+  exposures.char <- object$exposure.vars[!which.numeric]
+  
+  # get beta: 1 x K
+  if(!length(exposures.char)){
+    beta <- object$beta[,-1]
+  }else{
+    beta <- object$beta
+  }
+  
   beta[is.na(beta)] <- 0
   n.assets = nrow(beta)
-  asset.names <- object$asset.names
+  asset.names <- unique(object$data[[object$asset.var]])
   
   # check if there is weight input
   if(is.null(weights)){
@@ -242,30 +255,43 @@ portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal
     }else{
       stop("Invalid argument: names of weights vector should match with asset names")
     }
-  }  
-  
-  # get portfolio beta.star: 1 x (K+N)
-  beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), t(weights * sqrt(object$resid.var))))   
-  
-  
+  }    
+
   # factor returns and residuals data
   factors.xts <- object$factor.returns
-  resid.xts <- as.xts(t(t(residuals(object))/sqrt(object$resid.var)))
+  resid.xts <- as.xts( t(t(residuals(object))/sqrt(object$resid.var)) %*% weights)
   zoo::index(resid.xts) <- as.Date(zoo::index(resid.xts))
+  names(resid.xts) <- 'Residual'
+  
+  
+  # re-order beta to match with factor.cov when both sector & style factors are used 
+  if(!is.null(exposures.char) & !is.null(exposures.num)){
+    sectors.sec <- levels(object$data[,exposures.char])
+    sectors.names <- paste(exposures.char,sectors.sec,sep="")
+    
+    for(i in 1:length(sectors.sec)){
+      colnames(beta)[colnames(beta) == sectors.names[i]] = sectors.sec[i]
+    }
+
+    beta = beta[,colnames(factors.xts)]
+  }
+  
+  # get portfolio beta.star: 1 x (K+1)
+  beta.star <- as.matrix(cbind(weights %*% beta, sqrt(sum(weights^2 * object$resid.var))))
+  colnames(beta.star)[dim(beta.star)[2]] <- "residual"
   
   
   # initialize lists and matrices
-  N <- length(object$asset.names)
   K <- length(object$factor.names)
   VaR.fm <- rep(NA, 1)
   ES.fm <- rep(NA, 1)
   idx.exceed <- list()
   n.exceed <- rep(NA, 1)
   
-  mES <- rep(NA, N+K)
-  cES <- rep(NA, N+K)
-  pcES <- rep(NA, N+K)
-  names(mES)=names(cES)=names(pcES)=c(colnames(beta),asset.names)
+  mES <- rep(NA, 1+K)
+  cES <- rep(NA, 1+K)
+  pcES <- rep(NA, 1+K)
+  names(mES)=names(cES)=names(pcES)=c(colnames(beta),"residuals")
   
   dat = object$data
   # return data for portfolio
@@ -294,6 +320,7 @@ portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal
   # get F.star data object
   zoo::index(factors.xts) <- zoo::index(resid.xts)
   factor.star <- merge(factors.xts, resid.xts)
+  colnames(factor.star)[dim(factor.star)[2]] <- "residual"
   
   # compute marginal ES as expected value of factor returns, when the asset's 
   # return is less than or equal to its value-at-risk (VaR)
@@ -312,7 +339,5 @@ portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal
                        mES=mES, cES=cES, pcES=pcES)
   
   return(fm.ES.decomp)
-  
-  
 }
   

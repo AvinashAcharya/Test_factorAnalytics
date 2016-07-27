@@ -41,10 +41,10 @@ A list containing
 \item{n.exceed}{length-1 vector of number of observations beyond VaR for 
 portfolio.}
 \item{idx.exceed}{numeric vector of index values of exceedances.}
-\item{mES}{length-(N + K) vector of marginal contributions to VaR.}
-\item{cES}{length-(N + K) vector of component contributions to VaR.}
-\item{pcES}{length-(N + K) vector of percentage component contributions to VaR.}
-Where, K is the number of factors and N is the number of assets.
+\item{mES}{length-(K + 1) vector of marginal contributions to VaR.}
+\item{cES}{length-(K + 1) vector of component contributions to VaR.}
+\item{pcES}{length-(K + 1) vector of percentage component contributions to VaR.}
+Where, K is the number of factors.
 }
 \description{
 Compute the factor contributions to Expected Tail Loss or 

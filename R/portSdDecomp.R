@@ -20,12 +20,19 @@
 #' 
 #' @return A list containing 
 #' \item{Sd.fm}{length-1 vector of factor model SDs of portfolio return.}
-#' \item{mSd}{length-(N + K) vector of marginal contributions to SD.}
-#' \item{cSd}{length-(N + K) vector of component contributions to SD.}
-#' \item{pcSd}{length-(N + K) vector of percentage component contributions to SD.}
-#' Where, K is the number of factors and N is the number of assets.
+#' \item{mSd}{length-(K + 1) vector of marginal contributions to SD.}
+#' \item{cSd}{length-(K + 1) vector of component contributions to SD.}
+#' \item{pcSd}{length-(K + 1) vector of percentage component contributions to SD.}
+#' Where, K is the number of factors.
 #' 
 #' @author Douglas Martin, Lingjie Yi
+#' 
+#' 
+#' @seealso \code{\link{fitTsfm}}, \code{\link{fitSfm}}, \code{\link{fitFfm}}
+#' for the different factor model fitting functions.
+#' 
+#' \code{\link{portVaRDecomp}} for factor model VaR decomposition.
+#' \code{\link{portEsDecomp}} for factor model ES decomposition.
 #' 
 #' 
 #' @examples
@@ -81,7 +88,7 @@ portSdDecomp <- function(object, ...){
 
 portSdDecomp.tsfm <- function(object, weights = NULL, use="pairwise.complete.obs", ...) {
   
-  # get beta.star: 1 x (K+N)
+  # get beta.star: 1 x (K+1)
   beta <- object$beta
   beta[is.na(beta)] <- 0
   n.assets = nrow(beta)
@@ -102,28 +109,29 @@ portSdDecomp.tsfm <- function(object, weights = NULL, use="pairwise.complete.obs
     }
   } 
 
-  # get portfolio beta.star: 1 x (K+N)
-  beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), t(weights * object$resid.sd)))  
-
+  # get portfolio beta.star: 1 x (K+1)
+  beta.star <- as.matrix(cbind(weights %*% as.matrix(beta), sqrt(sum(weights^2 * object$resid.sd^2))))  
+  colnames(beta.star)[dim(beta.star)[2]] <- "residual"
+  
   # get cov(F): K x K
   factor <- as.matrix(object$data[, object$factor.names])
   factor.cov = cov(factor, use=use, ...)
   
-  # get cov(F.star): (K+N) x (K+N)
+  # get cov(F.star): (K+1) x (K+1)
   K <- ncol(object$beta)
-  factor.star.cov <- diag(K+n.assets)
+  factor.star.cov <- diag(K+1)
   factor.star.cov[1:K, 1:K] <- factor.cov
-  colnames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
-  rownames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
+  colnames(factor.star.cov) <- c(colnames(factor.cov),"residuals")
+  rownames(factor.star.cov) <- c(colnames(factor.cov),"residuals")
   
   # compute factor model sd; a vector of length 1
   Sd.fm <- sqrt(rowSums(beta.star %*% factor.star.cov * beta.star))
   
   # compute marginal, component and percentage contributions to sd
-  # each of these have dimensions: N + K
-  mSd <- (t(factor.star.cov %*% t(beta.star)))/Sd.fm 
-  cSd <- mSd * beta.star 
-  pcSd = 100* cSd/Sd.fm 
+  # each of these have dimensions: N + 1
+  mSd <- drop((t(factor.star.cov %*% t(beta.star)))/Sd.fm) 
+  cSd <- drop(mSd * beta.star) 
+  pcSd <- drop(100* cSd/Sd.fm) 
   
   fm.sd.decomp <- list(Sd.fm=Sd.fm, mSd=mSd, cSd=cSd, pcSd=pcSd)
   
@@ -139,13 +147,14 @@ portSdDecomp.ffm <- function(object, weights = NULL, ...) {
   which.numeric <- sapply(object$data[,object$exposure.vars,drop=FALSE], is.numeric)
   exposures.num <- object$exposure.vars[which.numeric]
   exposures.char <- object$exposure.vars[!which.numeric]
-  
-  # get beta.star: 1 x (K+N)
+    
+  # get beta: 1 x K
   if(!length(exposures.char)){
     beta <- object$beta[,-1]
   }else{
     beta <- object$beta
   }
+
   beta[is.na(beta)] <- 0
   n.assets = nrow(beta)
   asset.names <- unique(object$data[[object$asset.var]])
@@ -165,26 +174,39 @@ portSdDecomp.ffm <- function(object, weights = NULL, ...) {
     }
   }  
   
-  # get portfolio beta.star: 1 x (K+N)
-  beta.star <- as.matrix(cbind(weights %*% beta, t(weights * sqrt(object$resid.var))))
-  
   # get cov(F): K x K
   if(!length(exposures.char)){
     factor.cov = object$factor.cov[,-1][-1,]
   }else{
     factor.cov = object$factor.cov
   }  
-
   
-  # get cov(F.star): (K+N) x (K+N)
+  # re-order beta to match with factor.cov when both sector & style factors are used 
+  if(!is.null(exposures.char) & !is.null(exposures.num)){
+    sectors.sec <- levels(object$data[,exposures.char])
+    sectors.names <- paste(exposures.char,sectors.sec,sep="")
+    
+    for(i in 1:length(sectors.sec)){
+      colnames(beta)[colnames(beta) == sectors.names[i]] = sectors.sec[i]
+    }
+    
+    beta = beta[,colnames(factor.cov)]
+  }
+   
+  # get portfolio beta.star: 1 x (K+1)
+  beta.star <- as.matrix(cbind(weights %*% beta, sqrt(sum(weights^2 * object$resid.var))))
+  colnames(beta.star)[dim(beta.star)[2]] <- "residual"
+  
+  # get cov(F.star): (K+1) x (K+1)
   K <- ncol(beta)
-  factor.star.cov <- diag(K+n.assets)
+  factor.star.cov <- diag(K+1)
   factor.star.cov[1:K, 1:K] <- factor.cov
-  colnames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
-  rownames(factor.star.cov) <- c(colnames(factor.cov),asset.names)
+  colnames(factor.star.cov) <- c(colnames(factor.cov),"residuals")
+  rownames(factor.star.cov) <- c(colnames(factor.cov),"residuals")
   
+
   # compute factor model sd; a vector of length 1
-  Sd.fm <- sqrt(rowSums(beta.star %*% factor.star.cov * beta.star))
+  Sd.fm <- drop(sqrt(rowSums(beta.star %*% factor.star.cov * beta.star)))
   
   # compute marginal, component and percentage contributions to sd
   # each of these have dimensions: N+K
