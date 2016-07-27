@@ -68,25 +68,26 @@ ffmTstats<- function(ffmObj, isPlot = TRUE, isPrint = FALSE, myColor = c("black"
   
   if(isPlot)
   {
-    hlines1 = rep(z.alpha, n.exposures+1)
-    hlines2 = rep(-z.alpha, n.exposures+1)
+    #hlines1 = rep(z.alpha, n.exposures+1)
+    #hlines2 = rep(-z.alpha, n.exposures+1)
     panel =  function(...){
-      panel.abline(h=hlines1,lty = 3, col = "red")
-      panel.abline(h=hlines2,lty = 3, col = "red")
+      panel.abline(h=z.alpha,lty = 3, col = "red")
+      panel.abline(h=-z.alpha,lty = 3, col = "red")
       panel.xyplot(...)
     }
-    #plot.new()
-    # PLOT T-STATS WITH XYPLOT
-
-   plt1 <- xyplot(tstatsTs, panel = panel, type = type, scales = list(y = list(cex = 1), x = list(cex = 1)),
-                 layout = layout,  main = "t-statistic values", col = myColor[1], lwd = lwd, strip.left = T, strip = F)
-   print(plt1)
-
+    
     # PLOT NUMBER OF RISK INDICES WITH SIGNIFICANT T-STATS EACH MONTH
-   barplot(sigTstatsTs,col = myColor[2], main = "Number of Risk Indices with significant t-stats")
-   
+    barplot(sigTstatsTs,col = myColor[2], main = "Number of Risk Indices with significant t-stats")
+
+    # PLOT T-STATS WITH XYPLOT
+    plt <- xyplot(tstatsTs, panel = panel, type = type, scales = list(y = list(cex = 1), x = list(cex = 1)),
+                  layout = layout, main = "t-statistic values", col = myColor[1], lwd = lwd, strip.left = T, strip = F)
+    print(plt)
+
   }
   out = list("tstats" =round(tstatsTs, digits), "z.alpha" =z.alpha)
   if(isPrint){print(out)}else invisible(out)
     
 }
+
+
