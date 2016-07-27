@@ -28,7 +28,7 @@
 #' @param weights a vector of weights of the assets in the portfolio, names of 
 #' the vector should match with asset names. Default is NULL, in which case an 
 #' equal weights will be used.
-#' @param type one of "np" (non-parametric) or "normal" for calculating VaR. 
+#' @param type one of "np" (non-parametric) or "normal" for calculating Es. 
 #' Default is "np".
 #' @param use an optional character string giving a method for computing factor
 #' covariances in the presence of missing values. This must be (an 
@@ -43,9 +43,9 @@
 #' \item{n.exceed}{length-1 vector of number of observations beyond VaR for 
 #' portfolio.}
 #' \item{idx.exceed}{numeric vector of index values of exceedances.}
-#' \item{mES}{length-(K + 1) vector of marginal contributions to VaR.}
-#' \item{cES}{length-(K + 1) vector of component contributions to VaR.}
-#' \item{pcES}{length-(K + 1) vector of percentage component contributions to VaR.}
+#' \item{mES}{length-(K + 1) vector of marginal contributions to Es.}
+#' \item{cES}{length-(K + 1) vector of component contributions to Es.}
+#' \item{pcES}{length-(K + 1) vector of percentage component contributions to Es.}
 #' Where, K is the number of factors. 
 #' 
 #' @author Douglas Martin, Lingjie Yi

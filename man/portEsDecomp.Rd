@@ -26,7 +26,7 @@ equal weights will be used.}
 
 \item{p}{confidence level for calculation. Default is 0.95.}
 
-\item{type}{one of "np" (non-parametric) or "normal" for calculating VaR. 
+\item{type}{one of "np" (non-parametric) or "normal" for calculating Es. 
 Default is "np".}
 
 \item{use}{an optional character string giving a method for computing factor
@@ -41,9 +41,9 @@ A list containing
 \item{n.exceed}{length-1 vector of number of observations beyond VaR for 
 portfolio.}
 \item{idx.exceed}{numeric vector of index values of exceedances.}
-\item{mES}{length-(K + 1) vector of marginal contributions to VaR.}
-\item{cES}{length-(K + 1) vector of component contributions to VaR.}
-\item{pcES}{length-(K + 1) vector of percentage component contributions to VaR.}
+\item{mES}{length-(K + 1) vector of marginal contributions to Es.}
+\item{cES}{length-(K + 1) vector of component contributions to Es.}
+\item{pcES}{length-(K + 1) vector of percentage component contributions to Es.}
 Where, K is the number of factors.
 }
 \description{

@@ -13,18 +13,33 @@ repRisk(object, ...)
   p = 0.95, type = c("np", "normal"), use = "pairwise.complete.obs", ...)
 
 \method{repRisk}{ffm}(object, weights = NULL, risk.factor = c("Sd", "VaR",
-  "Es"), risk.budget = c("RM", "mRM", "cRM", "pRM"), nrowPrint = 20,
+  "Es"), risk.budget = c("RM", "FMCR", "FCR", "FPCR"), nrowPrint = 20,
   p = 0.95, type = c("np", "normal"), ...)
 }
 \arguments{
 \item{object}{fit object of class \code{tsfm}, or \code{ffm}.}
 
-\item{...}{optional arguments passed to \code{\link[stats]{cov}}.}
+\item{...}{other optional arguments passed to \code{\link[stats]{quantile}} and 
+optional arguments passed to \code{\link[stats]{cov}}}
 
-\item{weights}{a vector of weights of the assets in the portfolio. Default is NULL, 
-in which case an equal weights will be used.}
+\item{weights}{a vector of weights of the assets in the portfolio, names of 
+the vector should match with asset names. Default is NULL, in which case an 
+equal weights will be used.}
 
-\item{use}{an optional character string giving a method for computing 
+\item{risk.factor}{one of 'Sd' (standard deviation), 'VaR' (Value-at-Risk) or 'Es' (Expected Tail 
+Loss or Expected Shortfall for calculating risk decompositon. Default is 'Sd'}
+
+\item{risk.budget}{one of 'RM' (risk measure), 'FMCR' (factor marginal contribution to risk), 
+'FCR' 'factor contribution to risk' or 'FPCR' (factor percent contribution to risk). Default is 'RM'}
+
+\item{nrowPrint}{a numerical value deciding number of assets/portfolio in result vector/table to print}
+
+\item{p}{confidence level for calculation. Default is 0.95.}
+
+\item{type}{one of "np" (non-parametric) or "normal" for calculating VaR & Es. 
+Default is "np".}
+
+\item{use}{an optional character string giving a method for computing factor
 covariances in the presence of missing values. This must be (an 
 abbreviation of) one of the strings "everything", "all.obs", 
 "complete.obs", "na.or.complete", or "pairwise.complete.obs". Default is 
@@ -79,7 +94,6 @@ fit.cross <- fitFfm(data = dat,
               fit.method="WLS", z.score = TRUE)
 repRisk(fit.cross, risk.factor = "Sd", risk.budget = 'FCR', nrowPrint = 10) 
 # get the factor contributions of risk 
-decomp$cSd
 repRisk(fit.cross, wtsStocks145GmvLo, risk.factor = "Sd", risk.budget = 'FPCR', nrowPrint = 10)               
  
 }

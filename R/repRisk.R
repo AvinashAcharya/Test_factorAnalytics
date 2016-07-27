@@ -4,21 +4,27 @@
 #' Expected Tail Loss or Expected Shortfall (ES) of the return of individual asset within a portfolio 
 #' return of a portfolio based on Euler's theorem, given the fitted factor model.
 #' 
-#' @importFrom stats quantile residuals cov resid qnorm
-#' @importFrom xts as.xts 
-#' @importFrom zoo index
-#' @importFrom zoo as.Date  
 #' 
 #' @param object fit object of class \code{tsfm}, or \code{ffm}.
-#' @param weights a vector of weights of the assets in the portfolio. Default is NULL, 
-#' in which case an equal weights will be used.
-#' @param use an optional character string giving a method for computing 
+#' @param p confidence level for calculation. Default is 0.95.
+#' @param weights a vector of weights of the assets in the portfolio, names of 
+#' the vector should match with asset names. Default is NULL, in which case an 
+#' equal weights will be used.
+#' @param risk.factor one of 'Sd' (standard deviation), 'VaR' (Value-at-Risk) or 'Es' (Expected Tail 
+#' Loss or Expected Shortfall for calculating risk decompositon. Default is 'Sd'
+#' @param risk.budget one of 'RM' (risk measure), 'FMCR' (factor marginal contribution to risk), 
+#' 'FCR' 'factor contribution to risk' or 'FPCR' (factor percent contribution to risk). Default is 'RM'
+#' @param nrowPrint a numerical value deciding number of assets/portfolio in result vector/table to print  
+#' @param type one of "np" (non-parametric) or "normal" for calculating VaR & Es. 
+#' Default is "np".
+#' @param use an optional character string giving a method for computing factor
 #' covariances in the presence of missing values. This must be (an 
 #' abbreviation of) one of the strings "everything", "all.obs", 
 #' "complete.obs", "na.or.complete", or "pairwise.complete.obs". Default is 
 #' "pairwise.complete.obs".
-#' @param ... optional arguments passed to \code{\link[stats]{cov}}.
-#' 
+#' @param ... other optional arguments passed to \code{\link[stats]{quantile}} and 
+#' optional arguments passed to \code{\link[stats]{cov}}
+#'
 #' @return A table containing 
 #' \item{risk.budget = 'RM'}{length-(N + 1) vector of factor model risk measure of portfolio return 
 #' as well assets return.}
@@ -72,7 +78,6 @@
 #'               fit.method="WLS", z.score = TRUE)
 #' repRisk(fit.cross, risk.factor = "Sd", risk.budget = 'FCR', nrowPrint = 10) 
 #' # get the factor contributions of risk 
-#' decomp$cSd
 #' repRisk(fit.cross, wtsStocks145GmvLo, risk.factor = "Sd", risk.budget = 'FPCR', nrowPrint = 10)               
 #'  
 #' @export    
@@ -243,7 +248,7 @@ repRisk.tsfm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "E
 #' @export
 
 repRisk.ffm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "Es"),
-                        risk.budget = c("RM", 'mRM', 'cRM', 'pRM'),
+                        risk.budget = c("RM", 'FMCR', 'FCR', 'FPCR'),
                         nrowPrint = 20, p=0.95, type=c("np","normal"), ...) {
   
   # set default for type
