@@ -137,10 +137,15 @@ repRisk.tsfm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "E
     }
     
     else if(risk.budget == "FCR"){
+      portRM = port.Sd$Sd.fm
+      assetRM = asset.Sd$Sd.fm
+      resultRM = c(portRM, assetRM)
+      
       port = port.Sd$cSd
       asset = asset.Sd$cSd
-      result = rbind(port, asset)
+      result = cbind(resultRM,rbind(port, asset))
       rownames(result)[1] = 'Portfolio'
+      colnames(result)[1] = 'RM'
       result = head(result, nrowPrint)
     }
     
@@ -175,12 +180,12 @@ repRisk.tsfm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "E
     }
     
     else if(risk.budget == "FCR"){
-      portRM = port.Sd$Sd.fm
-      assetRM = asset.Sd$Sd.fm
+      portRM = port.VaR$VaR.fm
+      assetRM = asset.VaR$VaR.fm
       resultRM = c(portRM, assetRM)
       
-      port = port.Sd$cSd
-      asset = asset.Sd$cSd
+      port = port.VaR$cVaR
+      asset = asset.VaR$cVaR
       result = cbind(resultRM,rbind(port, asset))
       rownames(result)[1] = 'Portfolio'
       colnames(result)[1] = 'RM'
@@ -218,12 +223,12 @@ repRisk.tsfm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "E
     }
     
     else if(risk.budget == "FCR"){
-      portRM = port.Sd$Sd.fm
-      assetRM = asset.Sd$Sd.fm
+      portRM = port.Es$ES.fm
+      assetRM = asset.Es$ES.fm
       resultRM = c(portRM, assetRM)
       
-      port = port.Sd$cSd
-      asset = asset.Sd$cSd
+      port = port.Es$cES
+      asset = asset.Es$cES
       result = cbind(resultRM,rbind(port, asset))
       rownames(result)[1] = 'Portfolio'
       colnames(result)[1] = 'RM'
@@ -332,12 +337,12 @@ repRisk.ffm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "Es
     }
     
     else if(risk.budget == "FCR"){
-      portRM = port.Sd$Sd.fm
-      assetRM = asset.Sd$Sd.fm
+      portRM = port.VaR$VaR.fm
+      assetRM = asset.VaR$VaR.fm
       resultRM = c(portRM, assetRM)
       
-      port = port.Sd$cSd
-      asset = asset.Sd$cSd
+      port = port.VaR$cVaR
+      asset = asset.VaR$cVaR
       result = cbind(resultRM,rbind(port, asset))
       rownames(result)[1] = 'Portfolio'
       colnames(result)[1] = 'RM'
@@ -375,12 +380,12 @@ repRisk.ffm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "Es
     }
     
     else if(risk.budget == "FCR"){
-      portRM = port.Sd$Sd.fm
-      assetRM = asset.Sd$Sd.fm
+      portRM = port.Es$ES.fm
+      assetRM = asset.Es$ES.fm
       resultRM = c(portRM, assetRM)
       
-      port = port.Sd$cSd
-      asset = asset.Sd$cSd
+      port = port.Es$cES
+      asset = asset.Es$cES
       result = cbind(resultRM,rbind(port, asset))
       rownames(result)[1] = 'Portfolio'
       colnames(result)[1] = 'RM'
