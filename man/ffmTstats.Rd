@@ -4,8 +4,9 @@
 \alias{ffmTstats}
 \title{t-stats and Plots for a fitted Fundamental Factor Model}
 \usage{
-ffmTstats(ffmObj, isPlot = TRUE, isPrint = FALSE, col = "cyan", lwd = 2,
-  digits = 2, z.alpha = 1.96, layout = c(2, 3), type = "h", ...)
+ffmTstats(ffmObj, isPlot = TRUE, isPrint = FALSE, myColor = c("black",
+  "cyan"), lwd = 2, digits = 2, z.alpha = 1.96, layout = c(2, 3),
+  type = "h", ...)
 }
 \arguments{
 \item{ffmObj}{an object of class \code{ffm} produced by \code{fitFfm}}
@@ -14,7 +15,8 @@ ffmTstats(ffmObj, isPlot = TRUE, isPrint = FALSE, col = "cyan", lwd = 2,
 
 \item{isPrint}{logical. if \code{TRUE}, the time series of the computed factor model values is printed. Default is \code{FALSE},}
 
-\item{col}{specification for the default plotting color. Default is cyan}
+\item{myColor}{length 2 vector specifying the plotting color for t-stats plot and for barplot 
+respectively. Default is \code{c("black", "cyan")}}
 
 \item{lwd}{line width relative to the default. Default is 2.}
 
@@ -41,16 +43,21 @@ Calculate and plot the time series of the t-statistic values and the
 \examples{
  
  data("factorDataSetDjia5Yrs")
- 
-#Fit a Ffm
+
+#Fit a Ffm with style factors only
  require(factorAnalytics)
  fit <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("MKTCAP","ENTVAL","P2B","EV2S"),
-               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS")
-               
- #Find tstats  with C.I = 95\% and plot the results.
- stats = ffmTstats(fit, isPlot = TRUE, col = "blue", digits =3, z.alpha =1.96)  
-   
-              
+             date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS",z.score = TRUE)
+
+#Compute time series of t-stats and number of significant t-stats 
+ stats = ffmTstats(fit, isPlot = TRUE, lwd = 2, myColor = c("blue", "blue"), z.alpha =1.96)
+
+# Fit a Ffm with sector factors as well as style factors
+ fit2 <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("SECTOR","MKTCAP","ENTVAL","P2B"),
+              date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS",z.score = TRUE)
+
+#Compute time series of t-stats and number of significant t-stats 
+ stats = ffmTstats(fit2, isPlot = TRUE, z.alpha =1.96)  
 
 }
 \author{
