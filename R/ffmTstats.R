@@ -42,7 +42,7 @@
 #'  stats = ffmTstats(fit, isPlot = TRUE, lwd = 2, myColor = c("blue", "blue"), z.alpha =1.96)
 #'
 #'# Fit a Ffm with sector factors as well as style factors
-#'  fit2 <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("SECTOR","MKTCAP","ENTVAL","P2B","EV2S"),
+#'  fit2 <- fitFfm(data = factorDataSetDjia5Yrs,exposure.vars = c("SECTOR","MKTCAP","ENTVAL","P2B"),
 #'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", fit.method="WLS",z.score = TRUE)
 #'
 #'#Compute time series of t-stats and number of significant t-stats 
@@ -68,22 +68,23 @@ ffmTstats<- function(ffmObj, isPlot = TRUE, isPrint = FALSE, myColor = c("black"
   
   if(isPlot)
   {
-    #hlines1 = rep(z.alpha, n.exposures+1)
-    #hlines2 = rep(-z.alpha, n.exposures+1)
     panel =  function(...){
       panel.abline(h=z.alpha,lty = 3, col = "red")
       panel.abline(h=-z.alpha,lty = 3, col = "red")
       panel.xyplot(...)
     }
+    myplots<- function(x){
+      # PLOT T-STATS WITH XYPLOT
+      plt <- xyplot(x, panel = panel, type = type, scales = list(y = list(cex = 1), x = list(cex = 1)),
+                    layout = layout, main = "t-statistic values", col = myColor[1], lwd = lwd, strip.left = T, strip = F)
+      print(plt)
+      # PLOT NUMBER OF RISK INDICES WITH SIGNIFICANT T-STATS EACH MONTH
+      barplot(sigTstatsTs,col = myColor[2], main = "Number of Risk Indices with significant t-stats")
+    }
     
-    # PLOT NUMBER OF RISK INDICES WITH SIGNIFICANT T-STATS EACH MONTH
-    barplot(sigTstatsTs,col = myColor[2], main = "Number of Risk Indices with significant t-stats")
 
-    # PLOT T-STATS WITH XYPLOT
-    plt <- xyplot(tstatsTs, panel = panel, type = type, scales = list(y = list(cex = 1), x = list(cex = 1)),
-                  layout = layout, main = "t-statistic values", col = myColor[1], lwd = lwd, strip.left = T, strip = F)
-    print(plt)
-
+    tryCatch(myplots(x = tstatsTs), warning = function(w){dev.off(); myplots(x = tstatsTs)}, error = function(e){dev.off();myplots(x = tstatsTs)})
+    
   }
   out = list("tstats" =round(tstatsTs, digits), "z.alpha" =z.alpha)
   if(isPrint){print(out)}else invisible(out)
