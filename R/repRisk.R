@@ -10,13 +10,17 @@
 #' @param weights a vector of weights of the assets in the portfolio, names of 
 #' the vector should match with asset names. Default is NULL, in which case an 
 #' equal weights will be used.
-#' @param risk.factor one of 'Sd' (standard deviation), 'VaR' (Value-at-Risk) or 'Es' (Expected Tail 
+#' @param riskMeasure one of 'Sd' (standard deviation), 'VaR' (Value-at-Risk) or 'ES' (Expected Tail 
 #' Loss or Expected Shortfall for calculating risk decompositon. Default is 'Sd'
-#' @param risk.budget one of 'RM' (risk measure), 'FMCR' (factor marginal contribution to risk), 
+#' @param decompType one of 'RM' (risk measure), 'FMCR' (factor marginal contribution to risk), 
 #' 'FCR' 'factor contribution to risk' or 'FPCR' (factor percent contribution to risk). Default is 'RM'
+#' @param digits digits of number in the resulting table. Default is NULL, in which case digtis = 3 will be
+#' used for decompType = ('RM', 'FMCR', 'FCR'), digits = 1 will be used for decompType = 'FPCR'
 #' @param nrowPrint a numerical value deciding number of assets/portfolio in result vector/table to print  
 #' @param type one of "np" (non-parametric) or "normal" for calculating VaR & Es. 
 #' Default is "np".
+#' @param invert a logical variable to choose if change VaR/ES to positive number, default
+#' is False 
 #' @param use an optional character string giving a method for computing factor
 #' covariances in the presence of missing values. This must be (an 
 #' abbreviation of) one of the strings "everything", "all.obs", 
@@ -26,22 +30,29 @@
 #' optional arguments passed to \code{\link[stats]{cov}}
 #'
 #' @return A table containing 
-#' \item{risk.budget = 'RM'}{length-(N + 1) vector of factor model risk measure of portfolio return 
+#' \item{decompType = 'RM'}{length-(N + 1) vector of factor model risk measure of portfolio return 
 #' as well assets return.}
-#' \item{risk.budget = 'FMCR'}{(N + 1) * (K + 1) matrix of marginal contributions to risk of portfolio 
-#' return as well assets return.}
-#' \item{risk.budget = 'FCR'}{(N + 1) * (K + 1) matrix of component contributions to risk of portfolio 
-#' return as well assets return.}
-#' \item{risk.budget = 'FPCR'}{(N + 1) * (K + 1) matrix of percentage component contributions to risk 
-#' of portfolio return as well assets return.}
+#' \item{decompType = 'FMCR'}{(N + 1) * (K + 1) matrix of marginal contributions to risk of portfolio 
+#' return as well assets return.}, with first row of values for the portfolio and the remaining rows for 
+#' the assets in the portfolio, with  (K + 1) columns containing values for the K risk factors and the
+#' residual respectively
+#' \item{decompType = 'FCR'}{(N + 1) * (K + 2) matrix of component contributions to risk of portfolio 
+#' return as well assets return.}, with first row of values for the portfolio and the remaining rows for 
+#' the assets in the portfolio, with  first column containing portfolio and asset risk values and remaining
+#' (K + 1) columns containing values for the K risk factors and the residual respectively
+#' \item{decompType = 'FPCR'}{(N + 1) * (K + 1) matrix of percentage component contributions to risk 
+#' of portfolio return as well assets return.}, with first row of values for the portfolio and the remaining rows for 
+#' the assets in the portfolio, with  (K + 1) columns containing values for the K risk factors and the
+#' residual respectively
 #' Where, K is the number of factors, N is the number of assets.
 #' 
 #' @author Douglas Martin, Lingjie Yi
 #' 
 #' 
-#' @seealso \code{\link{fitTsfm}}, \code{\link{fitSfm}}, \code{\link{fitFfm}}
+#' @seealso \code{\link{fitTsfm}}, \code{\link{fitFfm}}
 #' for the different factor model fitting functions.
 #' 
+#' \code{\link{portSdDecomp}} for factor model Sd decomposition.
 #' \code{\link{portVaRDecomp}} for factor model VaR decomposition.
 #' \code{\link{portEsDecomp}} for factor model ES decomposition.
 #' 
@@ -52,20 +63,23 @@
 #' fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
 #'                      factor.names=colnames(managers[,(7:9)]),
 #'                      rf.name="US.3m.TR", data=managers)
-#' report <- repRisk(fit.macro, risk.factor = "Es", risk.budget = 'FPCR', nrowPrint = 10)
+#' report <- repRisk(fit.macro, riskMeasure = "ES", decompType = 'FPCR', 
+#'                   nrowPrint = 10)
 #' report 
 #' 
 #' # random weights 
 #' wts = runif(6)
 #' wts = wts/sum(wts)
 #' names(wts) <- colnames(managers)[1:6]
-#' repRisk(fit.macro, risk.factor = "VaR", risk.budget = 'FMCR', nrowPrint = 10)
+#' repRisk(fit.macro, riskMeasure = "VaR", decompType = 'FMCR', nrowPrint = 10,
+#'         digits = 4)
 #' 
 #' # Fundamental Factor Model
 #' data("stocks145scores6")
 #' dat = stocks145scores6
 #' dat$DATE = as.yearmon(dat$DATE)
-#' dat = dat[dat$DATE >=as.yearmon("2008-01-01") & dat$DATE <= as.yearmon("2012-12-31"),]
+#' dat = dat[dat$DATE >=as.yearmon("2008-01-01") & 
+#'           dat$DATE <= as.yearmon("2012-12-31"),]
 #'
 #' # Load long-only GMV weights for the return data
 #' data("wtsStocks145GmvLo")
@@ -73,12 +87,14 @@
 #'                                                      
 #' # fit a fundamental factor model
 #' fit.cross <- fitFfm(data = dat, 
-#'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
-#'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
+#'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M",
+#'               "EP"),date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
 #'               fit.method="WLS", z.score = TRUE)
-#' repRisk(fit.cross, risk.factor = "Sd", risk.budget = 'FCR', nrowPrint = 10) 
+#' repRisk(fit.cross, riskMeasure = "Sd", decompType = 'FCR', nrowPrint = 10,
+#'         digits = 4) 
 #' # get the factor contributions of risk 
-#' repRisk(fit.cross, wtsStocks145GmvLo, risk.factor = "Sd", risk.budget = 'FPCR', nrowPrint = 10)               
+#' repRisk(fit.cross, wtsStocks145GmvLo, riskMeasure = "Sd", decompType = 'FPCR', 
+#'         nrowPrint = 10)               
 #'  
 #' @export    
 
@@ -95,50 +111,48 @@ repRisk <- function(object, ...){
 #' @method repRisk tsfm
 #' @export
 
-repRisk.tsfm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "Es"), 
-                         risk.budget = c("RM", 'FMCR', 'FCR', 'FPCR'),
+repRisk.tsfm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "ES"), 
+                         decompType = c("RM", 'FMCR', 'FCR', 'FPCR'), digits = NULL, invert = FALSE,
                          nrowPrint = 20, p=0.95, type=c("np","normal"), use="pairwise.complete.obs", ...) {
   
   # set default for type
   type = type[1]
-  risk.factor = risk.factor[1]
-  risk.budget = risk.budget[1]
+  riskMeasure = riskMeasure[1]
+  decompType = decompType[1]
   
   if (!(type %in% c("np","normal"))) {
     stop("Invalid args: type must be 'np' or 'normal' ")
   }
   
-  if (!prod(risk.factor %in% c("Sd", "VaR", "Es"))) {
-    stop("Invalid args: risk.factor must be 'Sd', 'VaR' or 'Es' ")
+  if (!prod(riskMeasure %in% c("Sd", "VaR", "ES"))) {
+    stop("Invalid args: riskMeasure must be 'Sd', 'VaR' or 'ES' ")
   }
   
-  if (!prod(risk.budget %in% c("RM", 'FMCR', 'FCR', 'FPCR'))) {
-    stop("Invalid args: risk.budget must be 'RM', 'FMCR', 'FCR' or 'FPCR' ")
+  if (!prod(decompType %in% c("RM", 'FMCR', 'FCR', 'FPCR'))) {
+    stop("Invalid args: decompType must be 'RM', 'FMCR', 'FCR' or 'FPCR' ")
   }
   
-  if(length(which(risk.factor == "Sd"))){
+  if(length(which(riskMeasure == "Sd"))){
     port.Sd = portSdDecomp(object, weights = weights, use = use, ... )
     asset.Sd = factorAnalytics::fmSdDecomp(object, use = use, ... )
     
-    if(risk.budget == "RM"){
-      port = port.Sd$Sd.fm
-      asset = asset.Sd$Sd.fm
+    if(decompType == "RM"){
+      port = port.Sd$portSd
+      asset = asset.Sd$portSd
       result = c(port, asset)
       names(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FMCR"){
+    else if(decompType == "FMCR"){
       port = port.Sd$mSd
       asset = asset.Sd$mSd
       result = rbind(port, asset)
       rownames(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FCR"){
-      portRM = port.Sd$Sd.fm
-      assetRM = asset.Sd$Sd.fm
+    else if(decompType == "FCR"){
+      portRM = port.Sd$portSd
+      assetRM = asset.Sd$portSd
       resultRM = c(portRM, assetRM)
       
       port = port.Sd$cSd
@@ -146,42 +160,38 @@ repRisk.tsfm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "E
       result = cbind(resultRM,rbind(port, asset))
       rownames(result)[1] = 'Portfolio'
       colnames(result)[1] = 'RM'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FPCR"){
+    else if(decompType == "FPCR"){
       port = port.Sd$pcSd
       asset = asset.Sd$pcSd
       result = rbind(port, asset)
       rownames(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
   }
   
-  else if(length(which(risk.factor == "VaR"))){
-    port.VaR = portVaRDecomp(object, weights = weights, p = p, type = type, use = use, ... )
-    asset.VaR = factorAnalytics::fmVaRDecomp(object, p = p, type = type, use = use, ... )
+  else if(length(which(riskMeasure == "VaR"))){
+    port.VaR = portVaRDecomp(object, weights = weights, p = p, type = type, use = use, invert = invert, ... )
+    asset.VaR = factorAnalytics::fmVaRDecomp(object, p = p, type = type, use = use, invert = invert, ... )
     
-    if(risk.budget == "RM"){
-      port = port.VaR$VaR.fm
-      asset = asset.VaR$VaR.fm
+    if(decompType == "RM"){
+      port = port.VaR$portVaR
+      asset = asset.VaR$portVaR
       result = c(port, asset)
       names(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FMCR"){
+    else if(decompType == "FMCR"){
       port = port.VaR$mVaR
       asset = asset.VaR$mVaR
       result = rbind(port, asset)
       rownames(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FCR"){
-      portRM = port.VaR$VaR.fm
-      assetRM = asset.VaR$VaR.fm
+    else if(decompType == "FCR"){
+      portRM = port.VaR$portVaR
+      assetRM = asset.VaR$portVaR
       resultRM = c(portRM, assetRM)
       
       port = port.VaR$cVaR
@@ -189,42 +199,38 @@ repRisk.tsfm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "E
       result = cbind(resultRM,rbind(port, asset))
       rownames(result)[1] = 'Portfolio'
       colnames(result)[1] = 'RM'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FPCR"){
+    else if(decompType == "FPCR"){
       port = port.VaR$pcVaR
       asset = asset.VaR$pcVaR
       result = rbind(port, asset)
       rownames(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
   }
 
-  else if(length(which(risk.factor == "Es"))){
-    port.Es = portEsDecomp(object, weights = weights, p = p, type = type, use = use, ... )
-    asset.Es = factorAnalytics::fmEsDecomp(object, p = p, type = type, use = use, ... )
+  else if(length(which(riskMeasure == "ES"))){
+    port.Es = portEsDecomp(object, weights = weights, p = p, type = type, use = use, invert = invert, ... )
+    asset.Es = factorAnalytics::fmEsDecomp(object, p = p, type = type, use = use, invert = invert, ... )
     
-    if(risk.budget == "RM"){
-      port = port.Es$Es.fm
-      asset = asset.Es$Es.fm
+    if(decompType == "RM"){
+      port = port.Es$portES
+      asset = asset.Es$portES
       result = c(port, asset)
       names(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FMCR"){
+    else if(decompType == "FMCR"){
       port = port.Es$mES
       asset = asset.Es$mES
       result = rbind(port, asset)
       rownames(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FCR"){
-      portRM = port.Es$ES.fm
-      assetRM = asset.Es$ES.fm
+    else if(decompType == "FCR"){
+      portRM = port.Es$portES
+      assetRM = asset.Es$portES
       resultRM = c(portRM, assetRM)
       
       port = port.Es$cES
@@ -232,18 +238,27 @@ repRisk.tsfm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "E
       result = cbind(resultRM,rbind(port, asset))
       rownames(result)[1] = 'Portfolio'
       colnames(result)[1] = 'RM'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FPCR"){
+    else if(decompType == "FPCR"){
       port = port.Es$pcES
       asset = asset.Es$pcES
       result = rbind(port, asset)
       rownames(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
   }
+  
+  if(is.null(digits)){
+    if(decompType == 'FPCR'){
+      digits = 1
+    }else{
+      digits = 3
+    }
+  }
+ 
+  result = head(result, nrowPrint)
+  result = round(result, digits)
   
   return(result)
 }
@@ -252,50 +267,48 @@ repRisk.tsfm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "E
 #' @method repRisk ffm
 #' @export
 
-repRisk.ffm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "Es"),
-                        risk.budget = c("RM", 'FMCR', 'FCR', 'FPCR'),
+repRisk.ffm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "ES"),
+                        decompType = c("RM", 'FMCR', 'FCR', 'FPCR'), digits = NULL, invert = FALSE,
                         nrowPrint = 20, p=0.95, type=c("np","normal"), ...) {
   
   # set default for type
   type = type[1]
-  risk.factor = risk.factor[1]
-  risk.budget = risk.budget[1]
+  riskMeasure = riskMeasure[1]
+  decompType = decompType[1]
   
   if (!(type %in% c("np","normal"))) {
     stop("Invalid args: type must be 'np' or 'normal' ")
   }
   
-  if (!prod(risk.factor %in% c("Sd", "VaR", "Es"))) {
-    stop("Invalid args: risk.factor must be 'Sd', 'VaR' or 'Es' ")
+  if (!prod(riskMeasure %in% c("Sd", "VaR", "Es"))) {
+    stop("Invalid args: riskMeasure must be 'Sd', 'VaR' or 'ES' ")
   }
   
-  if (!prod(risk.budget %in% c("RM", 'FMCR', 'FCR', 'FPCR'))) {
-    stop("Invalid args: risk.budget must be 'RM', 'FMCR', 'FCR' or 'FPCR' ")
+  if (!prod(decompType %in% c("RM", 'FMCR', 'FCR', 'FPCR'))) {
+    stop("Invalid args: decompType must be 'RM', 'FMCR', 'FCR' or 'FPCR' ")
   }
   
-  if(length(which(risk.factor == "Sd"))){
+  if(length(which(riskMeasure == "Sd"))){
     port.Sd = portSdDecomp(object, weights = weights, ... )
     asset.Sd = factorAnalytics::fmSdDecomp(object, ... )
     
-    if(risk.budget == "RM"){
-      port = port.Sd$Sd.fm
-      asset = asset.Sd$Sd.fm
+    if(decompType == "RM"){
+      port = port.Sd$portSd
+      asset = asset.Sd$portSd
       result = c(port, asset)
       names(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FMCR"){
+    else if(decompType == "FMCR"){
       port = port.Sd$mSd
       asset = asset.Sd$mSd
       result = rbind(port, asset)
       rownames(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FCR"){
-      portRM = port.Sd$Sd.fm
-      assetRM = asset.Sd$Sd.fm
+    else if(decompType == "FCR"){
+      portRM = port.Sd$portSd
+      assetRM = asset.Sd$portSd
       resultRM = c(portRM, assetRM)
 
       port = port.Sd$cSd
@@ -303,42 +316,38 @@ repRisk.ffm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "Es
       result = cbind(resultRM,rbind(port, asset))
       rownames(result)[1] = 'Portfolio'
       colnames(result)[1] = 'RM'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FPCR"){
+    else if(decompType == "FPCR"){
       port = port.Sd$pcSd
       asset = asset.Sd$pcSd
       result = rbind(port, asset)
       rownames(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
   }
   
-  else if(length(which(risk.factor == "VaR"))){
-    port.VaR = portVaRDecomp(object, weights = weights, p = p, type = type, ... )
-    asset.VaR = factorAnalytics::fmVaRDecomp(object, p = p, type = type, ... )
+  else if(length(which(riskMeasure == "VaR"))){
+    port.VaR = portVaRDecomp(object, weights = weights, p = p, type = type, invert = invert, ... )
+    asset.VaR = factorAnalytics::fmVaRDecomp(object, p = p, type = type, invert = invert, ... )
     
-    if(risk.budget == "RM"){
-      port = port.VaR$VaR.fm
-      asset = asset.VaR$VaR.fm
+    if(decompType == "RM"){
+      port = port.VaR$portVaR
+      asset = asset.VaR$portVaR
       result = c(port, asset)
       names(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FMCR"){
+    else if(decompType == "FMCR"){
       port = port.VaR$mVaR
       asset = asset.VaR$mVaR
       result = rbind(port, asset)
       rownames(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FCR"){
-      portRM = port.VaR$VaR.fm
-      assetRM = asset.VaR$VaR.fm
+    else if(decompType == "FCR"){
+      portRM = port.VaR$portVaR
+      assetRM = asset.VaR$portVaR
       resultRM = c(portRM, assetRM)
       
       port = port.VaR$cVaR
@@ -346,42 +355,38 @@ repRisk.ffm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "Es
       result = cbind(resultRM,rbind(port, asset))
       rownames(result)[1] = 'Portfolio'
       colnames(result)[1] = 'RM'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FPCR"){
+    else if(decompType == "FPCR"){
       port = port.VaR$pcVaR
       asset = asset.VaR$pcVaR
       result = rbind(port, asset)
       rownames(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
   }
   
-  else if(length(which(risk.factor == "Es"))){
-    port.Es = portEsDecomp(object, weights = weights, p = p, type = type, ... )
-    asset.Es = factorAnalytics::fmEsDecomp(object, p = p, type = type, ... )
+  else if(length(which(riskMeasure == "ES"))){
+    port.Es = portEsDecomp(object, weights = weights, p = p, type = type, invert = invert, ... )
+    asset.Es = factorAnalytics::fmEsDecomp(object, p = p, type = type, invert = invert, ... )
     
-    if(risk.budget == "RM"){
-      port = port.Es$Es.fm
-      asset = asset.Es$Es.fm
+    if(decompType == "RM"){
+      port = port.Es$portES
+      asset = asset.Es$portES
       result = c(port, asset)
       names(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FMCR"){
+    else if(decompType == "FMCR"){
       port = port.Es$mES
       asset = asset.Es$mES
       result = rbind(port, asset)
       rownames(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FCR"){
-      portRM = port.Es$ES.fm
-      assetRM = asset.Es$ES.fm
+    else if(decompType == "FCR"){
+      portRM = port.Es$portES
+      assetRM = asset.Es$portES
       resultRM = c(portRM, assetRM)
       
       port = port.Es$cES
@@ -389,18 +394,27 @@ repRisk.ffm <- function(object, weights = NULL, risk.factor = c("Sd", "VaR", "Es
       result = cbind(resultRM,rbind(port, asset))
       rownames(result)[1] = 'Portfolio'
       colnames(result)[1] = 'RM'
-      result = head(result, nrowPrint)
     }
     
-    else if(risk.budget == "FPCR"){
+    else if(decompType == "FPCR"){
       port = port.Es$pcES
       asset = asset.Es$pcES
       result = rbind(port, asset)
       rownames(result)[1] = 'Portfolio'
-      result = head(result, nrowPrint)
     }
     
   }
+  
+  if(is.null(digits)){
+    if(decompType == 'FPCR'){
+      digits = 1
+    }else{
+      digits = 3
+    }
+  }
+  
+  result = head(result, nrowPrint)
+  result = round(result, digits)
   
   return(result)
 

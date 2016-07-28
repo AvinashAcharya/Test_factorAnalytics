@@ -1,16 +1,16 @@
 #' @title Decompose portfolio VaR into individual factor contributions
 #' 
 #' @description Compute the factor contributions to Value-at-Risk (VaR) of 
-#' portfolio return based on Euler's theorem, given the fitted factor model. 
+#' portfolio returns based on Euler's theorem, given the fitted factor model. 
 #' The partial derivative of VaR w.r.t. factor beta is computed as the expected 
-#' factor return given fund return is equal to its VaR and approximated by a
+#' factor return given portfolio return is equal to its VaR and approximated by a
 #' kernel estimator. Option to choose between non-parametric and Normal.
 #' 
 #' @importFrom stats quantile residuals cov resid qnorm
 #' @importFrom xts as.xts
 #' @importFrom zoo as.Date index
 #' 
-#' @details The factor model for an portfolio's return at time \code{t} has the 
+#' @details The factor model for a portfolio's return at time \code{t} has the 
 #' form \cr \cr \code{R(t) = beta'f(t) + e(t) = beta.star'f.star(t)} \cr \cr 
 #' where, \code{beta.star=(beta,sig.e)} and \code{f.star(t)=[f(t)',z(t)]'}. By 
 #' Euler's theorem, the VaR of the asset's return is given by: 
@@ -19,7 +19,7 @@
 #' \code{cVaR} and \code{mVaR} are the component and marginal 
 #' contributions to \code{VaR} respectively. The marginal contribution to VaR 
 #' is defined as the expectation of \code{F.star}, conditional on the loss 
-#' being equal to \code{VaR.fm}. This is approximated as described in 
+#' being equal to \code{portVaR}. This is approximated as described in 
 #' Epperlein & Smillie (2006); a triangular smoothing kernel is used here. 
 #' 
 #' @param object fit object of class \code{tsfm}, or \code{ffm}.
@@ -28,6 +28,8 @@
 #' @param p confidence level for calculation. Default is 0.95.
 #' @param type one of "np" (non-parametric) or "normal" for calculating VaR. 
 #' Default is "np".
+#' @param invert a logical variable to choose if change VaR to positive number, default
+#' is False 
 #' @param use an optional character string giving a method for computing factor
 #' covariances in the presence of missing values. This must be (an 
 #' abbreviation of) one of the strings "everything", "all.obs", 
@@ -37,9 +39,9 @@
 #' optional arguments passed to \code{\link[stats]{cov}}
 #' 
 #' @return A list containing 
-#' \item{VaR.fm}{length-1 vector of factor model VaRs of portfolio returns.}
-#' \item{n.exceed}{length-1 vector of number of observations beyond VaR.}
-#' \item{idx.exceed}{list of numeric vector of index values of exceedances.}
+#' \item{portVaR}{factor model VaR of portfolio return.}
+#' \item{n.exceed}{number of observations beyond VaR.}
+#' \item{idx.exceed}{a numeric vector of index values of exceedances.}
 #' \item{mVaR}{length-(K + 1) vector of marginal contributions to VaR.}
 #' \item{cVaR}{length-(K + 1) vector of component contributions to VaR.}
 #' \item{pcVaR}{length-(K + 1) vector of percentage component contributions to VaR.}
@@ -47,10 +49,10 @@
 #' 
 #' @author Douglas Martin, Lingjie Yi
 #' 
-#' @seealso \code{\link{fitTsfm}}, \code{\link{fitSfm}}, \code{\link{fitFfm}}
+#' @seealso \code{\link{fitTsfm}}, \code{\link{fitFfm}}
 #' for the different factor model fitting functions.
 #' 
-#' \code{\link{portVaRDecomp}} for factor model VaR decomposition.
+#' \code{\link{portSdDecomp}} for factor model Sd decomposition.
 #' \code{\link{portEsDecomp}} for factor model ES decomposition.
 #' 
 #' @examples
@@ -59,7 +61,7 @@
 #' fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
 #'                      factor.names=colnames(managers[,(7:9)]),
 #'                      rf.name="US.3m.TR", data=managers)
-#' decomp <- portVaRDecomp(fit.macro)
+#' decomp <- portVaRDecomp(fit.macro,invert = TRUE)
 #' # get the factor contributions of risk
 #' decomp$cVaR
 #' 
@@ -74,7 +76,8 @@
 #' data("stocks145scores6")
 #' dat = stocks145scores6
 #' dat$DATE = as.yearmon(dat$DATE)
-#' dat = dat[dat$DATE >=as.yearmon("2008-01-01") & dat$DATE <= as.yearmon("2012-12-31"),]
+#' dat = dat[dat$DATE >=as.yearmon("2008-01-01") & 
+#'           dat$DATE <= as.yearmon("2012-12-31"),]
 #'
 #' # Load long-only GMV weights for the return data
 #' data("wtsStocks145GmvLo")
@@ -82,8 +85,8 @@
 #'                                                       
 #' # fit a fundamental factor model
 #' fit.cross <- fitFfm(data = dat, 
-#'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
-#'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
+#'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M",
+#'               "EP"), date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
 #'               fit.method="WLS", z.score = TRUE)
 #' decomp = portVaRDecomp(fit.cross) 
 #' # get the factor contributions of risk 
@@ -107,7 +110,7 @@ portVaRDecomp <- function(object,  ...){
 
 
 portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","normal"),  
-                             use="pairwise.complete.obs", ...) {
+                               invert = FALSE, use="pairwise.complete.obs", ...) {
   
   # set default for type
   type = type[1]
@@ -224,8 +227,12 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
   mVaR <- drop(cf * mVaR)
   cVaR <- drop(mVaR * beta.star)
   pcVaR <- drop(100* cVaR / VaR.fm)
+
+  if(invert){
+    VaR.fm <- -VaR.fm
+  } 
   
-  fm.VaR.decomp <- list(VaR.fm=VaR.fm, n.exceed=n.exceed, idx.exceed=idx.exceed, 
+  fm.VaR.decomp <- list(portVaR=VaR.fm, n.exceed=n.exceed, idx.exceed=idx.exceed, 
                         mVaR=mVaR, cVaR=cVaR, pcVaR=pcVaR)
   
   return(fm.VaR.decomp)
@@ -237,7 +244,8 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
 #' @importFrom zoo index 
 #' @export
 
-portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal"), ...) {
+portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal"),
+                              invert = FALSE , ...) {
   
   # set default for type
   type = type[1]
@@ -382,7 +390,11 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   cVaR <- drop(mVaR * beta.star)
   pcVaR <- drop(100* cVaR / VaR.fm)
   
-  fm.VaR.decomp <- list(VaR.fm=VaR.fm, n.exceed=n.exceed, idx.exceed=idx.exceed, 
+  if(invert){
+    VaR.fm <- -VaR.fm
+  } 
+  
+  fm.VaR.decomp <- list(portVaR=VaR.fm, n.exceed=n.exceed, idx.exceed=idx.exceed, 
                         mVaR=mVaR, cVaR=cVaR, pcVaR=pcVaR)
   
   return(fm.VaR.decomp)
