@@ -9,6 +9,7 @@
 #' @importFrom factorAnalytics fitFfm
 #' @importFrom graphics barplot
 #' @importFrom lattice panel.abline xyplot panel.xyplot
+#' @importFrom grDevices dev.off
 #'  
 #' @param ffmObj   an object of class \code{ffm} produced by \code{fitFfm}
 #' @param isPlot   logical. If \code{FALSE} no plots are displayed.
