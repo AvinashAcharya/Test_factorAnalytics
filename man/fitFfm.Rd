@@ -147,13 +147,13 @@ methods.
 
 # fit a fundamental factor model
 exposure.vars <- c("P2B", "MKTCAP")
-fit <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
+fit <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
               date.var="DATE", exposure.vars=exposure.vars)
 names(fit)
 
 # fit a Industry Factor Model with Intercept
 exposure.vars <- c("SECTOR","P2B")
-fit1 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
+fit1 <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
                date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE)
                
 # Fit a SECTOR+COUNTRY+Style model with Intercept
@@ -163,7 +163,7 @@ fit1 <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN",
                                        rep("GERMANY", 1 )), 10), 60)
  exposure.vars= c("SECTOR", "COUNTRY","P2B", "MKTCAP")
  
- fit.MICM <- fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
+ fit.MICM <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
                    date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE)
 }
 \author{
