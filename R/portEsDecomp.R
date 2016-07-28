@@ -3,7 +3,7 @@
 #' @description Compute the factor contributions to Expected Tail Loss or 
 #' Expected Shortfall (ES) of portfolio returns  based on Euler's theorem, given 
 #' the fitted factor model. The partial derivative of ES with respect to factor 
-#' beta is computed as the expected factor return given fund return is less 
+#' beta is computed as the expected factor return given portfolio return is less 
 #' than or equal to its value-at-risk (VaR). Option to choose between 
 #' non-parametric and Normal.
 #' 
@@ -11,16 +11,16 @@
 #' @importFrom xts as.xts  
 #' @importFrom zoo as.Date index 
 #' 
-#' @details The factor model for an asset's return at time \code{t} has the 
+#' @details The factor model for a portfolio's return at time \code{t} has the 
 #' form \cr \cr \code{R(t) = beta'f(t) + e(t) = beta.star'f.star(t)} \cr \cr 
 #' where, \code{beta.star=(beta,sig.e)} and \code{f.star(t)=[f(t)',z(t)]'}. By 
-#' Euler's theorem, the ES of the asset's return is given by:
+#' Euler's theorem, the ES of the portfolio's return is given by:
 #' \cr \cr \code{ES.fm = sum(cES_k) = sum(beta.star_k*mES_k)} \cr \cr
 #' where, summation is across the \code{K} factors and the residual, 
 #' \code{cES} and \code{mES} are the component and marginal 
 #' contributions to \code{ES} respectively. The marginal contribution to ES is
 #' defined as the expected value of \code{F.star}, conditional on the loss 
-#' being less than or equal to \code{VaR.fm}. This is estimated as a sample 
+#' being less than or equal to \code{portVaR}. This is estimated as a sample 
 #' average of the observations in that data window. 
 #' 
 #' @param object fit object of class \code{tsfm}, or \code{ffm}.
@@ -30,6 +30,8 @@
 #' equal weights will be used.
 #' @param type one of "np" (non-parametric) or "normal" for calculating Es. 
 #' Default is "np".
+#' @param invert a logical variable to choose if change ES to positive number, default
+#' is False 
 #' @param use an optional character string giving a method for computing factor
 #' covariances in the presence of missing values. This must be (an 
 #' abbreviation of) one of the strings "everything", "all.obs", 
@@ -39,29 +41,28 @@
 #' optional arguments passed to \code{\link[stats]{cov}}
 #' 
 #' @return A list containing 
-#' \item{ES.fm}{length-1 vector of factor model ES of portfolio returns.}
-#' \item{n.exceed}{length-1 vector of number of observations beyond VaR for 
-#' portfolio.}
-#' \item{idx.exceed}{numeric vector of index values of exceedances.}
-#' \item{mES}{length-(K + 1) vector of marginal contributions to Es.}
-#' \item{cES}{length-(K + 1) vector of component contributions to Es.}
-#' \item{pcES}{length-(K + 1) vector of percentage component contributions to Es.}
+#' \item{portEs}{factor model ES of portfolio returns.}
+#' \item{n.exceed}{number of observations beyond VaR for portfolio.}
+#' \item{idx.exceed}{a numeric vector of index values of exceedances.}
+#' \item{mEs}{length-(K + 1) vector of marginal contributions to Es.}
+#' \item{cEs}{length-(K + 1) vector of component contributions to Es.}
+#' \item{pcEs}{length-(K + 1) vector of percentage component contributions to Es.}
 #' Where, K is the number of factors. 
 #' 
 #' @author Douglas Martin, Lingjie Yi
 #' 
-#' @seealso \code{\link{fitTsfm}}, \code{\link{fitSfm}}, \code{\link{fitFfm}}
+#' @seealso \code{\link{fitTsfm}}, \code{\link{fitFfm}}
 #' for the different factor model fitting functions.
 #' 
+#' \code{\link{portSdDecomp}} for factor model Sd decomposition.
 #' \code{\link{portVaRDecomp}} for factor model VaR decomposition.
-#' \code{\link{portEsDecomp}} for factor model ES decomposition.
 #' 
 #' @examples
 #' # Time Series Factor Model
 #' data(managers)
 #' fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
 #'                      factor.names=colnames(managers[,(7:8)]), data=managers)
-#' ES.decomp <- portEsDecomp(fit.macro)
+#' ES.decomp <- portEsDecomp(fit.macro,invert = TRUE)
 #' # get the component contributions
 #' ES.decomp$cES
 #' 
@@ -75,7 +76,8 @@
 #' data("stocks145scores6")
 #' dat = stocks145scores6
 #' dat$DATE = as.yearmon(dat$DATE)
-#' dat = dat[dat$DATE >=as.yearmon("2008-01-01") & dat$DATE <= as.yearmon("2012-12-31"),]
+#' dat = dat[dat$DATE >=as.yearmon("2008-01-01") & 
+#'           dat$DATE <= as.yearmon("2012-12-31"),]
 #'
 #' # Load long-only GMV weights for the return data
 #' data("wtsStocks145GmvLo")
@@ -83,8 +85,8 @@
 #'                                                      
 #' # fit a fundamental factor model
 #' fit.cross <- fitFfm(data = dat, 
-#'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
-#'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
+#'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M",
+#'               "EP"), date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
 #'               fit.method="WLS", z.score = TRUE)
 #' decomp = portEsDecomp(fit.cross) 
 #' #get the factor contributions of risk 
@@ -107,7 +109,7 @@ portEsDecomp <- function(object, ...){
 #' @export
 
 portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","normal"), 
-                            use="pairwise.complete.obs", ...) {
+                              invert = FALSE, use="pairwise.complete.obs", ...) {
   
   # set default for type
   type = type[1]
@@ -210,7 +212,11 @@ portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   cES <- drop(mES * beta.star)
   pcES <- drop(100* cES / ES.fm)
   
-  fm.ES.decomp <- list(ES.fm=ES.fm, n.exceed=n.exceed, idx.exceed=idx.exceed, 
+  if(invert){
+    ES.fm <- -ES.fm
+  } 
+  
+  fm.ES.decomp <- list(portES=ES.fm, n.exceed=n.exceed, idx.exceed=idx.exceed, 
                        mES=mES, cES=cES, pcES=pcES)
   
   return(fm.ES.decomp)
@@ -223,7 +229,8 @@ portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norma
 #' @importFrom zoo index 
 #' @export
 
-portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal"), ...){
+portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal"), 
+                             invert = FALSE, ...){
   
   # set default for type
   type = type[1]
@@ -340,7 +347,11 @@ portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal
   cES <- drop(mES * beta.star)
   pcES <- drop(100* cES / ES.fm)
   
-  fm.ES.decomp <- list(ES.fm=ES.fm, n.exceed=n.exceed, idx.exceed=idx.exceed, 
+  if(invert){
+    ES.fm <- -ES.fm
+  } 
+  
+  fm.ES.decomp <- list(portES=ES.fm, n.exceed=n.exceed, idx.exceed=idx.exceed, 
                        mES=mES, cES=cES, pcES=pcES)
   
   return(fm.ES.decomp)

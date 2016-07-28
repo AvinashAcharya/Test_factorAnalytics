@@ -8,13 +8,15 @@
 \usage{
 repRisk(object, ...)
 
-\method{repRisk}{tsfm}(object, weights = NULL, risk.factor = c("Sd", "VaR",
-  "Es"), risk.budget = c("RM", "FMCR", "FCR", "FPCR"), nrowPrint = 20,
-  p = 0.95, type = c("np", "normal"), use = "pairwise.complete.obs", ...)
+\method{repRisk}{tsfm}(object, weights = NULL, riskMeasure = c("Sd", "VaR",
+  "ES"), decompType = c("RM", "FMCR", "FCR", "FPCR"), digits = NULL,
+  invert = FALSE, nrowPrint = 20, p = 0.95, type = c("np", "normal"),
+  use = "pairwise.complete.obs", ...)
 
-\method{repRisk}{ffm}(object, weights = NULL, risk.factor = c("Sd", "VaR",
-  "Es"), risk.budget = c("RM", "FMCR", "FCR", "FPCR"), nrowPrint = 20,
-  p = 0.95, type = c("np", "normal"), ...)
+\method{repRisk}{ffm}(object, weights = NULL, riskMeasure = c("Sd", "VaR",
+  "ES"), decompType = c("RM", "FMCR", "FCR", "FPCR"), digits = NULL,
+  invert = FALSE, nrowPrint = 20, p = 0.95, type = c("np", "normal"),
+  ...)
 }
 \arguments{
 \item{object}{fit object of class \code{tsfm}, or \code{ffm}.}
@@ -26,11 +28,17 @@ optional arguments passed to \code{\link[stats]{cov}}}
 the vector should match with asset names. Default is NULL, in which case an 
 equal weights will be used.}
 
-\item{risk.factor}{one of 'Sd' (standard deviation), 'VaR' (Value-at-Risk) or 'Es' (Expected Tail 
+\item{riskMeasure}{one of 'Sd' (standard deviation), 'VaR' (Value-at-Risk) or 'ES' (Expected Tail 
 Loss or Expected Shortfall for calculating risk decompositon. Default is 'Sd'}
 
-\item{risk.budget}{one of 'RM' (risk measure), 'FMCR' (factor marginal contribution to risk), 
+\item{decompType}{one of 'RM' (risk measure), 'FMCR' (factor marginal contribution to risk), 
 'FCR' 'factor contribution to risk' or 'FPCR' (factor percent contribution to risk). Default is 'RM'}
+
+\item{digits}{digits of number in the resulting table. Default is NULL, in which case digtis = 3 will be
+used for decompType = ('RM', 'FMCR', 'FCR'), digits = 1 will be used for decompType = 'FPCR'}
+
+\item{invert}{a logical variable to choose if change VaR/ES to positive number, default
+is False}
 
 \item{nrowPrint}{a numerical value deciding number of assets/portfolio in result vector/table to print}
 
@@ -47,14 +55,20 @@ abbreviation of) one of the strings "everything", "all.obs",
 }
 \value{
 A table containing 
-\item{risk.budget = 'RM'}{length-(N + 1) vector of factor model risk measure of portfolio return 
+\item{decompType = 'RM'}{length-(N + 1) vector of factor model risk measure of portfolio return 
 as well assets return.}
-\item{risk.budget = 'FMCR'}{(N + 1) * (K + 1) matrix of marginal contributions to risk of portfolio 
-return as well assets return.}
-\item{risk.budget = 'FCR'}{(N + 1) * (K + 1) matrix of component contributions to risk of portfolio 
-return as well assets return.}
-\item{risk.budget = 'FPCR'}{(N + 1) * (K + 1) matrix of percentage component contributions to risk 
-of portfolio return as well assets return.}
+\item{decompType = 'FMCR'}{(N + 1) * (K + 1) matrix of marginal contributions to risk of portfolio 
+return as well assets return.}, with first row of values for the portfolio and the remaining rows for 
+the assets in the portfolio, with  (K + 1) columns containing values for the K risk factors and the
+residual respectively
+\item{decompType = 'FCR'}{(N + 1) * (K + 2) matrix of component contributions to risk of portfolio 
+return as well assets return.}, with first row of values for the portfolio and the remaining rows for 
+the assets in the portfolio, with  first column containing portfolio and asset risk values and remaining
+(K + 1) columns containing values for the K risk factors and the residual respectively
+\item{decompType = 'FPCR'}{(N + 1) * (K + 1) matrix of percentage component contributions to risk 
+of portfolio return as well assets return.}, with first row of values for the portfolio and the remaining rows for 
+the assets in the portfolio, with  (K + 1) columns containing values for the K risk factors and the
+residual respectively
 Where, K is the number of factors, N is the number of assets.
 }
 \description{
@@ -68,20 +82,23 @@ data(managers)
 fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
                      factor.names=colnames(managers[,(7:9)]),
                      rf.name="US.3m.TR", data=managers)
-report <- repRisk(fit.macro, risk.factor = "Es", risk.budget = 'FPCR', nrowPrint = 10)
+report <- repRisk(fit.macro, riskMeasure = "ES", decompType = 'FPCR', 
+                  nrowPrint = 10)
 report 
 
 # random weights 
 wts = runif(6)
 wts = wts/sum(wts)
 names(wts) <- colnames(managers)[1:6]
-repRisk(fit.macro, risk.factor = "VaR", risk.budget = 'FMCR', nrowPrint = 10)
+repRisk(fit.macro, riskMeasure = "VaR", decompType = 'FMCR', nrowPrint = 10,
+        digits = 4)
 
 # Fundamental Factor Model
 data("stocks145scores6")
 dat = stocks145scores6
 dat$DATE = as.yearmon(dat$DATE)
-dat = dat[dat$DATE >=as.yearmon("2008-01-01") & dat$DATE <= as.yearmon("2012-12-31"),]
+dat = dat[dat$DATE >=as.yearmon("2008-01-01") & 
+          dat$DATE <= as.yearmon("2012-12-31"),]
 
 # Load long-only GMV weights for the return data
 data("wtsStocks145GmvLo")
@@ -89,21 +106,24 @@ wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)
                                                      
 # fit a fundamental factor model
 fit.cross <- fitFfm(data = dat, 
-              exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
-              date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
+              exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M",
+              "EP"),date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
               fit.method="WLS", z.score = TRUE)
-repRisk(fit.cross, risk.factor = "Sd", risk.budget = 'FCR', nrowPrint = 10) 
+repRisk(fit.cross, riskMeasure = "Sd", decompType = 'FCR', nrowPrint = 10,
+        digits = 4) 
 # get the factor contributions of risk 
-repRisk(fit.cross, wtsStocks145GmvLo, risk.factor = "Sd", risk.budget = 'FPCR', nrowPrint = 10)               
+repRisk(fit.cross, wtsStocks145GmvLo, riskMeasure = "Sd", decompType = 'FPCR', 
+        nrowPrint = 10)               
  
 }
 \author{
 Douglas Martin, Lingjie Yi
 }
 \seealso{
-\code{\link{fitTsfm}}, \code{\link{fitSfm}}, \code{\link{fitFfm}}
+\code{\link{fitTsfm}}, \code{\link{fitFfm}}
 for the different factor model fitting functions.
 
+\code{\link{portSdDecomp}} for factor model Sd decomposition.
 \code{\link{portVaRDecomp}} for factor model VaR decomposition.
 \code{\link{portEsDecomp}} for factor model ES decomposition.
 }

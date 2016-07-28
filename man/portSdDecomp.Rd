@@ -29,7 +29,7 @@ abbreviation of) one of the strings "everything", "all.obs",
 }
 \value{
 A list containing 
-\item{Sd.fm}{length-1 vector of factor model Sds of portfolio return.}
+\item{portSd}{factor model Sd of portfolio return.}
 \item{mSd}{length-(K + 1) vector of marginal contributions to Sd.}
 \item{cSd}{length-(K + 1) vector of component contributions to Sd.}
 \item{pcSd}{length-(K + 1) vector of percentage component contributions to Sd.}
@@ -37,7 +37,23 @@ Where, K is the number of factors.
 }
 \description{
 Compute the factor contributions to standard deviation (Sd) of 
-portfolio return based on Euler's theorem, given the fitted factor model.
+portfolio returns based on Euler's theorem, given the fitted factor model.
+}
+\details{
+The factor model for a portfolio's return at time \code{t} has the 
+form \cr \cr \code{R(t) = beta'f(t) + e(t) = beta.star'f.star(t)} \cr \cr 
+where, \code{beta.star=(beta,sig.e)} and \code{f.star(t)=[f(t)',z(t)]'}. 
+\cr \cr By Euler's theorem, the standard deviation of the portfolio's return 
+is given as: \cr \cr 
+\code{portSd = sum(cSd_k) = sum(beta.star_k*mSd_k)} \cr \cr 
+where, summation is across the \code{K} factors and the residual, 
+\code{cSd} and \code{mSd} are the component and marginal 
+contributions to \code{SD} respectively. Computing \code{portSd} and 
+\code{mSd} is very straight forward. The formulas are given below and 
+details are in the references. The covariance term is approximated by the 
+sample covariance. \cr \cr
+\code{portSd = sqrt(beta.star''cov(F.star)beta.star)} \cr 
+\code{mSd = cov(F.star)beta.star / portSd}
 }
 \examples{
 # Time Series Factor Model
@@ -59,7 +75,8 @@ portSdDecomp(fit.macro, wts)
 data("stocks145scores6")
 dat = stocks145scores6
 dat$DATE = as.yearmon(dat$DATE)
-dat = dat[dat$DATE >=as.yearmon("2008-01-01") & dat$DATE <= as.yearmon("2012-12-31"),]
+dat = dat[dat$DATE >=as.yearmon("2008-01-01") & 
+          dat$DATE <= as.yearmon("2012-12-31"),]
 
 # Load long-only GMV weights for the return data
 data("wtsStocks145GmvLo")
@@ -67,8 +84,8 @@ wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)
                                                      
 # fit a fundamental factor model
 fit.cross <- fitFfm(data = dat, 
-              exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
-              date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
+              exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M",
+              "EP"), date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
               fit.method="WLS", z.score = TRUE)
 decomp = portSdDecomp(fit.cross) 
 # get the factor contributions of risk 
@@ -80,10 +97,10 @@ portSdDecomp(fit.cross, wtsStocks145GmvLo)
 Douglas Martin, Lingjie Yi
 }
 \seealso{
-\code{\link{fitTsfm}}, \code{\link{fitSfm}}, \code{\link{fitFfm}}
+\code{\link{fitTsfm}}, \code{\link{fitFfm}}
 for the different factor model fitting functions.
 
-\code{\link{portVaRDecomp}} for factor model VaR decomposition.
-\code{\link{portEsDecomp}} for factor model ES decomposition.
+\code{\link{portVaRDecomp}} for portfolio factor model VaR decomposition.
+\code{\link{portEsDecomp}} for portfolio factor model ES decomposition.
 }
 

@@ -1,12 +1,27 @@
 #' @title Decompose portfolio standard deviation into individual factor contributions
 #' 
 #' @description Compute the factor contributions to standard deviation (Sd) of 
-#' portfolio return based on Euler's theorem, given the fitted factor model.
+#' portfolio returns based on Euler's theorem, given the fitted factor model.
 #' 
 #' @importFrom stats quantile residuals cov resid qnorm
 #' @importFrom xts as.xts 
 #' @importFrom zoo index
 #' @importFrom zoo as.Date  
+#' 
+#' @details The factor model for a portfolio's return at time \code{t} has the 
+#' form \cr \cr \code{R(t) = beta'f(t) + e(t) = beta.star'f.star(t)} \cr \cr 
+#' where, \code{beta.star=(beta,sig.e)} and \code{f.star(t)=[f(t)',z(t)]'}. 
+#' \cr \cr By Euler's theorem, the standard deviation of the portfolio's return 
+#' is given as: \cr \cr 
+#' \code{portSd = sum(cSd_k) = sum(beta.star_k*mSd_k)} \cr \cr 
+#' where, summation is across the \code{K} factors and the residual, 
+#' \code{cSd} and \code{mSd} are the component and marginal 
+#' contributions to \code{SD} respectively. Computing \code{portSd} and 
+#' \code{mSd} is very straight forward. The formulas are given below and 
+#' details are in the references. The covariance term is approximated by the 
+#' sample covariance. \cr \cr
+#' \code{portSd = sqrt(beta.star''cov(F.star)beta.star)} \cr 
+#' \code{mSd = cov(F.star)beta.star / portSd}
 #' 
 #' @param object fit object of class \code{tsfm}, or \code{ffm}.
 #' @param weights a vector of weights of the assets in the portfolio. Default is NULL, 
@@ -19,7 +34,7 @@
 #' @param ... optional arguments passed to \code{\link[stats]{cov}}.
 #' 
 #' @return A list containing 
-#' \item{Sd.fm}{length-1 vector of factor model Sds of portfolio return.}
+#' \item{portSd}{factor model Sd of portfolio return.}
 #' \item{mSd}{length-(K + 1) vector of marginal contributions to Sd.}
 #' \item{cSd}{length-(K + 1) vector of component contributions to Sd.}
 #' \item{pcSd}{length-(K + 1) vector of percentage component contributions to Sd.}
@@ -28,11 +43,11 @@
 #' @author Douglas Martin, Lingjie Yi
 #' 
 #' 
-#' @seealso \code{\link{fitTsfm}}, \code{\link{fitSfm}}, \code{\link{fitFfm}}
+#' @seealso \code{\link{fitTsfm}}, \code{\link{fitFfm}}
 #' for the different factor model fitting functions.
 #' 
-#' \code{\link{portVaRDecomp}} for factor model VaR decomposition.
-#' \code{\link{portEsDecomp}} for factor model ES decomposition.
+#' \code{\link{portVaRDecomp}} for portfolio factor model VaR decomposition.
+#' \code{\link{portEsDecomp}} for portfolio factor model ES decomposition.
 #' 
 #' 
 #' @examples
@@ -55,7 +70,8 @@
 #' data("stocks145scores6")
 #' dat = stocks145scores6
 #' dat$DATE = as.yearmon(dat$DATE)
-#' dat = dat[dat$DATE >=as.yearmon("2008-01-01") & dat$DATE <= as.yearmon("2012-12-31"),]
+#' dat = dat[dat$DATE >=as.yearmon("2008-01-01") & 
+#'           dat$DATE <= as.yearmon("2012-12-31"),]
 #'
 #' # Load long-only GMV weights for the return data
 #' data("wtsStocks145GmvLo")
@@ -63,8 +79,8 @@
 #'                                                      
 #' # fit a fundamental factor model
 #' fit.cross <- fitFfm(data = dat, 
-#'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
-#'               date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
+#'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M",
+#'               "EP"), date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
 #'               fit.method="WLS", z.score = TRUE)
 #' decomp = portSdDecomp(fit.cross) 
 #' # get the factor contributions of risk 
@@ -133,7 +149,7 @@ portSdDecomp.tsfm <- function(object, weights = NULL, use="pairwise.complete.obs
   cSd <- drop(mSd * beta.star) 
   pcSd <- drop(100* cSd/Sd.fm) 
   
-  fm.sd.decomp <- list(Sd.fm=Sd.fm, mSd=mSd, cSd=cSd, pcSd=pcSd)
+  fm.sd.decomp <- list(portSd=Sd.fm, mSd=mSd, cSd=cSd, pcSd=pcSd)
   
   return(fm.sd.decomp)
 }
@@ -214,7 +230,7 @@ portSdDecomp.ffm <- function(object, weights = NULL, ...) {
   cSd <- drop(mSd * beta.star)
   pcSd <- drop(100* cSd/Sd.fm) 
   
-  fm.sd.decomp <- list(Sd.fm=Sd.fm, mSd=mSd, cSd=cSd, pcSd=pcSd)
+  fm.sd.decomp <- list(portSd=Sd.fm, mSd=mSd, cSd=cSd, pcSd=pcSd)
   
   return(fm.sd.decomp)
 }
