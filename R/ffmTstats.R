@@ -74,22 +74,17 @@ ffmTstats<- function(ffmObj, isPlot = TRUE, isPrint = FALSE, myColor = c("black"
       panel.abline(h=-z.alpha,lty = 3, col = "red")
       panel.xyplot(...)
     }
-    myplots<- function(x){
-      # PLOT T-STATS WITH XYPLOT
-      plt <- xyplot(x, panel = panel, type = type, scales = list(y = list(cex = 1), x = list(cex = 1)),
-                    layout = layout, main = "t-statistic values", col = myColor[1], lwd = lwd, strip.left = T, strip = F)
-      print(plt)
-      # PLOT NUMBER OF RISK INDICES WITH SIGNIFICANT T-STATS EACH MONTH
-      barplot(sigTstatsTs,col = myColor[2], main = "Number of Risk Indices with significant t-stats")
-    }
+    # PLOT NUMBER OF RISK INDICES WITH SIGNIFICANT T-STATS EACH MONTH
+    barplot(sigTstatsTs,col = myColor[2], main = "Number of Risk Indices with significant t-stats")
     
-
-    tryCatch(myplots(x = tstatsTs), warning = function(w){dev.off(); myplots(x = tstatsTs)}, error = function(e){dev.off();myplots(x = tstatsTs)})
+    # PLOT T-STATS WITH XYPLOT
+    plt <- xyplot(tstatsTs, panel = panel, type = type, scales = list(y = list(cex = 1), x = list(cex = 1)),
+                  layout = layout, main = "t-statistic values", col = myColor[1], lwd = lwd, strip.left = T, strip = F)
+    print(plt)
+      
     
   }
   out = list("tstats" =round(tstatsTs, digits), "z.alpha" =z.alpha)
   if(isPrint){print(out)}else invisible(out)
     
 }
-
-

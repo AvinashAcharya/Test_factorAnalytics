@@ -17,7 +17,7 @@ NULL
 #'               FINS, INFOTK, HEALTH, CODISC, and TELCOM stocks along with 4 factor data (MKTCAP, ENTVAL, P2B, EV2S, SIZE)
 #'               starting from  from Jan 2008 to Dec 2012.
 #'               
-#'               The 9 Sectors correspond to Energy,ConsumerStaples, Industrials, Materials, Financials,
+#'               The 9 Sectors correspond to Energy, ConsumerStaples, Industrials, Materials, Financials,
 #'               InformationTechnology, HealthCare, ConsumerDiscretionary and Telecommunications respectively.
 #' @docType data
 #' @source TBA
