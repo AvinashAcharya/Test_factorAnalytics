@@ -109,6 +109,7 @@ repRisk <- function(object, ...){
 
 #' @rdname repRisk
 #' @method repRisk tsfm
+#' @importFrom utils head
 #' @export
 
 repRisk.tsfm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "ES"), 
@@ -265,6 +266,7 @@ repRisk.tsfm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "E
 
 #' @rdname repRisk
 #' @method repRisk ffm
+#' @importFrom utils head
 #' @export
 
 repRisk.ffm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "ES"),
