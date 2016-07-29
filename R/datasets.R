@@ -1,9 +1,11 @@
 #' @name factorDataSetDjia
 #' @title DJIA stocks Compustat factors 14yrs
-#' @description Contains returns for 30 DJIA stocks spanned across 9 Sectors - Energy, 
-#'              ConsumerStaples, Industrials, Materials, Financials, InformationTechnology, HealthCare, ConsumerDiscretionary
-#'              and Telecommunicationsstocks along with 4 factor data (MKTCAP, ENTVAL, P2B, EV2S, SIZE)
+#' @description Contains returns for 30 DJIA stocks spanned across 9 Sectors -ENERGY, COSTAP, INDUS,T MATRLS,
+#'               FINS, INFOTK, HEALTH, CODISC, and TELCOM stocks along with 4 factor data (MKTCAP, ENTVAL, P2B, EV2S, SIZE)
 #'              starting from Jan 2000 to march 2013.
+#'              
+#'              The 9 Sectors correspond to Energy,ConsumerStaples, Industrials, Materials, Financials,
+#'              InformationTechnology, HealthCare, ConsumerDiscretionary and Telecommunications respectively.
 #' @docType data
 #' @source TBA
 #' @usage data("factorDataSetDjia")
@@ -11,10 +13,12 @@ NULL
 
 #' @name factorDataSetDjia5Yrs
 #' @title DJIA stocks Compustat factors 5yrs
-#' @description Contains returns for 30 DJIA spanned across 9 Sectors - Energy, 
-#'              ConsumerStaples, Industrials, Materials, Financials, InformationTechnology, HealthCare, ConsumerDiscretionary
-#'              and Telecommunicationsstocks along with the 4 factors: MKTCAP, ENTVAL, P2B, EV2S, SIZE
-#'              starting from Jan 2008 to Dec 2012.
+#' @description  Contains returns for 30 DJIA stocks spanned across 9 Sectors -ENERGY, COSTAP, INDUS,T MATRLS,
+#'               FINS, INFOTK, HEALTH, CODISC, and TELCOM stocks along with 4 factor data (MKTCAP, ENTVAL, P2B, EV2S, SIZE)
+#'               starting from  from Jan 2008 to Dec 2012.
+#'               
+#'               The 9 Sectors correspond to Energy,ConsumerStaples, Industrials, Materials, Financials,
+#'               InformationTechnology, HealthCare, ConsumerDiscretionary and Telecommunications respectively.
 #' @docType data
 #' @source TBA
 #' @usage data("factorDataSetDjia5Yrs")
@@ -22,9 +26,13 @@ NULL
 
 #' @name stocks145scores6
 #' @title CRSP stocks Capital IQ scores
-#' @description Contains returns for 145 stocks starting from Jan 1990 to Dec 2014 spanned across 10 Sectors- Energy, 
-#'              ConsumerStaples, Industrials, Materials, Financials, InformationTechnology, HealthCare, ConsumerDiscretionary,
-#'              Utilities and Telecommunications along with 6 factors: ROE, BP, MOM121, SIZE, VOL121, EP
+#' @description Contains returns for 145 stocks starting from Jan 1990 to Dec 2014 spanned across 10 Sectors-
+#'              ENERGY, COSTAP, INDUS,T MATRLS, FINS, INFOTK, HEALTH, CODISC, UTILS and TELCOM 
+#'              along with 6 factors: ROE, BP, MOM121, SIZE, VOL121, EP
+#'   
+#'              The 10 Sectors correspond to Energy, ConsumerStaples, Industrials, Materials, Financials,
+#'              InformationTechnology, HealthCare, ConsumerDiscretionary,
+#'              Utilities and Telecommunications respectively.
 #'              
 #' @docType data
 #' @source TBA
