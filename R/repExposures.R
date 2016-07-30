@@ -42,12 +42,12 @@
 #'               "EP"),date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
 #'               fit.method="WLS", z.score = TRUE)
 #'
-#' repExposures(fit, wtsStocks145GmvLo, isPlot = FALSE, digits = 4)
-#' repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 2,
+#' repExposures(fit.cross, wtsStocks145GmvLo, isPlot = FALSE, digits = 4)
+#' repExposures(fit.cross, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 2,
 #'              add.grid = TRUE, scaleType = 'same', layout = c(3,3))
-#' repExposures(fit, wtsStocks145GmvLo, isPlot = TRUE, which = 1,
+#' repExposures(fit.cross, wtsStocks145GmvLo, isPlot = TRUE, which = 1,
 #'              add.grid = FALSE, zeroLine = TRUE, color = 'Blue')
-#' repExposures(fit, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 3,
+#' repExposures(fit.cross, wtsStocks145GmvLo, isPrint = FALSE, isPlot = TRUE, which = 3,
 #'              add.grid = FALSE, zeroLine = FALSE, color = 'Blue', layout = c(1,3))
 #' @export
 
