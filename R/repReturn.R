@@ -40,7 +40,7 @@
 #'                                                                                  
 #' #fit a fundamental factor model
 #' # fit a fundamental factor model
-#' fit <- fitFfm(data = dat, 
+#' fit.cross <- fitFfm(data = dat, 
 #'               exposure.vars = c("SECTOR","ROE","BP","MOM121","SIZE","VOL121",
 #'               "EP"),date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
 #'               fit.method="WLS", z.score = TRUE)
