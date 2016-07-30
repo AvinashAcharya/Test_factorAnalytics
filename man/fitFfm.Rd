@@ -76,10 +76,11 @@ time period. Each fitted object is of class \code{lm} if
 \item{factor.returns}{xts object of K-factor returns (including intercept).}
 \item{residuals}{xts object of residuals for N-assets.}
 \item{r2}{length-T vector of R-squared values.}
-\item{factor.cov}{N x N covariance matrix of the factor returns.}
+\item{factor.cov}{K x K covariance matrix of the factor returns.}
 \item{resid.cov}{N x N covariance matrix of residuals.}
 \item{return.cov}{N x N return covariance estimated by the factor model, 
 using the factor exposures from the last time period.}
+\item{restriction.mat}{The restriction matrix used in the computation of f=Rg.}
 \item{resid.var}{length-N vector of residual variances.}
 \item{call}{the matched function call.}
 \item{data}{data frame object as input.}

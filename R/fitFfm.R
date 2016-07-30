@@ -92,10 +92,11 @@
 #' \item{factor.returns}{xts object of K-factor returns (including intercept).}
 #' \item{residuals}{xts object of residuals for N-assets.}
 #' \item{r2}{length-T vector of R-squared values.}
-#' \item{factor.cov}{N x N covariance matrix of the factor returns.}
+#' \item{factor.cov}{K x K covariance matrix of the factor returns.}
 #' \item{resid.cov}{N x N covariance matrix of residuals.}
 #' \item{return.cov}{N x N return covariance estimated by the factor model, 
 #' using the factor exposures from the last time period.}
+#' \item{restriction.mat}{The restriction matrix used in the computation of f=Rg.}
 #' \item{resid.var}{length-N vector of residual variances.}
 #' \item{call}{the matched function call.}
 #' \item{data}{data frame object as input.}
@@ -206,6 +207,7 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
   DATE=NULL 
   W=NULL
   model.MSCI=FALSE
+  restriction.mat = NULL
   # ensure dates are in required format
   data[[date.var]] <- as.Date(data[[date.var]])
   # extract unique time periods from data
@@ -460,7 +462,8 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
     return.cov <-  beta.combine[((TP-1)*N+1):(TP*N), 1:ncol(beta.combine)] %*% factor.cov %*% t( beta.combine[((TP-1)*N+1):(TP*N), 1:ncol(beta.combine)]) + resid.cov
     #Exposure matrix 
     beta = beta.combine[((TP-1)*N+1):(TP*N), 1:ncol(beta.combine)]
-    
+    #Restriction matrix
+    restriction.mat = R_matrix
   }
   else if(model.MSCI)
     {
@@ -561,13 +564,15 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
     return.cov <-  beta.combine[((TP-1)*N+1):(TP*N), 1:K] %*% factor.cov %*% t( beta.combine[((TP-1)*N+1):(TP*N), 1:K]) + resid.cov
     #Exposure matrix 
     beta = beta.combine[((TP-1)*N+1):(TP*N), 1:K]
+    #Restriction matrix
+    restriction.mat = rMic
     }
   
   
   # create list of return values.
   result <- list(factor.fit=reg.list, beta=beta, factor.returns=factor.returns, 
                  residuals=residuals, r2=r2, factor.cov=factor.cov, 
-                 resid.cov=resid.cov, return.cov=return.cov, 
+                 resid.cov=resid.cov, return.cov=return.cov, restriction.mat=restriction.mat,
                  resid.var=resid.var, call=this.call, 
                  data=data, date.var=date.var, ret.var=ret.var, 
                  asset.var=asset.var, exposure.vars=exposure.vars, 
