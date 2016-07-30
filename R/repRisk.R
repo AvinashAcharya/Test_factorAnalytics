@@ -33,17 +33,17 @@
 #' \item{decompType = 'RM'}{length-(N + 1) vector of factor model risk measure of portfolio return 
 #' as well assets return.}
 #' \item{decompType = 'FMCR'}{(N + 1) * (K + 1) matrix of marginal contributions to risk of portfolio 
-#' return as well assets return.}, with first row of values for the portfolio and the remaining rows for 
+#' return as well assets return, with first row of values for the portfolio and the remaining rows for 
 #' the assets in the portfolio, with  (K + 1) columns containing values for the K risk factors and the
-#' residual respectively
+#' residual respectively}
 #' \item{decompType = 'FCR'}{(N + 1) * (K + 2) matrix of component contributions to risk of portfolio 
-#' return as well assets return.}, with first row of values for the portfolio and the remaining rows for 
+#' return as well assets return, with first row of values for the portfolio and the remaining rows for 
 #' the assets in the portfolio, with  first column containing portfolio and asset risk values and remaining
-#' (K + 1) columns containing values for the K risk factors and the residual respectively
+#' (K + 1) columns containing values for the K risk factors and the residual respectively}
 #' \item{decompType = 'FPCR'}{(N + 1) * (K + 1) matrix of percentage component contributions to risk 
-#' of portfolio return as well assets return.}, with first row of values for the portfolio and the remaining rows for 
+#' of portfolio return as well assets return, with first row of values for the portfolio and the remaining rows for 
 #' the assets in the portfolio, with  (K + 1) columns containing values for the K risk factors and the
-#' residual respectively
+#' residual respectively}
 #' Where, K is the number of factors, N is the number of assets.
 #' 
 #' @author Douglas Martin, Lingjie Yi
@@ -71,8 +71,8 @@
 #' wts = runif(6)
 #' wts = wts/sum(wts)
 #' names(wts) <- colnames(managers)[1:6]
-#' repRisk(fit.macro, riskMeasure = "VaR", decompType = 'FMCR', nrowPrint = 10,
-#'         digits = 4)
+#' repRisk(fit.macro, weights = wts, riskMeasure = "VaR", decompType = 'FMCR', 
+#'         nrowPrint = 10, digits = 4)
 #' 
 #' # Fundamental Factor Model
 #' data("stocks145scores6")
@@ -87,7 +87,7 @@
 #'                                                      
 #' # fit a fundamental factor model
 #' fit.cross <- fitFfm(data = dat, 
-#'               exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M",
+#'               exposure.vars = c("SECTOR","ROE","BP","MOM121","SIZE","VOL121",
 #'               "EP"),date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
 #'               fit.method="WLS", z.score = TRUE)
 #' repRisk(fit.cross, riskMeasure = "Sd", decompType = 'FCR', nrowPrint = 10,
@@ -139,7 +139,7 @@ repRisk.tsfm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "E
     
     if(decompType == "RM"){
       port = port.Sd$portSd
-      asset = asset.Sd$portSd
+      asset = asset.Sd$Sd.fm
       result = c(port, asset)
       names(result)[1] = 'Portfolio'
     }
@@ -153,7 +153,7 @@ repRisk.tsfm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "E
     
     else if(decompType == "FCR"){
       portRM = port.Sd$portSd
-      assetRM = asset.Sd$portSd
+      assetRM = asset.Sd$Sd.fm
       resultRM = c(portRM, assetRM)
       
       port = port.Sd$cSd
@@ -178,7 +178,7 @@ repRisk.tsfm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "E
     
     if(decompType == "RM"){
       port = port.VaR$portVaR
-      asset = asset.VaR$portVaR
+      asset = asset.VaR$VaR.fm
       result = c(port, asset)
       names(result)[1] = 'Portfolio'
     }
@@ -192,7 +192,7 @@ repRisk.tsfm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "E
     
     else if(decompType == "FCR"){
       portRM = port.VaR$portVaR
-      assetRM = asset.VaR$portVaR
+      assetRM = asset.VaR$VaR.fm
       resultRM = c(portRM, assetRM)
       
       port = port.VaR$cVaR
@@ -217,7 +217,7 @@ repRisk.tsfm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "E
     
     if(decompType == "RM"){
       port = port.Es$portES
-      asset = asset.Es$portES
+      asset = asset.Es$ES.fm
       result = c(port, asset)
       names(result)[1] = 'Portfolio'
     }
@@ -231,7 +231,7 @@ repRisk.tsfm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "E
     
     else if(decompType == "FCR"){
       portRM = port.Es$portES
-      assetRM = asset.Es$portES
+      assetRM = asset.Es$ES.fm
       resultRM = c(portRM, assetRM)
       
       port = port.Es$cES
@@ -258,6 +258,8 @@ repRisk.tsfm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "E
     }
   }
  
+  
+  
   result = head(result, nrowPrint)
   result = round(result, digits)
   
@@ -296,7 +298,7 @@ repRisk.ffm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "ES
     
     if(decompType == "RM"){
       port = port.Sd$portSd
-      asset = asset.Sd$portSd
+      asset = asset.Sd$Sd.fm
       result = c(port, asset)
       names(result)[1] = 'Portfolio'
     }
@@ -310,7 +312,7 @@ repRisk.ffm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "ES
     
     else if(decompType == "FCR"){
       portRM = port.Sd$portSd
-      assetRM = asset.Sd$portSd
+      assetRM = asset.Sd$Sd.fm
       resultRM = c(portRM, assetRM)
 
       port = port.Sd$cSd
@@ -335,7 +337,7 @@ repRisk.ffm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "ES
     
     if(decompType == "RM"){
       port = port.VaR$portVaR
-      asset = asset.VaR$portVaR
+      asset = asset.VaR$VaR.fm
       result = c(port, asset)
       names(result)[1] = 'Portfolio'
     }
@@ -349,7 +351,7 @@ repRisk.ffm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "ES
     
     else if(decompType == "FCR"){
       portRM = port.VaR$portVaR
-      assetRM = asset.VaR$portVaR
+      assetRM = asset.VaR$VaR.fm
       resultRM = c(portRM, assetRM)
       
       port = port.VaR$cVaR
@@ -374,7 +376,7 @@ repRisk.ffm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "ES
     
     if(decompType == "RM"){
       port = port.Es$portES
-      asset = asset.Es$portES
+      asset = asset.Es$ES.fm
       result = c(port, asset)
       names(result)[1] = 'Portfolio'
     }
@@ -388,7 +390,7 @@ repRisk.ffm <- function(object, weights = NULL, riskMeasure = c("Sd", "VaR", "ES
     
     else if(decompType == "FCR"){
       portRM = port.Es$portES
-      assetRM = asset.Es$portES
+      assetRM = asset.Es$ES.fm
       resultRM = c(portRM, assetRM)
       
       port = port.Es$cES

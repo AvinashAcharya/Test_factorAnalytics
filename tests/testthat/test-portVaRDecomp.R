@@ -33,9 +33,9 @@ wtsStocks145GmvLo = round(wtsStocks145GmvLo,5)
 
 #fit a fundamental factor model
 fit.cross <- fitFfm(data = dat, 
-                    exposure.vars = c("SECTOR","ROE","BP","PM12M1M","SIZE","ANNVOL1M","EP"),
-                    date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
-                    fit.method="WLS", z.score = TRUE)
+              exposure.vars = c("SECTOR","ROE","BP","MOM121","SIZE","VOL121","EP"),
+              date.var = "DATE", ret.var = "RETURN", asset.var = "TICKER", 
+              fit.method="WLS", z.score = TRUE)
 
 #generating statistic
 expect_equal(is.list(portVaRDecomp(fit.cross, wtsStocks145GmvLo, p=0.9,type='normal')), TRUE) 
