@@ -10,6 +10,7 @@
 #' @importFrom graphics barplot
 #' @importFrom lattice panel.abline xyplot panel.xyplot
 #' @importFrom grDevices dev.off
+#' @importFrom stats vcov
 #'  
 #' @param ffmObj   an object of class \code{ffm} produced by \code{fitFfm}
 #' @param isPlot   logical. If \code{FALSE} no plots are displayed.
@@ -57,14 +58,44 @@ ffmTstats<- function(ffmObj, isPlot = TRUE, isPrint = FALSE, myColor = c("black"
   # CREATE TIME SERIES OF T-STATS
   time.periods = length(ffmObj$time.periods)
   n.exposures =  length(ffmObj$exposure.vars)
-  tstats = lapply(seq(time.periods), function(a) summary(ffmObj)$sum.list[[a]]$coefficients[,3])
-  secNames = names(tstats[[1]])
-  tstats = matrix(unlist(tstats), byrow = TRUE, nrow = time.periods)
-  colnames(tstats)=secNames
-  tstatsTs = xts(tstats,order.by=as.yearmon(names(ffmObj$r2)))
+  which.numeric <- sapply(ffmObj$data[,ffmObj$exposure.vars,drop=FALSE], is.numeric)
+  exposures.num <- length(ffmObj$exposure.vars[which.numeric])
+  exposures.char <- length(exposure.vars[!which.numeric])
+  if ( exposures.char > 0 && grepl("Intercept", ffmObj$factor.names[1]))
+  { #Covaraince matrix for g coefficients.
+    cov.g = lapply(seq(time.periods), function(a) vcov((ffmObj$factor.fit)[[a]]))
+    restriction.mat = ffmObj$restriction.mat
+    #Number of factors in g except for the style factors
+    fac.num = ncol(restriction.mat)
+    # covarinace of f coefficeints: cov(f) = R*cov.g*t(R)
+    cov.factors = lapply(seq(time.periods), function(x) restriction.mat %*% cov.g[[x]][1:fac.num, 1:fac.num]
+                         %*% t(restriction.mat))
+    
+    std.errors = lapply(seq(time.periods), function(x) sqrt(diag(cov.factors[[x]])))
+    std.errors = matrix(unlist(std.errors), byrow = TRUE, nrow = time.periods)
+    if(exposures.num > 0)
+    {
+      #std.errs of stly factors 
+      stdErr.sty = lapply(seq(time.periods), function(a) summary(ffmObj)$sum.list[[a]]$
+                            coefficients[((fac.num+1):(fac.num+exposures.num)),2])
+      stdErr.sty = matrix(unlist(stdErr.sty), byrow = TRUE, nrow = time.periods)
+      #Should be in same order as factor.retunrs
+      std.errors = cbind(std.errors,stdErr.sty)
+    }
+    colnames(std.errors) = colnames(ffmObj$factor.returns)
+    tstatsTs = ffmObj$factor.returns/std.errors
+    
+  }else
+  { tstats = lapply(seq(time.periods), function(a) summary(ffmObj)$sum.list[[a]]$coefficients[,3])
+    secNames = names(tstats[[1]])
+    tstats = matrix(unlist(tstats), byrow = TRUE, nrow = time.periods)
+    colnames(tstats)=secNames
+    tstatsTs = xts(tstats,order.by=as.yearmon(names(ffmObj$r2)))
+  }
+
   
   # COUNT NUMBER OF RISK INDICES WITH SIGNIFICANT T-STATS EACH MONTH
-  sigTstats = as.matrix(rowSums(ifelse(abs(tstats) > z.alpha,1,0)))
+  sigTstats = as.matrix(rowSums(ifelse(abs(tstatsTs) > z.alpha,1,0)))
   sigTstatsTs = xts(sigTstats,order.by=as.yearmon(names(ffmObj$r2)))
   
   if(isPlot)
