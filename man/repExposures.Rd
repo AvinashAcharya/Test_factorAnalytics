@@ -31,9 +31,12 @@ appears: \cr \cr
 For plots of a group of assets: \cr
 1 = Time series plot of style factor exposures, \cr
 2 = Boxplot of style factor exposures, \cr
-3 = Barplot of factor exposures. \cr \cr}
+3 = Barplot of means and vols of style factor exposures, and means of sector exposures (which have no vol). \cr \cr}
 
 \item{...}{other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses}
+}
+\value{
+A K x 2 matrix containing mean and standard deviation of K factors
 }
 \description{
 Calculate k factor time series based on fundamental factor model. This method takes fundamental factor model fit, "ffm" object, and portfolio weight as inputs and generates numeric summary and plot visualization.

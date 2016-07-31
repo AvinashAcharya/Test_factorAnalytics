@@ -21,8 +21,12 @@
 #' For plots of a group of assets: \cr
 #' 1 = Time series plot of style factor exposures, \cr
 #' 2 = Boxplot of style factor exposures, \cr
-#' 3 = Barplot of factor exposures. \cr \cr
+#' 3 = Barplot of means and vols of style factor exposures, and means of sector exposures (which have no vol). \cr \cr
 #' @param ... other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses 
+#' 
+#' @return  
+#' A K x 2 matrix containing mean and standard deviation of K factors
+#' 
 #' @author Douglas Martin, Lingjie Yi
 #' @examples 
 #'
@@ -134,7 +138,7 @@ repExposures <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, 
                        main=paste("Distributions of Exposures"))
              }, 
              "3L" = {    
-               ## Barplot of factor exposures
+               ## Barplot of means and vols of style factor exposures, and means of sector exposures 
                par(mfrow = layout)
                
                a = colMeans(X[,exposures.num])

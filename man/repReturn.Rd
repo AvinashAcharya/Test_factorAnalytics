@@ -32,9 +32,12 @@ For plots of a group of assets: \cr
 1 = Time Series plot of portfolio returns decomposition, \cr
 2 = Time Series plot of portfolio style factors returns, \cr
 3 = Time Series plot of portfolio sector returns, \cr
-4 = Barplot of Portfolio Returns Components. \cr \cr}
+4 = Baxplot of Portfolio Returns Components. \cr \cr}
 
 \item{...}{other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses}
+}
+\value{
+A K x 2 matrix containing mean and standard deviation of K factors
 }
 \description{
 Decompostite return of portfolio into return of different factors based on fundamental factor model. This method takes fundamental factor model fit, "ffm" object, and portfolio weight as inputs and generates numeric summary and plot visualization.

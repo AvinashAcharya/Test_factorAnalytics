@@ -23,8 +23,12 @@
 #' 1 = Time Series plot of portfolio returns decomposition, \cr
 #' 2 = Time Series plot of portfolio style factors returns, \cr
 #' 3 = Time Series plot of portfolio sector returns, \cr
-#' 4 = Barplot of Portfolio Returns Components. \cr \cr
+#' 4 = Baxplot of Portfolio Returns Components. \cr \cr
 #' @param ... other graphics parameters available in tsPlotMP(time series plot only) can be passed in through the ellipses 
+#' 
+#' @return  
+#' A K x 2 matrix containing mean and standard deviation of K factors
+#' 
 #' @author Douglas Martin, Lingjie Yi
 #' @examples 
 #'
@@ -187,7 +191,7 @@ repReturn <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, lay
                
              },
              "4L" = {    
-               ## Barplot of Portfolio Returns Components
+               ## Baxplot of Portfolio Returns Components
                par(mar=c(7,5,5,5))
                boxplot(100*coredata(dat), col=5, las = 2, 
                        xaxt = "n", 
