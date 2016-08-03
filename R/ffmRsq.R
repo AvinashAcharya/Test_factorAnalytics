@@ -6,7 +6,8 @@
 #' @importFrom factorAnalytics fitFfm
 #' @importFrom graphics barplot
 #' @importFrom stats lm
-#' @importFrom xts xts
+#' @importFrom xts xts merge.xts
+#' @importFrom lattice panel.abline xyplot panel.xyplot strip.custom
 #' 
 #' @param ffmObj   an object of class \code{ffm} produced by \code{fitFfm}
 #' @param rsq      logical; if \code{TRUE}, Factor Model R-squared values are computed for the portfolio. Default is \code{TRUE}.
@@ -49,7 +50,6 @@
 #'  ffmRsq(fit1, VIF=TRUE, rsqAdj=TRUE, isPrint=TRUE, plt.type = 2)
 #' @export
 
-# Not the final version
 ffmRsq <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, plt.type= 2, digits=2, isPrint=T, isPlot =T, lwd =2, title = TRUE, ...)
 {
   # set defaults and check input validity
