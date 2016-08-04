@@ -6,7 +6,7 @@
 \usage{
 repReturn(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE,
   layout = NULL, scaleType = "free", stripLeft = TRUE, digits = 1,
-  which = NULL, ...)
+  titleText = TRUE, which = NULL, ...)
 }
 \arguments{
 \item{ffmObj}{an object of class ffm returned by fitFfm.}
@@ -25,8 +25,10 @@ repReturn(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE,
 
 \item{digits}{digits of printout numeric summary. Used only when isPrint = 'TRUE'}
 
+\item{titleText}{logical varible to choose display plot title or not. Default is 'TRUE', and used only when isPlot = 'TRUE'.}
+
 \item{which}{a number to indicate the type of plot. If a subset of the plots 
-is required, specify a subset of the numbers 1:3 for plots. If \code{which=NULL} (default), the following menu 
+is required, specify a subset of the numbers 1:4 for plots. If \code{which=NULL} (default), the following menu 
 appears: \cr \cr
 For plots of a group of assets: \cr
 1 = Time Series plot of portfolio returns decomposition, \cr
