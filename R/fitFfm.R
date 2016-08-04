@@ -112,7 +112,7 @@
 #' Where N is the number of assets, K is the number of factors (including the 
 #' intercept or dummy variables) and T is the number of unique time periods.
 #'
-#' @author Sangeetha Srinivasan, Guy Yollin and Yi-An Chen
+#' @author Sangeetha Srinivasan, Guy Yollin, Yi-An Chen and Avinash Acharya
 #'
 #' @references
 #' Menchero, J. (2010). The Characteristics of Factor Portfolios. Journal of
@@ -315,7 +315,7 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
     # number of factors including Intercept and dummy variables
     if (length(exposures.char)) {
       factor.names <- c(exposures.num, 
-                        paste(exposures.char,levels(data[,exposures.char]),sep=""))
+                        paste(levels(data[,exposures.char]),sep=""))
     } else {
       factor.names <- c("(Intercept)", exposures.num)
     }
@@ -323,6 +323,17 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
     # exposure matrix B or beta for the last time period - N x K
     beta <- model.matrix(fm.formula, data=subset(data, DATE==time.periods[TP]))
     rownames(beta) <- asset.names
+    colnames(beta) = gsub("COUNTRY|SECTOR", "", colnames(beta))
+    #Remove SECTOR/COUNTRY from the coef names.
+    if (length(exposures.char) >0 && grepl("COUNTRY",exposures.char))
+      { 
+        reg.list= lapply(seq(1:TP), function(x){ names(reg.list[[x]]$coefficients) = sub("COUNTRY", "",names(reg.list[[x]]$coefficients) ) ;reg.list[[x]]})
+      }else
+      {
+        reg.list= lapply(seq(1:TP), function(x){ names(reg.list[[x]]$coefficients) = sub("SECTOR", "",names(reg.list[[x]]$coefficients) ) ;reg.list[[x]]})
+
+      }
+    names(reg.list) = as.character(unique(data[[date.var]]))
     
     # time series of factor returns = estimated coefficients in each period
     factor.returns <- sapply(reg.list, function(x) {
@@ -336,12 +347,14 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
     factor.returns <- checkData(t(factor.returns)) # T x K
     
     # time series of residuals
-    residuals <- checkData(t(sapply(reg.list, residuals))) # T x N
-    names(residuals) <- asset.names
+    residuals <- sapply(reg.list, residuals) #  NxT
+    row.names(residuals) <- asset.names
+    residuals<- checkData(t(residuals)) #TxN
+
     
     # r-squared values for each time period
     r2 <- sapply(reg.list, function(x) summary(x)$r.squared)
-    
+
     # factor and residual covariances
     if (rob.stats) {
       if (kappa(na.exclude(coredata(factor.returns))) < 1e+10) {
@@ -379,7 +392,7 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
   {
     formula.expochar = as.formula(paste(ret.var, "~", exposures.char, "-1"))
     factor.names <- c("Intercept", 
-                      paste(exposures.char,levels(data[,exposures.char]),sep=" "), exposures.num)
+                      paste(levels(data[,exposures.char]),sep=" "), exposures.num)
     beta <- model.matrix(fm.formula, data=data)
     rownames(beta) <- rep(asset.names, length(time.periods))
     
@@ -428,8 +441,9 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
       else
         reg.list[[i]] = lm(ret_star[,i] ~ B.mod-1)
     }
-    #colnames(B.mod) <- factor.names[-1]
-    #row.names(B.mod) = asset.names
+
+    reg.list= lapply(seq(1:TP), function(x){ names(reg.list[[x]]$coefficients) =  paste("g", seq(1:length(reg.list[[x]]$coefficients)), sep = "");reg.list[[x]]})
+    names(reg.list) = as.character(unique(data[[date.var]]))
     
     g = sapply(reg.list, function(x) coef(x))
     
@@ -442,9 +456,7 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
     colnames(residuals) = as.character(unique(data[[date.var]]))
     # Create a T x N xts object of residuals
     residuals <- checkData(t(residuals))
-    #all.equal(x,residuals)
     r2<- sapply(reg.list, function(x) summary(x)$r.squared)
-    #r2 <- as.numeric(sapply(X = summary(reg.list), FUN = "[","r.squared"))
     names(r2) = as.character(unique(data[[date.var]]))
     factor.returns <- checkData(t(factor.returns)) # T x K
     #Fac Covarinace
@@ -462,6 +474,7 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
     return.cov <-  beta.combine[((TP-1)*N+1):(TP*N), 1:ncol(beta.combine)] %*% factor.cov %*% t( beta.combine[((TP-1)*N+1):(TP*N), 1:ncol(beta.combine)]) + resid.cov
     #Exposure matrix 
     beta = beta.combine[((TP-1)*N+1):(TP*N), 1:ncol(beta.combine)]
+    colnames(beta) = gsub("COUNTRY|SECTOR", "", colnames(beta))
     #Restriction matrix
     restriction.mat = R_matrix
   }
@@ -478,13 +491,7 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
         if (grepl("SECTOR",i)) 
           formula.ind = as.formula(paste(ret.var, "~", i, "-1"))
         else formula.cty = as.formula(paste(ret.var, "~", i, "-1"))
-        #data[, exposures.char] <- as.factor(data[,exposures.char])
       }
-      contrasts.list <- lapply(seq(length(exposures.char)), function(i) 
-        function(n) contr.treatment(n, contrasts=FALSE))
-      names(contrasts.list) <- exposures.char
-    } else {
-      contrasts.list <- NULL
     }
     
     # convert the pasted expression into a formula object
@@ -497,7 +504,7 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
       beta.style<- beta[,exposures.num]
     
     fac.names.indcty = lapply(seq(exposures.char), function(x)
-      paste(exposures.char[x],levels(data[,exposures.char[x]]),sep=""))
+      paste(levels(data[,exposures.char[x]]),sep=""))
     factor.names <- c("Intercept",unlist(fac.names.indcty),
                       exposures.num)
     rownames(beta.mic) <- rep(asset.names, TP)
@@ -531,7 +538,8 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
       else
         reg.list[[i]] = lm(returns[,i] ~ B.mod-1)
     }
-
+    reg.list= lapply(seq(1:TP), function(x){ names(reg.list[[x]]$coefficients) =  paste("g", seq(1:length(reg.list[[x]]$coefficients)), sep = "");reg.list[[x]]})
+    names(reg.list) = as.character(unique(data[[date.var]]))
     g = sapply(reg.list, function(x) coef(x))
     factor.returns  = rMic %*% g[1:(K1+K2-1), ]
     if(length(exposures.num) > 0)
@@ -564,9 +572,10 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
     return.cov <-  beta.combine[((TP-1)*N+1):(TP*N), 1:K] %*% factor.cov %*% t( beta.combine[((TP-1)*N+1):(TP*N), 1:K]) + resid.cov
     #Exposure matrix 
     beta = beta.combine[((TP-1)*N+1):(TP*N), 1:K]
+    colnames(beta) = gsub("COUNTRY|SECTOR", "", colnames(beta))
     #Restriction matrix
     restriction.mat = rMic
-    }
+  }
   
   
   # create list of return values.
