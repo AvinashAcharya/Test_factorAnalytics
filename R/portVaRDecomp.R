@@ -194,7 +194,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
     VaR.fm <- quantile(R.xts, probs=1-p, na.rm=TRUE, ...)
   } 
   else if (type=="normal") {
-    VaR.fm <- mean(R.xts, na.rm=TRUE) + sd(R.xts, na.rm=TRUE)*qnorm(1-p)
+    VaR.fm <- beta.star %*% MU + sqrt(beta.star %*% factor.star.cov %*% t(beta.star))*qnorm(1-p)
   }
   # index of VaR exceedances
   idx.exceed <- which(R.xts <= VaR.fm)
@@ -260,11 +260,12 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   exposures.char <- object$exposure.vars[!which.numeric]
   
   # get beta: 1 x K
-  if(!length(exposures.char)){
-    beta <- object$beta[,-1]
-  }else{
-    beta <- object$beta
-  }
+  #if(!length(exposures.char)){
+  #  beta <- object$beta[,-1]
+  #}else{
+  #  beta <- object$beta
+  #}
+  beta <- object$beta
   
   beta[is.na(beta)] <- 0
   n.assets = nrow(beta)
@@ -359,7 +360,8 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
     VaR.fm <- quantile(R.xts, probs=1-p, na.rm=TRUE, ...)
   } 
   else if (type=="normal") {
-    VaR.fm <- mean(R.xts, na.rm=TRUE) + sd(R.xts, na.rm=TRUE)*qnorm(1-p)
+    #VaR.fm <- mean(R.xts, na.rm=TRUE) + sd(R.xts, na.rm=TRUE)*qnorm(1-p)
+    VaR.fm <- beta.star %*% MU + sqrt(beta.star %*% factor.star.cov %*% t(beta.star))*qnorm(1-p)
   }
   
   # index of VaR exceedances

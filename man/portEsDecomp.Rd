@@ -74,7 +74,8 @@ average of the observations in that data window.
 # Time Series Factor Model
 data(managers)
 fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
-                     factor.names=colnames(managers[,(7:8)]), data=managers)
+                     factor.names=colnames(managers[,(7:9)]),
+                     rf.name=colnames(managers[,10]), data=managers)
 ES.decomp <- portEsDecomp(fit.macro,invert = TRUE)
 # get the component contributions
 ES.decomp$cES
