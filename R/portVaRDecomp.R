@@ -60,7 +60,7 @@
 #' data(managers)
 #' fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
 #'                      factor.names=colnames(managers[,(7:9)]),
-#'                      rf.name="US.3m.TR", data=managers)
+#'                      rf.name=colnames(managers[,10]), data=managers)
 #' decomp <- portVaRDecomp(fit.macro,invert = TRUE)
 #' # get the factor contributions of risk
 #' decomp$cVaR
@@ -194,7 +194,7 @@ portVaRDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norm
     VaR.fm <- quantile(R.xts, probs=1-p, na.rm=TRUE, ...)
   } 
   else if (type=="normal") {
-    VaR.fm <- beta.star %*% MU + sqrt(beta.star %*% factor.star.cov %*% t(beta.star))*qnorm(1-p)
+    VaR.fm <- drop(beta.star %*% MU + sqrt(beta.star %*% factor.star.cov %*% t(beta.star))*qnorm(1-p))
   }
   # index of VaR exceedances
   idx.exceed <- which(R.xts <= VaR.fm)
@@ -360,8 +360,7 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
     VaR.fm <- quantile(R.xts, probs=1-p, na.rm=TRUE, ...)
   } 
   else if (type=="normal") {
-    #VaR.fm <- mean(R.xts, na.rm=TRUE) + sd(R.xts, na.rm=TRUE)*qnorm(1-p)
-    VaR.fm <- beta.star %*% MU + sqrt(beta.star %*% factor.star.cov %*% t(beta.star))*qnorm(1-p)
+    VaR.fm <- drop(beta.star %*% MU + sqrt(beta.star %*% factor.star.cov %*% t(beta.star))*qnorm(1-p))
   }
   
   # index of VaR exceedances

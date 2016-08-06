@@ -61,7 +61,8 @@
 #' # Time Series Factor Model
 #' data(managers)
 #' fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
-#'                      factor.names=colnames(managers[,(7:8)]), data=managers)
+#'                      factor.names=colnames(managers[,(7:9)]),
+#'                      rf.name=colnames(managers[,10]), data=managers)
 #' ES.decomp <- portEsDecomp(fit.macro,invert = TRUE)
 #' # get the component contributions
 #' ES.decomp$cES
@@ -205,7 +206,7 @@ portEsDecomp.tsfm <- function(object, weights = NULL, p=0.95, type=c("np","norma
     VaR.fm <- quantile(R.xts, probs=1-p, na.rm=TRUE, ...)
   } 
   else if (type=="normal")  {
-    VaR.fm <- beta.star %*% MU + sqrt(beta.star %*% factor.star.cov %*% t(beta.star))*qnorm(1-p)
+    VaR.fm <- drop(beta.star %*% MU + sqrt(beta.star %*% factor.star.cov %*% t(beta.star))*qnorm(1-p))
   }
   
   # index of VaR exceedances
@@ -358,7 +359,7 @@ portEsDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","normal
     VaR.fm <- quantile(R.xts, probs=1-p, na.rm=TRUE, ...)
   } 
   else if (type=="normal")  {
-    VaR.fm <- beta.star %*% MU + sqrt(beta.star %*% factor.star.cov %*% t(beta.star))*qnorm(1-p)
+    VaR.fm <- drop(beta.star %*% MU + sqrt(beta.star %*% factor.star.cov %*% t(beta.star))*qnorm(1-p))
   }
   
   # index of VaR exceedances
