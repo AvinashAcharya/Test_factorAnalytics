@@ -295,7 +295,7 @@ portVaRDecomp.ffm <- function(object, weights = NULL, p=0.95, type=c("np","norma
   zoo::index(resid.xts) <- as.Date(zoo::index(resid.xts))
   
   # re-order beta to match with factor.cov when both sector & style factors are used 
-  if(!is.null(exposures.char) & !is.null(exposures.num)){
+  if(length(exposures.char)>0 & length(exposures.num)>0){
     sectors.sec <- levels(object$data[,exposures.char])
     sectors.names <- paste(exposures.char,sectors.sec,sep="")
     
