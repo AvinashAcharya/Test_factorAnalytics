@@ -42,8 +42,6 @@ abbreviation of) one of the strings "everything", "all.obs",
 \value{
 A list containing 
 \item{portEs}{factor model ES of portfolio returns.}
-\item{n.exceed}{number of observations beyond VaR for portfolio.}
-\item{idx.exceed}{a numeric vector of index values of exceedances.}
 \item{mEs}{length-(K + 1) vector of marginal contributions to Es.}
 \item{cEs}{length-(K + 1) vector of component contributions to Es.}
 \item{pcEs}{length-(K + 1) vector of percentage component contributions to Es.}
