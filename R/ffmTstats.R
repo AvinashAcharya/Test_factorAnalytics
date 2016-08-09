@@ -45,11 +45,11 @@
 #'  stats = ffmTstats(fit, isPlot = TRUE, lwd = 2, myColor = c("blue", "blue"), z.alpha =1.96)
 #'
 #' fit1 <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
-#'                date.var="DATE", exposure.vars=c("SECTOR","MKTCAP","ENTVAL","P2B"), addIntercept=TRUE)
+#'                date.var="DATE", exposure.vars=c("SECTOR","MKTCAP","ENTVAL","P2B"), addMarket=TRUE)
 #' #Compute time series of t-stats and number of significant t-stats 
 #'  stats = ffmTstats(fit1, isPlot = TRUE, z.alpha =1.96) 
 #'                
-#' # Fit a SECTOR+COUNTRY+Style model with Intercept
+#' # Fit a SECTOR+COUNTRY+Style model with Market
 #' # Create a COUNTRY column with just 3 countries
 #' 
 #'  factorDataSetDjia5Yrs$COUNTRY = rep(rep(c(rep("US", 1 ),rep("INDIA", 1),
@@ -57,7 +57,7 @@
 #'  exposure.vars= c("SECTOR", "COUNTRY","P2B", "MKTCAP")
 #'  
 #'  fit.MICM <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
-#'                    date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE)
+#'                    date.var="DATE", exposure.vars=exposure.vars, addMarket=TRUE)
 #'  stats = ffmTstats(fit.MICM, isPlot = TRUE, z.alpha =1.96)
 
 #' @export
@@ -72,7 +72,7 @@ ffmTstats<- function(ffmObj, isPlot = TRUE, isPrint = FALSE, myColor = c("black"
   which.numeric <- sapply(ffmObj$data[,exposure.vars,drop=FALSE], is.numeric)
   exposures.num <- length(exposure.vars[which.numeric])
   exposures.char <- length(exposure.vars[!which.numeric])
-  if ( exposures.char > 0 && grepl("Intercept", ffmObj$factor.names[1]))
+  if ( exposures.char > 0 && grepl("Market", ffmObj$factor.names[1]))
   { #Covaraince matrix for g coefficients.
     cov.g = lapply(seq(time.periods), function(a) vcov((ffmObj$factor.fit)[[a]]))
     restriction.mat = ffmObj$restriction.mat

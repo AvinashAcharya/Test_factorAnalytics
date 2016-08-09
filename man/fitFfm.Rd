@@ -9,7 +9,8 @@
 \usage{
 fitFfm(data, asset.var, ret.var, date.var, exposure.vars, weight.var = NULL,
   fit.method = c("LS", "WLS", "Rob", "W-Rob"), rob.stats = FALSE,
-  full.resid.cov = FALSE, z.score = FALSE, addIntercept = FALSE, ...)
+  full.resid.cov = FALSE, z.score = FALSE, addMarket = FALSE,
+  lagExposures = FALSE, ...)
 
 \method{coef}{ffm}(object, ...)
 
@@ -50,7 +51,9 @@ estimated. Default is \code{FALSE}.}
 \item{z.score}{logical; If \code{TRUE}, style exposures will be converted to 
 z-scores; weights given by \code{weight.var}. Default is \code{FALSE}.}
 
-\item{addIntercept}{logical; If \code{TRUE}, intercept is added in the exposure matrix. Deafault is \code{FALSE},}
+\item{addMarket}{logical; If \code{TRUE}, intercept corresponding to market is added in the exposure matrix. Deafault is \code{FALSE},}
+
+\item{lagExposures}{logical; If \code{TRUE}, the style exposures in the exposure matrix are lagged by one time period. Deafault is \code{FALSE},}
 
 \item{...}{potentially further arguments passed.}
 
@@ -73,7 +76,7 @@ time period. Each fitted object is of class \code{lm} if
 \code{fit.method="LS" or "WLS"}, or, class \code{lmRob} if 
 \code{fit.method="Rob" or "W-Rob"}.}
 \item{beta}{N x K matrix of factor exposures for the last time period.}
-\item{factor.returns}{xts object of K-factor returns (including intercept).}
+\item{factor.returns}{xts object of K-factor returns (including Market).}
 \item{residuals}{xts object of residuals for N-assets.}
 \item{r2}{length-T vector of R-squared values.}
 \item{factor.cov}{K x K covariance matrix of the factor returns.}
@@ -94,7 +97,7 @@ using the factor exposures from the last time period.}
 \item{factor.names}{length-K vector of factor.names.}
 \item{time.periods}{length-T vector of dates.}
 Where N is the number of assets, K is the number of factors (including the 
-intercept or dummy variables) and T is the number of unique time periods.
+Market or dummy variables) and T is the number of unique time periods.
 }
 \description{
 Fit a fundamental (cross-sectional) factor model using ordinary
@@ -127,11 +130,11 @@ standardizing style exposures, the \code{\link[stats]{median}} and
 \code{\link[stats]{mad}} are used for location and scale respectively.
 
 At this time, the regression can contain only one dummy exposure (one of 
-industry, sector, country etc.) or intercept term, otherwise the exposure 
+industry, sector, country etc.) or Market term, otherwise the exposure 
 matrix will become singular. We plan to expand the function to allow 
 specifying more than one dummy variable, and, dummy variable(s) in 
-combination with an intercept term in the future. (Ex: Country + Sector + 
-Intercept)
+combination with an Market term in the future. (Ex: Country + Sector + 
+Market)
 
 The original function was designed by Doug Martin and initially implemented
 in S-PLUS by a number of University of Washington Ph.D. students:
@@ -152,12 +155,12 @@ fit <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER
               date.var="DATE", exposure.vars=exposure.vars)
 names(fit)
 
-# fit a Industry Factor Model with Intercept
+# fit a Industry Factor Model with Market
 exposure.vars <- c("SECTOR","P2B")
 fit1 <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
-               date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE)
+               date.var="DATE", exposure.vars=exposure.vars, addMarket=TRUE)
                
-# Fit a SECTOR+COUNTRY+Style model with Intercept
+# Fit a SECTOR+COUNTRY+Style model with Market
 # Create a COUNTRY column with just 3 countries
 
  factorDataSetDjia5Yrs$COUNTRY = rep(rep(c(rep("US", 1 ),rep("INDIA", 1),
@@ -165,7 +168,7 @@ fit1 <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKE
  exposure.vars= c("SECTOR", "COUNTRY","P2B", "MKTCAP")
  
  fit.MICM <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
-                   date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE)
+                   date.var="DATE", exposure.vars=exposure.vars, addMarket=TRUE)
 }
 \author{
 Sangeetha Srinivasan, Guy Yollin, Yi-An Chen and Avinash Acharya
