@@ -53,9 +53,9 @@
 #' @examples
 #' # Time Series Factor Model
 #' data(managers)
-#' fit.macro <-   factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
+#' fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
 #'                      factor.names=colnames(managers[,(7:9)]),
-#'                      rf.name="US.3m.TR", data=managers)
+#'                      rf.name=colnames(managers[,10]), data=managers)
 #' decomp <- portSdDecomp(fit.macro)
 #' # get the factor contributions of risk
 #' decomp$cSd
@@ -166,12 +166,13 @@ portSdDecomp.ffm <- function(object, weights = NULL, ...) {
   exposures.char <- object$exposure.vars[!which.numeric]
     
   # get beta: 1 x K
-  if(!length(exposures.char)){
-    beta <- object$beta[,-1]
-  }else{
-    beta <- object$beta
-  }
-
+  #if(!length(exposures.char)){
+  #  beta <- object$beta[,-1]
+  #}else{
+  #  beta <- object$beta
+  #}
+  beta <- object$beta
+  
   beta[is.na(beta)] <- 0
   n.assets = nrow(beta)
   asset.names <- unique(object$data[[object$asset.var]])
@@ -192,14 +193,17 @@ portSdDecomp.ffm <- function(object, weights = NULL, ...) {
   }  
   
   # get cov(F): K x K
-  if(!length(exposures.char)){
-    factor.cov = object$factor.cov[,-1][-1,]
-  }else{
-    factor.cov = object$factor.cov
-  }  
+  
+  #if(!length(exposures.char)){
+  #  factor.cov = object$factor.cov[,-1][-1,]
+  #}else{
+  #  factor.cov = object$factor.cov
+  #}  
+  
+  factor.cov = object$factor.cov
   
   # re-order beta to match with factor.cov when both sector & style factors are used 
-  if(!is.null(exposures.char) & !is.null(exposures.num)){
+  if(length(exposures.char)>0 & length(exposures.num)>0){
     sectors.sec <- levels(object$data[,exposures.char])
     sectors.names <- paste(exposures.char,sectors.sec,sep="")
     

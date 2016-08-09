@@ -81,7 +81,7 @@ return of a portfolio based on Euler's theorem, given the fitted factor model.
 data(managers)
 fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
                      factor.names=colnames(managers[,(7:9)]),
-                     rf.name="US.3m.TR", data=managers)
+                     rf.name=colnames(managers[,10]), data=managers)
 report <- repRisk(fit.macro, riskMeasure = "ES", decompType = 'FPCR', 
                   nrowPrint = 10)
 report 

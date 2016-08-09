@@ -73,7 +73,7 @@ Epperlein & Smillie (2006); a triangular smoothing kernel is used here.
 data(managers)
 fit.macro <- factorAnalytics::fitTsfm(asset.names=colnames(managers[,(1:6)]),
                      factor.names=colnames(managers[,(7:9)]),
-                     rf.name="US.3m.TR", data=managers)
+                     rf.name=colnames(managers[,10]), data=managers)
 decomp <- portVaRDecomp(fit.macro,invert = TRUE)
 # get the factor contributions of risk
 decomp$cVaR
