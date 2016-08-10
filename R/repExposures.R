@@ -6,6 +6,7 @@
 #' @importFrom graphics barplot boxplot 
 #' @importFrom stats sd
 #' @importFrom utils menu
+#' @importFrom lattice barchart
 #' 
 #' @param ffmObj an object of class ffm returned by fitFfm.
 #' @param weights a vector of weights of the assets in the portfolio. Default is NULL.
@@ -90,11 +91,24 @@ repExposures <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, 
     }
   } 
   
-  if(length(exposures.char)){
-    dat <- ffmObj$data[ffmObj$data[,ffmObj$date.var]==ffmObj$time.periods[TP], ]
-    B <- as.matrix(table(dat[,ffmObj$asset.var],dat[,exposures.char]))
-    B[B>0] <- 1
-    B <- B[asset.names,]
+  if(length(exposures.char)>0){
+    if(length(exposures.char) == 1){
+      dat <- ffmObj$data[ffmObj$data[,ffmObj$date.var]==ffmObj$time.periods[TP], ]
+      B <- as.matrix(table(dat[,ffmObj$asset.var],dat[,exposures.char]))
+      B[B>0] <- 1
+      B <- B[asset.names,]
+    }else{
+      dat <- ffmObj$data[ffmObj$data[,ffmObj$date.var]==ffmObj$time.periods[TP], ]
+      B <- as.matrix(table(dat[,ffmObj$asset.var],dat[,exposures.char[1]]))
+      B[B>0] <- 1
+      B <- B[asset.names,]
+      for(i in 2:length(exposures.char)){
+        temp <- as.matrix(table(dat[,ffmObj$asset.var],dat[,exposures.char[i]]))
+        temp[temp>0] <- 1
+        temp <- temp[asset.names,]
+        B <- cbind(B,temp)
+      }
+    }
   }else{
     B = c()
   }
@@ -105,6 +119,10 @@ repExposures <- function(ffmObj, weights = NULL, isPlot = TRUE, isPrint = TRUE, 
     dat <- ffmObj$data[ffmObj$data[,ffmObj$date.var]==ffmObj$time.periods[i], ]
     beta <- as.matrix(dat[,exposures.num])
     rownames(beta) <- asset.names
+    if(ncol(ffmObj$beta) > ncol(beta)){
+      beta = cbind(rep(1,nrow(beta)),beta)
+      colnames(beta)[1] = colnames(ffmObj$beta)[1]
+    }
     beta = cbind(beta,B)
     
     temp = as.data.frame(weights %*% beta)
