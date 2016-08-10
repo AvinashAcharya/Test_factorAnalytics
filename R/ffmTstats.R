@@ -45,7 +45,7 @@
 #'  stats = ffmTstats(fit, isPlot = TRUE, lwd = 2, myColor = c("blue", "blue"), z.alpha =1.96)
 #'
 #' fit1 <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
-#'                date.var="DATE", exposure.vars=c("SECTOR","MKTCAP","ENTVAL","P2B"), addMarket=TRUE)
+#'                date.var="DATE", exposure.vars=c("SECTOR","MKTCAP","ENTVAL","P2B"), addIntercept=TRUE)
 #' #Compute time series of t-stats and number of significant t-stats 
 #'  stats = ffmTstats(fit1, isPlot = TRUE, z.alpha =1.96) 
 #'                
@@ -57,7 +57,7 @@
 #'  exposure.vars= c("SECTOR", "COUNTRY","P2B", "MKTCAP")
 #'  
 #'  fit.MICM <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
-#'                    date.var="DATE", exposure.vars=exposure.vars, addMarket=TRUE)
+#'                    date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE)
 #'  stats = ffmTstats(fit.MICM, isPlot = TRUE, z.alpha =1.96)
 
 #' @export
@@ -70,9 +70,11 @@ ffmTstats<- function(ffmObj, isPlot = TRUE, isPrint = FALSE, myColor = c("black"
   exposure.vars = ffmObj$exposure.vars
   n.exposures =  length(exposure.vars)
   which.numeric <- sapply(ffmObj$data[,exposure.vars,drop=FALSE], is.numeric)
-  exposures.num <- length(exposure.vars[which.numeric])
-  exposures.char <- length(exposure.vars[!which.numeric])
-  if ( exposures.char > 0 && grepl("Market", ffmObj$factor.names[1]))
+  exposures.num <- exposure.vars[which.numeric]
+  exposures.char <- exposure.vars[!which.numeric]
+  n.expo.num <- length(exposures.num)
+  n.expo.char <- length(exposures.char)
+  if ( n.expo.char > 0 && grepl("Market|Alpha", ffmObj$factor.names[1]))
   { #Covaraince matrix for g coefficients.
     cov.g = lapply(seq(time.periods), function(a) vcov((ffmObj$factor.fit)[[a]]))
     restriction.mat = ffmObj$restriction.mat
@@ -84,16 +86,21 @@ ffmTstats<- function(ffmObj, isPlot = TRUE, isPrint = FALSE, myColor = c("black"
     
     std.errors = lapply(seq(time.periods), function(x) sqrt(diag(cov.factors[[x]])))
     std.errors = matrix(unlist(std.errors), byrow = TRUE, nrow = time.periods)
-    if(exposures.num > 0)
+    fac.names.indcty = lapply(seq(n.expo.char), function(x)
+                        paste(levels(ffmObj$data[,exposures.char[x]]),sep=""))
+    colnames(std.errors) <- c("Market",unlist(fac.names.indcty))
+    if(n.expo.num > 0)
     {
       #std.errs of stly factors 
       stdErr.sty = lapply(seq(time.periods), function(a) summary(ffmObj)$sum.list[[a]]$
-                            coefficients[((fac.num+1):(fac.num+exposures.num)),2])
+                            coefficients[((fac.num+1):(fac.num+n.expo.num)),2])
       stdErr.sty = matrix(unlist(stdErr.sty), byrow = TRUE, nrow = time.periods)
-      #Should be in same order as factor.retunrs
+      colnames(stdErr.sty) = exposures.num
+      #Should be in same order as that of factor.retunrs
       std.errors = cbind(std.errors,stdErr.sty)
+      std.errors = std.errors[, colnames(ffmObj$factor.returns)]
     }
-    colnames(std.errors) = colnames(ffmObj$factor.returns)
+    #colnames(std.errors) = colnames(ffmObj$factor.returns)
     tstatsTs = ffmObj$factor.returns/std.errors
     
   }else
