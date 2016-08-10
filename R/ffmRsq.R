@@ -159,7 +159,7 @@ ffmRsq <- function(ffmObj, rsq=T, rsqAdj=F, VIF=F, plt.type= 2, digits=2, isPrin
     ncols <- dim(object)[2]
     time.periods = length(ffmObj$time.periods)
     vifs = matrix(0, nrow = time.periods, ncol = ncols)
-    for(i in 1:60)
+    for(i in 1:time.periods)
       {
       vifs[i,1:ncols] = sapply(seq(ncols), function(x)
                                 1/(1 - summary(lm(object[((i-1)*n.assets+1) : (i*n.assets), x] ~ 
