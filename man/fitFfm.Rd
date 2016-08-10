@@ -9,7 +9,7 @@
 \usage{
 fitFfm(data, asset.var, ret.var, date.var, exposure.vars, weight.var = NULL,
   fit.method = c("LS", "WLS", "Rob", "W-Rob"), rob.stats = FALSE,
-  full.resid.cov = FALSE, z.score = FALSE, addMarket = FALSE,
+  full.resid.cov = FALSE, z.score = FALSE, addIntercept = FALSE,
   lagExposures = FALSE, ...)
 
 \method{coef}{ffm}(object, ...)
@@ -51,7 +51,7 @@ estimated. Default is \code{FALSE}.}
 \item{z.score}{logical; If \code{TRUE}, style exposures will be converted to 
 z-scores; weights given by \code{weight.var}. Default is \code{FALSE}.}
 
-\item{addMarket}{logical; If \code{TRUE}, intercept corresponding to market is added in the exposure matrix. Deafault is \code{FALSE},}
+\item{addIntercept}{logical; If \code{TRUE}, intercept corresponding to market is added in the exposure matrix. Deafault is \code{FALSE},}
 
 \item{lagExposures}{logical; If \code{TRUE}, the style exposures in the exposure matrix are lagged by one time period. Deafault is \code{FALSE},}
 
@@ -158,7 +158,7 @@ names(fit)
 # fit a Industry Factor Model with Market
 exposure.vars <- c("SECTOR","P2B")
 fit1 <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
-               date.var="DATE", exposure.vars=exposure.vars, addMarket=TRUE)
+               date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE)
                
 # Fit a SECTOR+COUNTRY+Style model with Market
 # Create a COUNTRY column with just 3 countries
@@ -168,7 +168,12 @@ fit1 <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKE
  exposure.vars= c("SECTOR", "COUNTRY","P2B", "MKTCAP")
  
  fit.MICM <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
-                   date.var="DATE", exposure.vars=exposure.vars, addMarket=TRUE)
+                   date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE)
+                   
+#Fit a Market+SECTOR+COUNTRY+Style model with lagged exposures
+ fit.MICM.lagged <- TestfactorAnalytics::fitFfm(data=factorDataSetDjia5Yrs, asset.var="TICKER", ret.var="RETURN", 
+                   date.var="DATE", exposure.vars=exposure.vars, addIntercept=TRUE, lagExposures =TRUE)
+                   
 }
 \author{
 Sangeetha Srinivasan, Guy Yollin, Yi-An Chen and Avinash Acharya
