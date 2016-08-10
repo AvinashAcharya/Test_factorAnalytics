@@ -547,8 +547,13 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
     
     fac.names.indcty = lapply(seq(exposures.char), function(x)
       paste(levels(data[,exposures.char[x]]),sep=""))
-    factor.names <- c("Market",unlist(fac.names.indcty),
+    if(grepl("SECTOR", exposures.char[1])){
+     factor.names <- c("Market",unlist(fac.names.indcty),
                       exposures.num)
+    }else{
+      factor.names <- c("Market", unlist((fac.names.indcty)[2]),unlist((fac.names.indcty)[1]),
+                        exposures.num)
+    }
     rownames(beta.mic) <- rep(asset.names, TP)
     asset.names <- unique(data[[asset.var]])
     N <- length(asset.names)
@@ -615,9 +620,10 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
     #Exposure matrix 
     beta = beta.combine[((TP-1)*N+1):(TP*N), 1:K]
     colnames(beta) = gsub("COUNTRY|SECTOR", "", colnames(beta))
-    factor.names <- c("Market",exposures.num, unlist(fac.names.indcty))
-    #Re-order the columns in the order mkt-style-sector/country
-    factor.returns = factor.returns[, factor.names]
+
+    #Re-order the columns in the order mkt-style-sector-country
+    factor.returns <- factor.returns[,c(1,(K1+2+K2):K, 2:(K1+1), (K1+2):(K1+K2+1))]
+    factor.names <- colnames(factor.returns)
     beta = beta[, factor.names]
     factor.cov = factor.cov[, factor.names]
     #Restriction matrix
