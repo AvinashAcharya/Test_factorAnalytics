@@ -515,7 +515,7 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
     #Re-order the columns mkt-style-sector/country
     factor.returns = factor.returns[, factor.names]
     beta = beta[, factor.names]
-    factor.cov = factor.cov[, factor.names]
+    factor.cov = factor.cov[factor.names, factor.names]
     
     #Restriction matrix
     restriction.mat = R_matrix
@@ -622,10 +622,11 @@ fitFfm <- function(data, asset.var, ret.var, date.var, exposure.vars,
     colnames(beta) = gsub("COUNTRY|SECTOR", "", colnames(beta))
 
     #Re-order the columns in the order mkt-style-sector-country
+    if(length(exposures.num)>0)
     factor.returns <- factor.returns[,c(1,(K1+2+K2):K, 2:(K1+1), (K1+2):(K1+K2+1))]
     factor.names <- colnames(factor.returns)
     beta = beta[, factor.names]
-    factor.cov = factor.cov[, factor.names]
+    #factor.cov = factor.cov[factor.names, factor.names]
     #Restriction matrix
     restriction.mat = rMic
   }
