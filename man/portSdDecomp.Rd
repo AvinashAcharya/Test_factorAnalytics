@@ -8,10 +8,10 @@
 \usage{
 portSdDecomp(object, ...)
 
-\method{portSdDecomp}{tsfm}(object, weights = NULL,
+\method{portSdDecomp}{tsfm}(object, weights = NULL, factor.cov,
   use = "pairwise.complete.obs", ...)
 
-\method{portSdDecomp}{ffm}(object, weights = NULL, ...)
+\method{portSdDecomp}{ffm}(object, weights = NULL, factor.cov, ...)
 }
 \arguments{
 \item{object}{fit object of class \code{tsfm}, or \code{ffm}.}
@@ -20,6 +20,9 @@ portSdDecomp(object, ...)
 
 \item{weights}{a vector of weights of the assets in the portfolio. Default is NULL, 
 in which case an equal weights will be used.}
+
+\item{factor.cov}{optional user specified factor covariance matrix with 
+named columns; defaults to the sample covariance matrix.}
 
 \item{use}{an optional character string giving a method for computing 
 covariances in the presence of missing values. This must be (an 

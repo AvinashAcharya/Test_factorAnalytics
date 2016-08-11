@@ -8,11 +8,11 @@
 \usage{
 portVaRDecomp(object, ...)
 
-\method{portVaRDecomp}{tsfm}(object, weights = NULL, p = 0.95,
+\method{portVaRDecomp}{tsfm}(object, weights = NULL, factor.cov, p = 0.95,
   type = c("np", "normal"), invert = FALSE, use = "pairwise.complete.obs",
   ...)
 
-\method{portVaRDecomp}{ffm}(object, weights = NULL, p = 0.95,
+\method{portVaRDecomp}{ffm}(object, weights = NULL, factor.cov, p = 0.95,
   type = c("np", "normal"), invert = FALSE, ...)
 }
 \arguments{
@@ -23,6 +23,9 @@ optional arguments passed to \code{\link[stats]{cov}}}
 
 \item{weights}{a vector of weights of the assets in the portfolio. Default is NULL, 
 in which case an equal weights will be used.}
+
+\item{factor.cov}{optional user specified factor covariance matrix with 
+named columns; defaults to the sample covariance matrix.}
 
 \item{p}{confidence level for calculation. Default is 0.95.}
 
